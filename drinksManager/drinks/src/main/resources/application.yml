@@ -1,0 +1,18 @@
+# Server settings (ServerProperties)
+server:
+  port: 8081
+  address: 127.0.0.1
+  sessionTimeout: 30
+  contextPath: /
+
+  # Tomcat specifics
+  tomcat:
+    accessLogEnabled: true
+    basedir:
+    backgroundProcessorDelay: 30 # secs
+    
+spring:
+    jpa:
+        generate-ddl: true
+    datasource:
+        initialize: true

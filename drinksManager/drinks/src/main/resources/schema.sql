@@ -1,0 +1,8 @@
+CREATE TABLE drink (
+	id BIGINT,
+	name VARCHAR(250),
+	producerName VARCHAR(250),
+	primary key (id)
+);
+ALTER TABLE drink ALTER COLUMN id SET NOT NULL;
+ALTER TABLE drink ALTER COLUMN name SET NOT NULL;
