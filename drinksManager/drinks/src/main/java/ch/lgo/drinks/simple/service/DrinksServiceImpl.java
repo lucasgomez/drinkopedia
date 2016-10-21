@@ -30,9 +30,8 @@ public class DrinksServiceImpl implements IDrinksService {
 	}
 
 	@Override
-	public DrinkDTO createDrink(String name) {
-		Drink newDrink = drinkRepository.save(new Drink(name));
+	public DrinkDTO createDrink(DrinkDTO newDrinkDTO) {
+		Drink newDrink = drinkRepository.save(new Drink(newDrinkDTO));
 		return new DrinkDTO(newDrink);
 	}
-
 }

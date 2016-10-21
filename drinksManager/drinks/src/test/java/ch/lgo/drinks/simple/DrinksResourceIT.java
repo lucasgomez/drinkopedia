@@ -1,9 +1,10 @@
 package ch.lgo.drinks.simple;
 
-
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.net.URI;
 import java.net.URL;
 
 import org.junit.Before;
@@ -17,38 +18,52 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import ch.lgo.drinks.simple.dto.DrinkDTO;
+import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DrinksResourceIT {
 
-    @LocalServerPort
-    private int port;
+	@LocalServerPort
+	private int port;
 
-    private URL base;
-    private URL resource;
+	private URL base;
+	private URL resource;
 
-    @Autowired
-    private TestRestTemplate template;
+	@Autowired
+	private TestRestTemplate template;
 
-    @Before
-    public void setUp() throws Exception {
-        this.base = new URL("http://localhost:" + port + "/");
-        this.resource = new URL(base.toString()+"drinks/");
-    }
+	@Before
+	public void setUp() throws Exception {
+		this.base = new URL("http://localhost:" + port + "/");
+		this.resource = new URL(base.toString() + "drinks/");
+	}
 
-    @Test
-    public void getAllReturnsNoContent() throws Exception {
-        ResponseEntity<String> response = template.getForEntity(resource.toString(),
-                String.class);
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
-    }
-    
-//    @Test
-//    public void putDrinkReturnsNewDrink() {
-//    	DrinkDTO drinkToCreate = new DrinkDTO();
-//    	drinkToCreate.setName("The Trooper");
-//    	drinkToCreate.setProducerName("Robinson's Brewery");
-//    	ResponseEntity<String> response = template.postForEntity(resource, drinkToCreate, null, null);
-//    	assertThat(response.getStatusCode(), equalTo(HttpStatus.ACCEPTED));
-//    }
+	@Test
+	public void getAllReturnsNoContent() throws Exception {
+		ResponseEntity<String> response = template
+				.getForEntity(resource.toString(), String.class);
+		assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
+	}
+
+	@Test
+	public void getAllReturnsContentWhenInitialized() {
+		DrinkDTO createdDrink = new DrinkDTO();
+		createdDrink.setName("Dianemayte");
+		createdDrink.setProducerName("ABO");
+		URI postedUri = template.postForLocation(resource.toString(),
+				createdDrink);
+
+		ResponseEntity<DrinkDTO> responseGetOne = template
+				.getForEntity(postedUri, DrinkDTO.class);
+		assertThat(responseGetOne.getStatusCode(), equalTo(HttpStatus.OK));
+		assertEquals("Drink name", createdDrink.getName(), responseGetOne.getBody().getName());
+		assertEquals("Producer name", createdDrink.getProducerName(), responseGetOne.getBody().getProducerName());
+		
+		ResponseEntity<DrinksDTOList> response = template
+				.getForEntity(resource.toString(), DrinksDTOList.class);
+		assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
+		assertEquals("1 drink only", 1, response.getBody().getDrinks().size());
+	}
 }

@@ -9,6 +9,6 @@ public interface IDrinksService {
 
 	public DrinkDTO loadById(long drinkId);
 
-	public DrinkDTO createDrink(String name);
+	public DrinkDTO createDrink(DrinkDTO newDrink);
 
 }

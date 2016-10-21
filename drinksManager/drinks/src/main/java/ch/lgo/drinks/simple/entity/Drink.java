@@ -4,13 +4,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import ch.lgo.drinks.simple.dto.DrinkDTO;
+
 @Entity
 public class Drink {
 
 	private Long id;
 	private String name;
 	private String producerName;
-//	private ProducerEntity producer;
 	
 	@Id
 	@GeneratedValue
@@ -35,17 +36,15 @@ public class Drink {
 		this.producerName = producerName;
 	}
 	
-//	public ProducerEntity getProducer() {
-//		return producer;
-//	}
-//	public void setProducer(ProducerEntity producer) {
-//		this.producer = producer;
-//	}
-	
 	public Drink() {
 	}
 		
 	public Drink(String name) {
 		this.name = name;
+	}
+	
+	public Drink(DrinkDTO newDrinkDTO) {
+		this.name = newDrinkDTO.getName();
+		this.producerName = newDrinkDTO.getProducerName();
 	}
 }

@@ -1,17 +1,19 @@
 package ch.lgo.drinks.simple.resources;
 
+import java.net.URI;
+
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
@@ -24,11 +26,13 @@ public class DrinksRessource {
 
 	@Autowired
 	private IDrinksService drinksService;
+	@Context 
+	UriInfo uriInfo;
 
 	@GET
 	public Response getDrinks() {
 		DrinksDTOList drinks = drinksService.getAll();
-
+		
 		if (drinks.getDrinks().isEmpty()) {
 	      return Response.status(Status.NO_CONTENT).build();
 	    } else {
@@ -36,10 +40,32 @@ public class DrinksRessource {
 	    }
 	}
 	
-	@RequestMapping(method=RequestMethod.PUT)
-	public @ResponseBody DrinkDTO createDrink(@RequestParam(value="name", required=true) String name) {
-		DrinkDTO newDrink = drinksService.createDrink(name);
-		return newDrink;
+	@GET
+	@Path("{drink_id}")
+	public Response getDrink(@PathParam("drink_id") long drinkId) {
+		DrinkDTO drink = drinksService.loadById(drinkId);
+
+		if (drink == null) {
+			return Response.status(Status.NOT_FOUND).build();
+	    } else {
+	      return Response.ok().entity(drink).build();
+	    }
+	}
+	
+	@POST
+	public Response createDrink(DrinkDTO newDrink) {
+		DrinkDTO createdDrink = drinksService.createDrink(newDrink);
+		
+		if (createdDrink == null) {
+			return Response.status(Status.BAD_REQUEST).build();
+		} else {
+			URI location = uriInfo.getAbsolutePathBuilder()
+		            .path("{id}")
+		            .resolveTemplate("id", createdDrink.getId())
+		            .build();
+			
+			return Response.created(location).build();
+		}
 	}
 	
 }
