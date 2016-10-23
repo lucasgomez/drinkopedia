@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import ch.lgo.drinks.simple.dao.DrinkRepository;
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 
@@ -33,11 +34,16 @@ public class DrinksResourceIT {
 
 	@Autowired
 	private TestRestTemplate template;
+	
+	@Autowired
+	private DrinkRepository drinkRepository;
 
 	@Before
 	public void setUp() throws Exception {
-		this.base = new URL("http://localhost:" + port + "/");
-		this.resource = new URL(base.toString() + "drinks/");
+		base = new URL("http://localhost:" + port + "/");
+		resource = new URL(base.toString() + "drinks/");
+		
+		drinkRepository.deleteAll();
 	}
 
 	@Test
