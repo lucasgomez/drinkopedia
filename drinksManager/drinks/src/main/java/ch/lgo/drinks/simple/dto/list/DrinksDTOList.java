@@ -25,4 +25,7 @@ public class DrinksDTOList {
 		this.drinks = list;
 	}
 
+	public DrinksDTOList() {
+		this.drinks = new ArrayList<>();
+	}
 }

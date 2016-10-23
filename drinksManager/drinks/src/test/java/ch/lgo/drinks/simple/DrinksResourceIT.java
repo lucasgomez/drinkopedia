@@ -52,18 +52,18 @@ public class DrinksResourceIT {
 		DrinkDTO createdDrink = new DrinkDTO();
 		createdDrink.setName("Dianemayte");
 		createdDrink.setProducerName("ABO");
-		URI postedUri = template.postForLocation(resource.toString(),
+		URI postedDrinkUri = template.postForLocation(resource.toString(),
 				createdDrink);
 
-		ResponseEntity<DrinkDTO> responseGetOne = template
-				.getForEntity(postedUri, DrinkDTO.class);
-		assertThat(responseGetOne.getStatusCode(), equalTo(HttpStatus.OK));
-		assertEquals("Drink name", createdDrink.getName(), responseGetOne.getBody().getName());
-		assertEquals("Producer name", createdDrink.getProducerName(), responseGetOne.getBody().getProducerName());
+		ResponseEntity<DrinkDTO> responseGetOneUri = template
+				.getForEntity(postedDrinkUri, DrinkDTO.class);
+		assertThat(responseGetOneUri.getStatusCode(), equalTo(HttpStatus.OK));
+		assertEquals("Drink name", createdDrink.getName(), responseGetOneUri.getBody().getName());
+		assertEquals("Producer name", createdDrink.getProducerName(), responseGetOneUri.getBody().getProducerName());
 		
-		ResponseEntity<DrinksDTOList> response = template
+		ResponseEntity<DrinksDTOList> responseGetAll = template
 				.getForEntity(resource.toString(), DrinksDTOList.class);
-		assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-		assertEquals("1 drink only", 1, response.getBody().getDrinks().size());
+		assertThat(responseGetAll.getStatusCode(), equalTo(HttpStatus.OK));
+		assertEquals("1 drink only", 1, responseGetAll.getBody().getDrinks().size());
 	}
 }
