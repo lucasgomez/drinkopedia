@@ -3,7 +3,8 @@ server:
   port: 8081
   address: 127.0.0.1
   sessionTimeout: 30
-  contextPath: /
+  servletPath: /
+  contextPath: /drinkopedia
 
   # Tomcat specifics
   tomcat:
@@ -16,3 +17,5 @@ spring:
         generate-ddl: true
     datasource:
         initialize: true
+    jersey:
+        application-path: /api
