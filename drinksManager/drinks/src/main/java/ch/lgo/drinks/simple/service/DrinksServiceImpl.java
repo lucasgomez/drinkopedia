@@ -34,4 +34,17 @@ public class DrinksServiceImpl implements IDrinksService {
 		Drink newDrink = drinkRepository.save(new Drink(newDrinkDTO));
 		return new DrinkDTO(newDrink);
 	}
+
+	@Override
+	public DrinkDTO updateDrink(long drinkId, DrinkDTO submittedDrinkUpdate) {
+		Drink drinkToUpdate = drinkRepository.findOne(drinkId);
+		if (drinkToUpdate != null) {
+			drinkToUpdate.setName(submittedDrinkUpdate.getName());
+			drinkToUpdate.setProducerName(submittedDrinkUpdate.getProducerName());
+			Drink updatedDrink = drinkRepository.save(drinkToUpdate);
+			return new DrinkDTO(updatedDrink);
+		}
+		//TODO replace null by exception throwing
+		return null;
+	}
 }

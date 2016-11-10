@@ -4,6 +4,7 @@ import java.net.URI;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -74,6 +75,19 @@ public class DrinksRessource {
 
 			return Response.created(location).build();
 		}
+	}
+	
+	@PUT
+	@Path("{drink_id}")
+	public Response updateDrink(@PathParam("drink_id") long drinkId, DrinkDTO drinkToUpdate) {
+		if (drinkToUpdate != null) {
+			DrinkDTO updatedDrink = drinksService.updateDrink(drinkId, drinkToUpdate);
+			if (updatedDrink != null) {
+				return Response.ok().entity(updatedDrink).build();
+			}
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		return Response.status(Status.BAD_REQUEST).build();
 	}
 
 }

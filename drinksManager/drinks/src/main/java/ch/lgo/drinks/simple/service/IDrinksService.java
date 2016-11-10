@@ -11,4 +11,6 @@ public interface IDrinksService {
 
 	public DrinkDTO createDrink(DrinkDTO newDrink);
 
+	public DrinkDTO updateDrink(long drinkId, DrinkDTO updatedDrink);
+
 }
