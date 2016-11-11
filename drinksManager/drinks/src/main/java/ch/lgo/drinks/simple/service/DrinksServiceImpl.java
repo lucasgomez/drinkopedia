@@ -47,4 +47,13 @@ public class DrinksServiceImpl implements IDrinksService {
 		//TODO replace null by exception throwing
 		return null;
 	}
+
+	@Override
+	public void deleteDrink(long drinkId) {
+		if (drinkRepository.exists(drinkId)) {
+			drinkRepository.delete(drinkId);
+		} else {
+			//TODO replace by exception throwing
+		}
+	}
 }

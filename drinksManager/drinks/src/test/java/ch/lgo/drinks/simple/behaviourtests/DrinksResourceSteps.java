@@ -2,12 +2,14 @@ package ch.lgo.drinks.simple.behaviourtests;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 
 import javax.ws.rs.core.HttpHeaders;
 
@@ -15,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,6 +59,8 @@ public class DrinksResourceSteps {
     @Given("^a drink repository with sample drinks$")
     public void repositoryHasContent() throws MalformedURLException {
     	drinkRepository.save(createDrink("Dianemayte", "ABO"));
+    	drinkRepository.save(createDrink("Marz'Ale", "FdB"));
+    	drinkRepository.save(createDrink("Satanic Mills", "Well's"));
     }
     
     @When("^I load all drinks$")
@@ -73,7 +76,6 @@ public class DrinksResourceSteps {
 		
 		drinkToUpdate.setName(drinkToUpdate.getName() + " reloaded");
 		drinkId = drinkToUpdate.getId();
-		HttpEntity<DrinkDTO> requestUpdate = new HttpEntity<>(drinkToUpdate);
 		template.execute(resource.toString()+drinkToUpdate.getId(), HttpMethod.PUT, requestCallback(drinkToUpdate), clientHttpResponse -> null);
     }
     
@@ -93,6 +95,22 @@ public class DrinksResourceSteps {
     @When("^the aforesaid drink is loaded$")
     public void getDrinkByItsId() {
     	responseToSingle = template.getForEntity(resource.toString()+drinkId, DrinkDTO.class);
+    }
+    
+    @When("^I delete the first drink$")
+    public void deleteADrink() {
+    	DrinkDTO drinkToDelete = responseToList.getBody().getDrinks().get(0);
+    	
+    	template.delete(resource.toString()+drinkToDelete.getId());
+    }
+    
+    @Then("^the collection of drinks lacks the deleted one$")
+    public void shouldLackDeletedDrink() {
+    	List<DrinkDTO> drinks = responseToList.getBody().getDrinks();
+    	assertThat(drinks.size(), equalTo(2));
+    	for (DrinkDTO drink : drinks) {
+			assertThat(drink.getName(), not(equalTo("Dianemayte")));
+		}
     }
     
     @Then("^it should return code 204$")
@@ -133,13 +151,13 @@ public class DrinksResourceSteps {
 	
 	private DrinkDTO createDrinkDTO(String name, String producerName) {
 		DrinkDTO createdDrink = new DrinkDTO();
-		createdDrink.setName("Dianemayte");
-		createdDrink.setProducerName("ABO");
+		createdDrink.setName(name);
+		createdDrink.setProducerName(producerName);
 		return createdDrink;
 	}
 	
 	private Drink createDrink(String name, String producerName) {
-		return new Drink(createDrinkDTO("Dianemayte", "ABO"));
+		return new Drink(createDrinkDTO(name, producerName));
 	}
 	
 	RequestCallback requestCallback(final DrinkDTO updatedInstance) {

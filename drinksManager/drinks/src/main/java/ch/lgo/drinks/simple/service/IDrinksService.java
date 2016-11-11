@@ -13,4 +13,6 @@ public interface IDrinksService {
 
 	public DrinkDTO updateDrink(long drinkId, DrinkDTO updatedDrink);
 
+	public void deleteDrink(long drinkId);
+
 }

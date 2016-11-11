@@ -29,8 +29,10 @@ Given a drink repository with sample drinks
 
 Scenario: A drink deleted among existing drinks
 Given a drink repository with sample drinks
- When a drink is deleted
- Then reloading drinks lacks the deleted one
+ When I load all drinks
+  And I delete the first drink
+  And I load all drinks
+ Then the collection of drinks lacks the deleted one
 
 Scenario: A drink deleted among existing drinks
 Given a drink repository with sample drinks

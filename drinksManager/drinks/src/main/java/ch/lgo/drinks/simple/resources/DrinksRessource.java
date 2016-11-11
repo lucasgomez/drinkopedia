@@ -2,6 +2,7 @@ package ch.lgo.drinks.simple.resources;
 
 import java.net.URI;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -88,6 +89,13 @@ public class DrinksRessource {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		return Response.status(Status.BAD_REQUEST).build();
+	}
+	
+	@DELETE
+	@Path("{drink_id}")
+	public Response deleteDrink(@PathParam("drink_id") long drinkId) {
+		drinksService.deleteDrink(drinkId);
+		return Response.ok().build();
 	}
 
 }
