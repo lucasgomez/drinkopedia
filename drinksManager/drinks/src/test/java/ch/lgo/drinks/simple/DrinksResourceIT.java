@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import ch.lgo.drinks.simple.dao.DrinkRepository;
+import ch.lgo.drinks.simple.dao.IDrinkRepository;
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 
@@ -36,7 +36,7 @@ public class DrinksResourceIT {
 	private TestRestTemplate template;
 	
 	@Autowired
-	private DrinkRepository drinkRepository;
+	private IDrinkRepository drinkRepository;
 
 	@Before
 	public void setUp() throws Exception {

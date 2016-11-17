@@ -34,20 +34,15 @@ Given a drink repository with sample drinks
   And I load all drinks
  Then the collection of drinks lacks the deleted one
 
-Scenario: A drink deleted among existing drinks
-Given a drink repository with sample drinks
- When a drink is deleted
- Then reloading the one drink returns 404
-
 Scenario: A drink search by existing drink type
 Given a drink repository with sample drinks
- When I search for drinks of type 'Beer'
- Then I get drinks whose property type is 'Beer'
+ When I search for drinks of type 'beer'
+ Then I get all drinks whose property type is 'beer'
 
-Scenario: A drink search by non-existing drink type 'Hydrazine'
+Scenario: A drink search by non-existing drink type 'hydrazine'
 Given a drink repository with sample drinks
- When I search for drinks of type 'Hydrazine'
- Then I get malformed query response code
+ When I search for drinks of type 'hydrazine'
+ Then I get 404 response code
 
 Scenario: A drink search by existing name
 Given a drink repository with sample drinks

@@ -9,6 +9,7 @@ import static org.junit.Assert.assertThat;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -26,10 +27,12 @@ import org.springframework.web.client.RequestCallback;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.lgo.drinks.simple.dao.DrinkRepository;
+import ch.lgo.drinks.simple.dao.IDrinkRepository;
+import ch.lgo.drinks.simple.dao.IDrinkTypeRepository;
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 import ch.lgo.drinks.simple.entity.Drink;
+import ch.lgo.drinks.simple.entity.DrinkType;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -46,7 +49,9 @@ public class DrinksResourceSteps {
 	@Autowired
 	private TestRestTemplate template;
 	@Autowired
-	private DrinkRepository drinkRepository;
+	private IDrinkRepository drinkRepository;
+	@Autowired
+	private IDrinkTypeRepository drinkTypeRepository;
     
 	private ResponseEntity<DrinksDTOList> responseToList;
 	private ResponseEntity<DrinkDTO> responseToSingle;
@@ -58,9 +63,13 @@ public class DrinksResourceSteps {
     
     @Given("^a drink repository with sample drinks$")
     public void repositoryHasContent() throws MalformedURLException {
-    	drinkRepository.save(createDrink("Dianemayte", "ABO"));
-    	drinkRepository.save(createDrink("Marz'Ale", "FdB"));
-    	drinkRepository.save(createDrink("Satanic Mills", "Well's"));
+    	DrinkType beerType = createAndSaveDrinkType("beer");
+    	DrinkType sodaType = createAndSaveDrinkType("soda");
+    	
+    	createAndSaveDrink("Dianemayte", "ABO", beerType);
+    	createAndSaveDrink("Marz'Ale", "FdB", beerType);
+    	createAndSaveDrink("Blurg's Cola", "Aldebaran Beverages", sodaType);
+    	createAndSaveDrink("Satanic Mills", "Well's", beerType);
     }
     
     @When("^I load all drinks$")
@@ -81,7 +90,14 @@ public class DrinksResourceSteps {
     
     @When("^I post a new drink$")
     public void postNewDrink() {
-    	DrinkDTO drinkToCreate = createDrinkDTO("Dianemayte", "ABO");
+//    	DrinkTypeDTO drinkTypeToCreate = new DrinkTypeDTO();
+//    	drinkTypeToCreate.setName("beer");
+    	
+    	DrinkDTO drinkToCreate = new DrinkDTO();
+    	drinkToCreate.setName("Dianemayte");
+    	drinkToCreate.setProducerName("ABO");
+//    	drinkToCreate.setType(drinkTypeToCreate);
+    	
     	responseToSingle = template.postForEntity(resource.toString(), drinkToCreate, DrinkDTO.class);
     }
     
@@ -103,11 +119,30 @@ public class DrinksResourceSteps {
     	
     	template.delete(resource.toString()+drinkToDelete.getId());
     }
+
+    @When("^I search for drinks of type 'beer'$")
+    public void searchDrinksByTypeBeer() {
+		responseToList = template.getForEntity(resource.toString()+"types/beer", DrinksDTOList.class);
+    }
+    
+    @When("^I search for drinks of type 'hydrazine'$")
+    public void searchDrinksByTypeHydra() {
+    	responseToList = template.getForEntity(resource.toString()+"types/hydrazine", DrinksDTOList.class);
+    }
+    
+    @Then("^I get all drinks whose property type is 'beer'$")
+    public void shouldBeDrinksOfTypeBeer() {
+    	Collection<DrinkDTO> drinks = responseToList.getBody().getDrinks();
+    	assertThat(drinks.size(), equalTo(3));
+    	for (DrinkDTO drink : drinks) {
+			assertThat(drink.getType().getName(), equalTo("beer"));
+		}
+    }
     
     @Then("^the collection of drinks lacks the deleted one$")
     public void shouldLackDeletedDrink() {
     	List<DrinkDTO> drinks = responseToList.getBody().getDrinks();
-    	assertThat(drinks.size(), equalTo(2));
+    	assertThat(drinks.size(), equalTo(3));
     	for (DrinkDTO drink : drinks) {
 			assertThat(drink.getName(), not(equalTo("Dianemayte")));
 		}
@@ -126,6 +161,11 @@ public class DrinksResourceSteps {
     @Then("^it should return code 201$")
     public void shouldReturn201() {
     	assertThat(responseToSingle.getStatusCode(), equalTo(HttpStatus.CREATED));
+    }
+    
+    @Then("^I get 404 response code$")
+    public void shouldReturn404() {
+    	assertThat(responseToList.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
     }
     
     @Then("^it should return the created drink$")
@@ -149,15 +189,12 @@ public class DrinksResourceSteps {
 		drinkRepository.deleteAll();
 	}
 	
-	private DrinkDTO createDrinkDTO(String name, String producerName) {
-		DrinkDTO createdDrink = new DrinkDTO();
-		createdDrink.setName(name);
-		createdDrink.setProducerName(producerName);
-		return createdDrink;
+	private DrinkType createAndSaveDrinkType(String name) {
+		return drinkTypeRepository.save(new DrinkType(name));
 	}
 	
-	private Drink createDrink(String name, String producerName) {
-		return new Drink(createDrinkDTO(name, producerName));
+	private Drink createAndSaveDrink(String name, String producerName, DrinkType type) {
+		return drinkRepository.save(new Drink(name, producerName, type));
 	}
 	
 	RequestCallback requestCallback(final DrinkDTO updatedInstance) {

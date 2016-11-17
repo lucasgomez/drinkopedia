@@ -7,6 +7,7 @@ public class DrinkDTO {
 	private Long id;
 	private String name;
 	private String producerName;
+	private DrinkTypeDTO type;
 
 	public Long getId() {
 		return id;
@@ -29,6 +30,13 @@ public class DrinkDTO {
 		this.producerName = producerName;
 	}
 	
+	public DrinkTypeDTO getType() {
+		return type;
+	}
+	public void setType(DrinkTypeDTO type) {
+		this.type = type;
+	}
+	
 	public DrinkDTO() {
 	}
 	
@@ -36,6 +44,9 @@ public class DrinkDTO {
 		this.id = drinkEntity.getId();
 		this.name = drinkEntity.getName();
 		this.producerName = drinkEntity.getProducerName();
+		if (drinkEntity.getType() != null) {
+			this.type = new DrinkTypeDTO(drinkEntity.getType());
+		}
 	}
 
 }

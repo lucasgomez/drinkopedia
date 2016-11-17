@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
+import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 import ch.lgo.drinks.simple.service.IDrinksService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -61,6 +62,23 @@ public class DrinksRessource {
 			return Response.status(Status.NOT_FOUND).build();
 		} else {
 			return Response.ok().entity(drink).build();
+		}
+	}
+
+	@GET
+	@Path("types/{drink_type}")
+	public Response findDrinks(@PathParam("drink_type") String drinkTypeName) {
+		DrinksDTOList drinksFound;
+		try {
+			drinksFound = drinksService.findDrinks(drinkTypeName);
+		} catch (UnknownDrinkType e) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+		if (drinksFound != null && !drinksFound.getDrinks().isEmpty()) {
+			return Response.ok().entity(drinksFound).build();
+		} else {
+			return Response.noContent().build();
 		}
 	}
 
