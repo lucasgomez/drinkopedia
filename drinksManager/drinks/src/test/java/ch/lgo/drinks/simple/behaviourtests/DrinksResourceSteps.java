@@ -201,6 +201,7 @@ public class DrinksResourceSteps {
 		resource = new URL(base.toString() + "drinkopedia/api/drinks/");
 		
 		drinkRepository.deleteAll();
+		drinkTypeRepository.deleteAll();
 	}
 	
 	private DrinkType createAndSaveDrinkType(String name) {
