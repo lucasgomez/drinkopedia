@@ -1,7 +1,7 @@
 package ch.lgo.drinks.simple.behaviourtests;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -69,7 +69,7 @@ public class DrinksResourceSteps {
     	createAndSaveDrink("Dianemayte", "ABO", beerType);
     	createAndSaveDrink("Marz'Ale", "FdB", beerType);
     	createAndSaveDrink("Blurg's Cola", "Aldebaran Beverages", sodaType);
-    	createAndSaveDrink("Satanic Mills", "Well's", beerType);
+    	createAndSaveDrink("Big F ale", "Failure Brew", beerType);
     }
     
     @When("^I load all drinks$")
@@ -130,6 +130,20 @@ public class DrinksResourceSteps {
     	responseToList = template.getForEntity(resource.toString()+"types/hydrazine", DrinksDTOList.class);
     }
     
+    @When("^I search for drinks with name like 'ale'$")
+    public void searchForDrinksByName() {
+    	responseToList = template.getForEntity(resource.toString()+"search/ale", DrinksDTOList.class);
+    }
+    
+    @Then("^I get a list of drinks whose name contains the chars 'ale'$")
+    public void shouldGetListOfDrinksWhoseNamesContainsAle() {
+    	Collection<DrinkDTO> drinks = responseToList.getBody().getDrinks();
+    	assertThat(drinks.size(), equalTo(2));
+    	for (DrinkDTO drink : drinks) {
+			assertThat(drink.getName().toLowerCase(), containsString("ale"));
+		}
+    }
+    
     @Then("^I get all drinks whose property type is 'beer'$")
     public void shouldBeDrinksOfTypeBeer() {
     	Collection<DrinkDTO> drinks = responseToList.getBody().getDrinks();
@@ -171,7 +185,7 @@ public class DrinksResourceSteps {
     @Then("^it should return the created drink$")
     public void shouldReturnCreatedDrink() {
     	DrinkDTO createdDrink = responseToSingle.getBody();
-    	assertThat(createdDrink, is(notNullValue()));
+    	assertThat(createdDrink, notNullValue());
     	assertThat(createdDrink.getName(), equalTo("Dianemayte"));
     }
     

@@ -30,7 +30,7 @@ public class DrinksServiceImpl implements IDrinksService {
 
 	@Override
 	public DrinkDTO loadById(long drinkId) {
-		Drink entity = drinkRepository.findOne(drinkId);
+		Drink entity = drinkRepository.loadById(drinkId);
 		if (entity != null)
 			return new DrinkDTO(entity);
 		else
@@ -45,7 +45,7 @@ public class DrinksServiceImpl implements IDrinksService {
 
 	@Override
 	public DrinkDTO updateDrink(long drinkId, DrinkDTO submittedDrinkUpdate) {
-		Drink drinkToUpdate = drinkRepository.findOne(drinkId);
+		Drink drinkToUpdate = drinkRepository.loadById(drinkId);
 		if (drinkToUpdate != null) {
 			drinkToUpdate.setName(submittedDrinkUpdate.getName());
 			drinkToUpdate.setProducerName(submittedDrinkUpdate.getProducerName());
@@ -66,13 +66,19 @@ public class DrinksServiceImpl implements IDrinksService {
 	}
 
 	@Override
-	public DrinksDTOList findDrinks(String drinkTypeName) throws UnknownDrinkType {
+	public DrinksDTOList findDrinksByType(String drinkTypeName) throws UnknownDrinkType {
 		//TODO Type name is unique, should be loadByName instead and return 1
 		List<DrinkType> types = drinkTypeRepository.findByName(drinkTypeName);
 		if (types == null || types.isEmpty()) {
 			throw new UnknownDrinkType();
 		}
 		
-		return new DrinksDTOList(drinkRepository.findByType_Name(types.get(0).getName()));
+		return new DrinksDTOList(drinkRepository.findByType(types.get(0)));
+	}
+
+	@Override
+	public DrinksDTOList findDrinksByName(String drinkName) {
+		List<Drink> foundDrinks = drinkRepository.findByName(drinkName);
+		return new DrinksDTOList(foundDrinks);
 	}
 }

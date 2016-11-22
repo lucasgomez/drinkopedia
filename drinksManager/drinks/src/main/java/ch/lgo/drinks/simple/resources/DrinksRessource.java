@@ -67,13 +67,25 @@ public class DrinksRessource {
 
 	@GET
 	@Path("types/{drink_type}")
-	public Response findDrinks(@PathParam("drink_type") String drinkTypeName) {
+	public Response findDrinksByType(@PathParam("drink_type") String drinkTypeName) {
 		DrinksDTOList drinksFound;
 		try {
-			drinksFound = drinksService.findDrinks(drinkTypeName);
+			drinksFound = drinksService.findDrinksByType(drinkTypeName);
 		} catch (UnknownDrinkType e) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
+		
+		if (drinksFound != null && !drinksFound.getDrinks().isEmpty()) {
+			return Response.ok().entity(drinksFound).build();
+		} else {
+			return Response.noContent().build();
+		}
+	}
+
+	@GET
+	@Path("search/{drink_name}")
+	public Response findDrinksByName(@PathParam("drink_name") String drinkName) {
+		DrinksDTOList drinksFound = drinksService.findDrinksByName(drinkName);
 		
 		if (drinksFound != null && !drinksFound.getDrinks().isEmpty()) {
 			return Response.ok().entity(drinksFound).build();

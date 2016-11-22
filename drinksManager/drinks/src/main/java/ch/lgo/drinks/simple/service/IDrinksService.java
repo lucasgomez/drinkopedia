@@ -16,6 +16,8 @@ public interface IDrinksService {
 
 	public void deleteDrink(long drinkId);
 
-	public DrinksDTOList findDrinks(String drinkTypeName) throws UnknownDrinkType;
+	public DrinksDTOList findDrinksByType(String drinkTypeName) throws UnknownDrinkType;
+
+	public DrinksDTOList findDrinksByName(String drinkName);
 
 }
