@@ -12,11 +12,13 @@ Given a drink repository with sample drinks
 
 Scenario: Post a new drink returns 201
 Given the repository is empty
+  And there are some drink types
  When I post a new drink
  Then it should return code 201
  
 Scenario: Newly posted drink can be retrieved
 Given the repository is empty
+  And there are some drink types
  When I post a new drink
   And load the aforesaid drink at its location
  Then it should return the created drink

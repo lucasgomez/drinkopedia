@@ -38,7 +38,7 @@ public class Drink {
 		this.producerName = producerName;
 	}
 	
-	@ManyToOne(optional=true)
+	@ManyToOne(optional=false)
 	public DrinkType getType() {
 		return type;
 	}

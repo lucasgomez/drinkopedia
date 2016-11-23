@@ -39,4 +39,11 @@ public class DrinkTypeRepository implements IDrinkTypeRepository {
 		new JPADeleteClause(em, qDrinkType).execute();
 	}
 
+	@Override
+	public DrinkType loadByName(String drinkTypeName) {
+		JPAQuery<DrinkType> query = new JPAQuery<>(em);
+		QDrinkType qDrinkType = QDrinkType.drinkType;
+		return query.from(qDrinkType).where(qDrinkType.name.likeIgnoreCase(drinkTypeName)).fetchOne();
+	}
+
 }

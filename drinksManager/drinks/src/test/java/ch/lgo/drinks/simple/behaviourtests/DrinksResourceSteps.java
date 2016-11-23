@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ch.lgo.drinks.simple.dao.IDrinkRepository;
 import ch.lgo.drinks.simple.dao.IDrinkTypeRepository;
 import ch.lgo.drinks.simple.dto.DrinkDTO;
+import ch.lgo.drinks.simple.dto.DrinkTypeDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 import ch.lgo.drinks.simple.entity.Drink;
 import ch.lgo.drinks.simple.entity.DrinkType;
@@ -58,7 +59,13 @@ public class DrinksResourceSteps {
 	private Long drinkId;
 
     @Given("^the repository is empty$")
-    public void repositoryIsEmpty() throws MalformedURLException {
+    public void repositoryIsEmpty() {
+    }
+
+    @Given("^there are some drink types$")
+    public void drinkTypesExist() {
+        createAndSaveDrinkType("beer");
+        createAndSaveDrinkType("soda");
     }
     
     @Given("^a drink repository with sample drinks$")
@@ -90,13 +97,12 @@ public class DrinksResourceSteps {
     
     @When("^I post a new drink$")
     public void postNewDrink() {
-//    	DrinkTypeDTO drinkTypeToCreate = new DrinkTypeDTO();
-//    	drinkTypeToCreate.setName("beer");
+    	DrinkTypeDTO drinkType = new DrinkTypeDTO(drinkTypeRepository.loadByName("beer"));
     	
     	DrinkDTO drinkToCreate = new DrinkDTO();
     	drinkToCreate.setName("Dianemayte");
     	drinkToCreate.setProducerName("ABO");
-//    	drinkToCreate.setType(drinkTypeToCreate);
+    	drinkToCreate.setType(drinkType);
     	
     	responseToSingle = template.postForEntity(resource.toString(), drinkToCreate, DrinkDTO.class);
     }

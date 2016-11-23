@@ -11,6 +11,7 @@ import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 import ch.lgo.drinks.simple.entity.Drink;
 import ch.lgo.drinks.simple.entity.DrinkType;
+import ch.lgo.drinks.simple.exceptions.ResourceNotFound;
 import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 
 @Service
@@ -39,41 +40,44 @@ public class DrinksServiceImpl implements IDrinksService {
 
 	@Override
 	public DrinkDTO createDrink(DrinkDTO newDrinkDTO) {
-		Drink newDrink = drinkRepository.save(new Drink(newDrinkDTO));
+	    DrinkType drinkType = drinkTypeRepository.loadByName(newDrinkDTO.getType().getName());
+		Drink drinkToCreate = new Drink(newDrinkDTO);
+		drinkToCreate.setType(drinkType);
+		
+        Drink newDrink = drinkRepository.save(drinkToCreate);
 		return new DrinkDTO(newDrink);
 	}
 
 	@Override
-	public DrinkDTO updateDrink(long drinkId, DrinkDTO submittedDrinkUpdate) {
+	public DrinkDTO updateDrink(long drinkId, DrinkDTO submittedDrinkUpdate) throws ResourceNotFound {
 		Drink drinkToUpdate = drinkRepository.loadById(drinkId);
 		if (drinkToUpdate != null) {
 			drinkToUpdate.setName(submittedDrinkUpdate.getName());
 			drinkToUpdate.setProducerName(submittedDrinkUpdate.getProducerName());
 			Drink updatedDrink = drinkRepository.save(drinkToUpdate);
 			return new DrinkDTO(updatedDrink);
+		} else {
+			throw new ResourceNotFound();
 		}
-		//TODO replace null by exception throwing
-		return null;
 	}
 
 	@Override
-	public void deleteDrink(long drinkId) {
+	public void deleteDrink(long drinkId) throws ResourceNotFound {
 		if (drinkRepository.exists(drinkId)) {
 			drinkRepository.delete(drinkId);
 		} else {
-			//TODO replace by exception throwing
+			throw new ResourceNotFound();
 		}
 	}
 
 	@Override
 	public DrinksDTOList findDrinksByType(String drinkTypeName) throws UnknownDrinkType {
-		//TODO Type name is unique, should be loadByName instead and return 1
-		List<DrinkType> types = drinkTypeRepository.findByName(drinkTypeName);
-		if (types == null || types.isEmpty()) {
+		DrinkType type = drinkTypeRepository.loadByName(drinkTypeName);
+		if (type == null) {
 			throw new UnknownDrinkType();
 		}
 		
-		return new DrinksDTOList(drinkRepository.findByType(types.get(0)));
+		return new DrinksDTOList(drinkRepository.findByType(type));
 	}
 
 	@Override
