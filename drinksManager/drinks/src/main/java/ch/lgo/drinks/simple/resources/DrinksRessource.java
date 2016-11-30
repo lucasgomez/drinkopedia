@@ -1,6 +1,8 @@
 package ch.lgo.drinks.simple.resources;
 
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -15,11 +17,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
+import ch.lgo.drinks.simple.entity.Drink;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFound;
 import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 import ch.lgo.drinks.simple.service.IDrinksService;
@@ -38,6 +42,9 @@ public class DrinksRessource {
     private IDrinksService drinksService;
     @Context
     UriInfo uriInfo;
+    
+    @Autowired
+    ModelMapper modelMapper;
 
     @GET
     @ApiOperation(value = "Find all accounts")
@@ -45,24 +52,48 @@ public class DrinksRessource {
             @ApiResponse(code = 200, message = "Have a drink", response = DrinksDTOList.class),
             @ApiResponse(code = 204, message = "No drinks to display")}) 
     public Response getDrinks() {
-        DrinksDTOList drinks = drinksService.getAll();
+        List<Drink> drinks = drinksService.getAll();
 
-        if (drinks.getDrinks().isEmpty()) {
+        if (drinks.isEmpty()) {
             return Response.status(Status.NO_CONTENT).build();
         } else {
-            return Response.ok().entity(drinks).build();
+            DrinksDTOList drinksList = convertToDrinksListDTO(drinks);
+            return Response.ok().entity(drinksList).build();
         }
+    }
+
+    private DrinksDTOList convertToDrinksListDTO(List<Drink> drinks) {
+        DrinksDTOList drinksDTOList = new DrinksDTOList();
+        List<DrinkDTO> drinksList = drinks.stream().map(drink -> convertToDto(drink)).collect(Collectors.toList());
+        drinksDTOList.setDrinks(drinksList);
+        return drinksDTOList;
+    }
+    
+    private Drink convertToEntity(DrinkDTO postedDrink) {
+        Drink drink = modelMapper.map(postedDrink, Drink.class);
+
+        //TODO Collection with stream()!
+        
+        return drink;
+    }
+    
+    private DrinkDTO convertToDto(Drink drink) {
+        DrinkDTO drinkDTO = modelMapper.map(drink, DrinkDTO.class);
+        
+        //TODO Check for collection!
+        
+        return drinkDTO;
     }
 
     @GET
     @Path("{drink_id}")
     public Response getDrink(@PathParam("drink_id") long drinkId) {
-        DrinkDTO drink = drinksService.loadById(drinkId);
+        Drink drink = drinksService.loadById(drinkId);
 
         if (drink == null) {
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            return Response.ok().entity(drink).build();
+            return Response.ok().entity(convertToDto(drink)).build();
         }
     }
 
@@ -71,7 +102,7 @@ public class DrinksRessource {
     public Response findDrinksByType(@PathParam("drink_type") String drinkTypeName) {
         DrinksDTOList drinksFound;
         try {
-            drinksFound = drinksService.findDrinksByType(drinkTypeName);
+            drinksFound = convertToDrinksListDTO(drinksService.findDrinksByType(drinkTypeName));
         } catch (UnknownDrinkType e) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -86,7 +117,7 @@ public class DrinksRessource {
     @GET
     @Path("search/{drink_name}")
     public Response findDrinksByName(@PathParam("drink_name") String drinkName) {
-        DrinksDTOList drinksFound = drinksService.findDrinksByName(drinkName);
+        DrinksDTOList drinksFound = convertToDrinksListDTO(drinksService.findDrinksByName(drinkName));
         
         if (drinksFound != null && !drinksFound.getDrinks().isEmpty()) {
             return Response.ok().entity(drinksFound).build();
@@ -97,7 +128,12 @@ public class DrinksRessource {
 
     @POST
     public Response createDrink(DrinkDTO newDrink) {
-        DrinkDTO createdDrink = drinksService.createDrink(newDrink);
+        Drink createdDrink;
+        try {
+            createdDrink = drinksService.createDrink(convertToEntity(newDrink));
+        } catch (ResourceNotFound e) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
 
         if (createdDrink == null) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -114,7 +150,7 @@ public class DrinksRessource {
     public Response updateDrink(@PathParam("drink_id") long drinkId, DrinkDTO drinkToUpdate) {
         if (drinkToUpdate != null) {
             try {
-                return Response.ok().entity(drinksService.updateDrink(drinkId, drinkToUpdate)).build();
+                return Response.ok().entity(drinksService.updateDrink(drinkId, convertToEntity(drinkToUpdate))).build();
             } catch (ResourceNotFound e) {
                 return Response.status(Status.NOT_FOUND).build();
             }

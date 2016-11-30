@@ -94,6 +94,13 @@
 			<artifactId>querydsl-jpa</artifactId>
 		</dependency>
 
+		<!-- DAO - DTO conversion -->
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>0.7.4</version>
+		</dependency>
+
 		<!-- Swagger -->
 		<dependency>
 			<groupId>io.swagger</groupId>

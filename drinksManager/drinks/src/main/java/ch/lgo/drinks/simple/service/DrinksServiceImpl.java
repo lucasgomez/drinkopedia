@@ -1,5 +1,6 @@
 package ch.lgo.drinks.simple.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import ch.lgo.drinks.simple.dao.IDrinkRepository;
 import ch.lgo.drinks.simple.dao.IDrinkTypeRepository;
-import ch.lgo.drinks.simple.dto.DrinkDTO;
-import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 import ch.lgo.drinks.simple.entity.Drink;
 import ch.lgo.drinks.simple.entity.DrinkType;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFound;
@@ -24,40 +23,43 @@ public class DrinksServiceImpl implements IDrinksService {
 	IDrinkTypeRepository drinkTypeRepository;
 	
 	@Override
-	public DrinksDTOList getAll() {
-		Iterable<Drink> allDrinks = drinkRepository.findAll();
-		return new DrinksDTOList(allDrinks);
+	public List<Drink> getAll() {
+	    //TODO Refine this ugly conversion
+	    List<Drink> drinksList = new ArrayList<>();
+	    for (Drink drink : drinkRepository.findAll()) {
+            drinksList.add(drink);
+        }
+        return drinksList;
 	}
 
 	@Override
-	public DrinkDTO loadById(long drinkId) {
-		Drink entity = drinkRepository.loadById(drinkId);
-		if (entity != null)
-			return new DrinkDTO(entity);
-		else
-			return null;
+	public Drink loadById(long drinkId) {
+		return drinkRepository.loadById(drinkId);
 	}
 
 	@Override
-	public DrinkDTO createDrink(DrinkDTO newDrinkDTO) {
-	    DrinkType drinkType = drinkTypeRepository.loadByName(newDrinkDTO.getType().getName());
-		Drink drinkToCreate = new Drink(newDrinkDTO);
-		drinkToCreate.setType(drinkType);
+	public Drink createDrink(Drink drinkToCreate) throws ResourceNotFound {
+	    DrinkType drinkType = drinkTypeRepository.loadByName(drinkToCreate.getType().getName());
+	    
+	    if (drinkType == null) {
+	        throw new ResourceNotFound("Drink type "+drinkToCreate.getType().getName() + " does not exist");
+	    }
+	    
+	    drinkToCreate.setType(drinkType);
 		
-        Drink newDrink = drinkRepository.save(drinkToCreate);
-		return new DrinkDTO(newDrink);
+        return drinkRepository.save(drinkToCreate);
 	}
 
 	@Override
-	public DrinkDTO updateDrink(long drinkId, DrinkDTO submittedDrinkUpdate) throws ResourceNotFound {
+	public Drink updateDrink(long drinkId, Drink submittedDrinkUpdate) throws ResourceNotFound {
 		Drink drinkToUpdate = drinkRepository.loadById(drinkId);
 		if (drinkToUpdate != null) {
 			drinkToUpdate.setName(submittedDrinkUpdate.getName());
 			drinkToUpdate.setProducerName(submittedDrinkUpdate.getProducerName());
 			Drink updatedDrink = drinkRepository.save(drinkToUpdate);
-			return new DrinkDTO(updatedDrink);
+			return updatedDrink;
 		} else {
-			throw new ResourceNotFound();
+			throw new ResourceNotFound("Drink of id " + drinkId + " does not exists");
 		}
 	}
 
@@ -71,18 +73,17 @@ public class DrinksServiceImpl implements IDrinksService {
 	}
 
 	@Override
-	public DrinksDTOList findDrinksByType(String drinkTypeName) throws UnknownDrinkType {
+	public List<Drink> findDrinksByType(String drinkTypeName) throws UnknownDrinkType {
 		DrinkType type = drinkTypeRepository.loadByName(drinkTypeName);
 		if (type == null) {
 			throw new UnknownDrinkType();
 		}
 		
-		return new DrinksDTOList(drinkRepository.findByType(type));
+		return drinkRepository.findByType(type);
 	}
 
 	@Override
-	public DrinksDTOList findDrinksByName(String drinkName) {
-		List<Drink> foundDrinks = drinkRepository.findByName(drinkName);
-		return new DrinksDTOList(foundDrinks);
+	public List<Drink> findDrinksByName(String drinkName) {
+		return drinkRepository.findByName(drinkName);
 	}
 }

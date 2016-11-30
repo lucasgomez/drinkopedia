@@ -5,7 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import ch.lgo.drinks.simple.dto.DrinkTypeDTO;
-
+/*TODO Is it really worth having that much complexity for managing beers and some other minor drinks? 
+Thus do DrinkTypeEnum and find a way of managing properties and "additional" properties for different drinks*/
 @Entity
 public class DrinkType {
 
