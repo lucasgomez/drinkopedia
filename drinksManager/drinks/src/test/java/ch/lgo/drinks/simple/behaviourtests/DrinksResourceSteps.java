@@ -1,15 +1,14 @@
 package ch.lgo.drinks.simple.behaviourtests;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -143,49 +142,46 @@ public class DrinksResourceSteps {
     
     @Then("^I get a list of drinks whose name contains the chars 'ale'$")
     public void shouldGetListOfDrinksWhoseNamesContainsAle() {
-    	Collection<DrinkDTO> drinks = responseToList.getBody().getDrinks();
-    	assertThat(drinks.size(), equalTo(2));
-    	for (DrinkDTO drink : drinks) {
-			assertThat(drink.getName().toLowerCase(), containsString("ale"));
-		}
+    	DrinksDTOList drinksList = responseToList.getBody();
+    	
+    	assertThat(drinksList.getDrinks().size(), equalTo(2));
+    	assertTrue(drinksList.getDrinks().stream().allMatch(drink -> drink.getName().toLowerCase().contains("ale")));
     }
     
     @Then("^I get all drinks whose property type is 'beer'$")
     public void shouldBeDrinksOfTypeBeer() {
-    	Collection<DrinkDTO> drinks = responseToList.getBody().getDrinks();
-    	assertThat(drinks.size(), equalTo(3));
-    	for (DrinkDTO drink : drinks) {
-			assertThat(drink.getType().getName(), equalTo("beer"));
-		}
+    	DrinksDTOList drinksList = responseToList.getBody();
+    	
+    	assertThat(drinksList.getDrinks().size(), equalTo(3));
+    	assertTrue(drinksList.getDrinks().stream().allMatch(drink -> drink.getType().getName().equalsIgnoreCase("beer")));
     }
     
     @Then("^the collection of drinks lacks the deleted one$")
     public void shouldLackDeletedDrink() {
     	List<DrinkDTO> drinks = responseToList.getBody().getDrinks();
+    	
     	assertThat(drinks.size(), equalTo(3));
-    	for (DrinkDTO drink : drinks) {
-			assertThat(drink.getName(), not(equalTo("Dianemayte")));
-		}
+    	drinks.stream().forEach(drink -> assertThat(drink.getName(), not(equalTo("Dianemayte"))));
     }
     
     @Then("^it should return code 204$")
     public void shouldReturn204() {
-		assertThat(responseToList.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
+        assertShouldReturnErrorCode(responseToList, HttpStatus.NO_CONTENT);
     }
     
     @Then("^it should return code 200$")
     public void shouldReturn200() {
-    	assertThat(responseToList.getStatusCode(), equalTo(HttpStatus.OK));
+        assertShouldReturnErrorCode(responseToList, HttpStatus.OK);
     }
     
     @Then("^it should return code 201$")
     public void shouldReturn201() {
-    	assertThat(responseToSingle.getStatusCode(), equalTo(HttpStatus.CREATED));
+        assertShouldReturnErrorCode(responseToSingle, HttpStatus.CREATED);
     }
     
     @Then("^I get 404 response code$")
     public void shouldReturn404() {
-    	assertThat(responseToList.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
+        assertShouldReturnErrorCode(responseToList, HttpStatus.NOT_FOUND);
     }
     
     @Then("^it should return the created drink$")
@@ -217,7 +213,11 @@ public class DrinksResourceSteps {
 	private Drink createAndSaveDrink(String name, String producerName, DrinkType type) {
 		return drinkRepository.save(new Drink(name, producerName, type));
 	}
-	
+
+    protected void assertShouldReturnErrorCode(ResponseEntity<?> response, HttpStatus statusExpected) {
+        assertThat(response.getStatusCode(), equalTo(statusExpected));
+    }
+    
 	RequestCallback requestCallback(final DrinkDTO updatedInstance) {
 	    return clientHttpRequest -> {
 	        ObjectMapper mapper = new ObjectMapper();

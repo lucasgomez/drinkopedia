@@ -24,11 +24,8 @@ public class DrinksServiceImpl implements IDrinksService {
 	
 	@Override
 	public List<Drink> getAll() {
-	    //TODO Refine this ugly conversion
 	    List<Drink> drinksList = new ArrayList<>();
-	    for (Drink drink : drinkRepository.findAll()) {
-            drinksList.add(drink);
-        }
+	    drinkRepository.findAll().forEach(drink -> drinksList.add(drink));
         return drinksList;
 	}
 

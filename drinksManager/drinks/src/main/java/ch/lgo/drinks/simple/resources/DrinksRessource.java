@@ -71,17 +71,11 @@ public class DrinksRessource {
     
     private Drink convertToEntity(DrinkDTO postedDrink) {
         Drink drink = modelMapper.map(postedDrink, Drink.class);
-
-        //TODO Collection with stream()!
-        
         return drink;
     }
     
     private DrinkDTO convertToDto(Drink drink) {
         DrinkDTO drinkDTO = modelMapper.map(drink, DrinkDTO.class);
-        
-        //TODO Check for collection!
-        
         return drinkDTO;
     }
 

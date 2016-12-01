@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.lgo.drinks.simple.dto.DrinkDTO;
-import ch.lgo.drinks.simple.entity.Drink;
 
 public class DrinksDTOList {
 	
@@ -17,14 +16,6 @@ public class DrinksDTOList {
 		this.drinks = drinks;
 	}
 	
-	public DrinksDTOList(Iterable<Drink> allDrinks) {
-		List<DrinkDTO> list = new ArrayList<>();
-		for (Drink drinkEntity : allDrinks) {
-			list.add(new DrinkDTO(drinkEntity));
-		}
-		this.drinks = list;
-	}
-
 	public DrinksDTOList() {
 		this.drinks = new ArrayList<>();
 	}
