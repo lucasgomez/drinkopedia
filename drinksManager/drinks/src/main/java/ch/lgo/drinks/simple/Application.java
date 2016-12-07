@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+//TODO Understand why next annotation doesn't work (using JerseyConfig.register() instead...)
+//@ComponentScan(includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, value = Provider.class))
 public class Application {
 
     public static void main(String[] args) {

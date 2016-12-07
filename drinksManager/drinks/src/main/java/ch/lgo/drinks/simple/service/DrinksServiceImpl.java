@@ -10,7 +10,7 @@ import ch.lgo.drinks.simple.dao.IDrinkRepository;
 import ch.lgo.drinks.simple.dao.IDrinkTypeRepository;
 import ch.lgo.drinks.simple.entity.Drink;
 import ch.lgo.drinks.simple.entity.DrinkType;
-import ch.lgo.drinks.simple.exceptions.ResourceNotFound;
+import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 
 @Service
@@ -30,16 +30,21 @@ public class DrinksServiceImpl implements IDrinksService {
 	}
 
 	@Override
-	public Drink loadById(long drinkId) {
-		return drinkRepository.loadById(drinkId);
+	public Drink loadById(long drinkId) throws ResourceNotFoundException {
+		Drink drink = drinkRepository.loadById(drinkId);
+		if (drink != null) {
+		    return drink;
+		} else {
+		    throw new ResourceNotFoundException("Drink of id " + drinkId + " does not exists");
+		}
 	}
 
 	@Override
-	public Drink createDrink(Drink drinkToCreate) throws ResourceNotFound {
+	public Drink createDrink(Drink drinkToCreate) throws ResourceNotFoundException {
 	    DrinkType drinkType = drinkTypeRepository.loadByName(drinkToCreate.getType().getName());
 	    
 	    if (drinkType == null) {
-	        throw new ResourceNotFound("Drink type "+drinkToCreate.getType().getName() + " does not exist");
+	        throw new ResourceNotFoundException("Drink type "+drinkToCreate.getType().getName() + " does not exist");
 	    }
 	    
 	    drinkToCreate.setType(drinkType);
@@ -48,7 +53,7 @@ public class DrinksServiceImpl implements IDrinksService {
 	}
 
 	@Override
-	public Drink updateDrink(long drinkId, Drink submittedDrinkUpdate) throws ResourceNotFound {
+	public Drink updateDrink(long drinkId, Drink submittedDrinkUpdate) throws ResourceNotFoundException {
 		Drink drinkToUpdate = drinkRepository.loadById(drinkId);
 		if (drinkToUpdate != null) {
 			drinkToUpdate.setName(submittedDrinkUpdate.getName());
@@ -56,16 +61,16 @@ public class DrinksServiceImpl implements IDrinksService {
 			Drink updatedDrink = drinkRepository.save(drinkToUpdate);
 			return updatedDrink;
 		} else {
-			throw new ResourceNotFound("Drink of id " + drinkId + " does not exists");
+			throw new ResourceNotFoundException("Drink of id " + drinkId + " does not exists");
 		}
 	}
 
 	@Override
-	public void deleteDrink(long drinkId) throws ResourceNotFound {
+	public void deleteDrink(long drinkId) throws ResourceNotFoundException {
 		if (drinkRepository.exists(drinkId)) {
 			drinkRepository.delete(drinkId);
 		} else {
-			throw new ResourceNotFound();
+			throw new ResourceNotFoundException("Drink of id " + drinkId + " does not exists");
 		}
 	}
 
