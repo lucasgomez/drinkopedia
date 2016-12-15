@@ -12,7 +12,7 @@ import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.Drink;
-import ch.lgo.drinks.simple.entity.DrinkType;
+import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
 import ch.lgo.drinks.simple.entity.QDrink;
 
 @Repository
@@ -23,7 +23,7 @@ public class DrinksRepository implements IDrinkRepository {
 	private EntityManager em;
 
 	@Override
-	public List<Drink> findByType(DrinkType type) {
+	public List<Drink> findByType(DrinkTypeEnum type) {
 		JPAQuery<Drink> query = new JPAQuery<>(em);
 		QDrink qDrink = QDrink.drink;
 		return query.from(qDrink).where(qDrink.type.eq(type)).fetch();

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 import ch.lgo.drinks.simple.entity.Drink;
+import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 import ch.lgo.drinks.simple.service.IDrinksService;
@@ -33,6 +34,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+//TODO Refine authentication requirements to leave some public methods
 @RestController
 @Path("/drinks")
 @Api
@@ -77,11 +79,11 @@ public class DrinksRessource {
     @GET
     @Path("types/{drink_type}")
     public Response findDrinksByType(
-            @PathParam("drink_type") String drinkTypeName) {
+            @PathParam("drink_type") DrinkTypeEnum drinkType) {
         DrinksDTOList drinksFound;
         try {
             drinksFound = convertToDrinksListDTO(
-                    drinksService.findDrinksByType(drinkTypeName));
+                    drinksService.findDrinksByType(drinkType));
         } catch (UnknownDrinkType e) {
             return Response.status(Status.NOT_FOUND).build();
         }

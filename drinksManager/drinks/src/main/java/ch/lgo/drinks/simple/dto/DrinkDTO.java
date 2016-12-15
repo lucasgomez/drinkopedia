@@ -1,13 +1,14 @@
 package ch.lgo.drinks.simple.dto;
 
 import ch.lgo.drinks.simple.entity.Drink;
+import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
 
 public class DrinkDTO {
 
 	private Long id;
 	private String name;
 	private String producerName;
-	private DrinkTypeDTO type;
+	private DrinkTypeEnum type;
 
 	public Long getId() {
 		return id;
@@ -30,10 +31,10 @@ public class DrinkDTO {
 		this.producerName = producerName;
 	}
 	
-	public DrinkTypeDTO getType() {
+	public DrinkTypeEnum getType() {
 		return type;
 	}
-	public void setType(DrinkTypeDTO type) {
+	public void setType(DrinkTypeEnum type) {
 		this.type = type;
 	}
 	
@@ -45,7 +46,7 @@ public class DrinkDTO {
 		this.name = drinkEntity.getName();
 		this.producerName = drinkEntity.getProducerName();
 		if (drinkEntity.getType() != null) {
-			this.type = new DrinkTypeDTO(drinkEntity.getType());
+			this.type = drinkEntity.getType();
 		}
 	}
 

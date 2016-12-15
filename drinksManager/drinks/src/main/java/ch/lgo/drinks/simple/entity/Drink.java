@@ -1,9 +1,10 @@
 package ch.lgo.drinks.simple.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 
@@ -13,7 +14,7 @@ public class Drink {
 	private Long id;
 	private String name;
 	private String producerName;
-	private DrinkType type;
+	private DrinkTypeEnum type;
 	
 	@Id
 	@GeneratedValue
@@ -37,12 +38,12 @@ public class Drink {
 	public void setProducerName(String producerName) {
 		this.producerName = producerName;
 	}
-	
-	@ManyToOne(optional=false)
-	public DrinkType getType() {
+
+	@Enumerated(EnumType.STRING)
+	public DrinkTypeEnum getType() {
 		return type;
 	}
-	public void setType(DrinkType type) {
+	public void setType(DrinkTypeEnum type) {
 		this.type = type;
 	}
 	
@@ -58,7 +59,7 @@ public class Drink {
 		this.producerName = newDrinkDTO.getProducerName();
 	}
 	
-	public Drink(String drinkName, String producerName, DrinkType type) {
+	public Drink(String drinkName, String producerName, DrinkTypeEnum type) {
 		this.name = drinkName;
 		this.producerName = producerName;
 		this.type = type;

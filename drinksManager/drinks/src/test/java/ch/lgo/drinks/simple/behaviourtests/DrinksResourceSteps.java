@@ -14,6 +14,7 @@ import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -27,12 +28,10 @@ import org.springframework.web.client.RequestCallback;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.lgo.drinks.simple.dao.IDrinkRepository;
-import ch.lgo.drinks.simple.dao.IDrinkTypeRepository;
 import ch.lgo.drinks.simple.dto.DrinkDTO;
-import ch.lgo.drinks.simple.dto.DrinkTypeDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 import ch.lgo.drinks.simple.entity.Drink;
-import ch.lgo.drinks.simple.entity.DrinkType;
+import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -42,126 +41,120 @@ import cucumber.api.java.en.When;
 @ContextConfiguration
 public class DrinksResourceSteps {
 
-	@LocalServerPort
-	private int port;
-	private URL base;
-	private URL resource;
-	@Autowired
-	private TestRestTemplate template;
-	@Autowired
-	private IDrinkRepository drinkRepository;
-	@Autowired
-	private IDrinkTypeRepository drinkTypeRepository;
+    @LocalServerPort
+    private int port;
+    private URL base;
+    private URL resource;
+
+    @Autowired
+    private TestRestTemplate template;
+    @Autowired
+    private IDrinkRepository drinkRepository;
     
-	private ResponseEntity<DrinksDTOList> responseToList;
-	private ResponseEntity<DrinkDTO> responseToSingle;
-	private Long drinkId;
+    @Value("${security.user.name}")
+    private String basicUsername;
+    @Value("${security.user.password}")
+    private String basicPassword;
+
+    private ResponseEntity<DrinksDTOList> responseToList;
+    private ResponseEntity<DrinkDTO> responseToSingle;
+    private Long drinkId;
 
     @Given("^the repository is empty$")
     public void repositoryIsEmpty() {
     }
-
-    @Given("^there are some drink types$")
-    public void drinkTypesExist() {
-        createAndSaveDrinkType("beer");
-        createAndSaveDrinkType("soda");
-    }
     
     @Given("^a drink repository with sample drinks$")
-    public void repositoryHasContent() throws MalformedURLException {
-    	DrinkType beerType = createAndSaveDrinkType("beer");
-    	DrinkType sodaType = createAndSaveDrinkType("soda");
-    	
-    	createAndSaveDrink("Dianemayte", "ABO", beerType);
-    	createAndSaveDrink("Marz'Ale", "FdB", beerType);
-    	createAndSaveDrink("Blurg's Cola", "Aldebaran Beverages", sodaType);
-    	createAndSaveDrink("Big F ale", "Failure Brew", beerType);
+    public void repositoryHasContent() throws MalformedURLException {        
+        createAndSaveDrink("Dianemayte", "ABO", DrinkTypeEnum.BEER);
+        createAndSaveDrink("Marz'Ale", "FdB", DrinkTypeEnum.BEER);
+        createAndSaveDrink("Blurg's Cola", "Aldebaran Beverages", DrinkTypeEnum.NON_ALCOOLIC_BEVERAGE);
+        createAndSaveDrink("Big F ale", "Failure Brew", DrinkTypeEnum.BEER);
     }
     
     @When("^I load all drinks$")
     public void loadAllDrinks() {
-		responseToList = template.getForEntity(resource.toString(), DrinksDTOList.class);
+        responseToList = template.getForEntity(resource.toString(), DrinksDTOList.class);
     }
     
     @When("^a drink name is updated$")
     public void loadAllDrinksPickOneThenUpdateItsName() {
-		responseToList = template.getForEntity(resource.toString(), DrinksDTOList.class);
-		DrinksDTOList drinks = responseToList.getBody();
-		DrinkDTO drinkToUpdate = drinks.getDrinks().get(0);
-		
-		drinkToUpdate.setName(drinkToUpdate.getName() + " reloaded");
-		drinkId = drinkToUpdate.getId();
-		template.execute(resource.toString()+drinkToUpdate.getId(), HttpMethod.PUT, requestCallback(drinkToUpdate), clientHttpResponse -> null);
+        responseToList = template.getForEntity(resource.toString(), DrinksDTOList.class);
+        DrinksDTOList drinks = responseToList.getBody();
+        DrinkDTO drinkToUpdate = drinks.getDrinks().get(0);
+        
+        drinkToUpdate.setName(drinkToUpdate.getName() + " reloaded");
+        drinkId = drinkToUpdate.getId();
+        template.execute(resource.toString()+drinkToUpdate.getId(), HttpMethod.PUT, requestCallback(drinkToUpdate), clientHttpResponse -> null);
     }
     
     @When("^I post a new drink$")
     public void postNewDrink() {
-    	DrinkTypeDTO drinkType = new DrinkTypeDTO(drinkTypeRepository.loadByName("beer"));
-    	
-    	DrinkDTO drinkToCreate = new DrinkDTO();
-    	drinkToCreate.setName("Dianemayte");
-    	drinkToCreate.setProducerName("ABO");
-    	drinkToCreate.setType(drinkType);
-    	
-    	responseToSingle = template.postForEntity(resource.toString(), drinkToCreate, DrinkDTO.class);
+        DrinkDTO drinkToCreate = new DrinkDTO();
+        drinkToCreate.setName("Dianemayte");
+        drinkToCreate.setProducerName("ABO");
+        drinkToCreate.setType(DrinkTypeEnum.BEER);
+        
+        responseToSingle = template.postForEntity(resource.toString(), drinkToCreate, DrinkDTO.class);
     }
     
     @When("^load the aforesaid drink at its location$")
     public void getDrinkLocation() {
-    	URI postedDrinkLocation = responseToSingle.getHeaders().getLocation();
-    	
-    	responseToSingle = template.getForEntity(postedDrinkLocation, DrinkDTO.class);
+        URI postedDrinkLocation = responseToSingle.getHeaders().getLocation();
+        
+        responseToSingle = template.getForEntity(postedDrinkLocation, DrinkDTO.class);
     }
     
     @When("^the aforesaid drink is loaded$")
     public void getDrinkByItsId() {
-    	responseToSingle = template.getForEntity(resource.toString()+drinkId, DrinkDTO.class);
+        responseToSingle = template.getForEntity(resource.toString()+drinkId, DrinkDTO.class);
     }
     
     @When("^I delete the first drink$")
     public void deleteADrink() {
-    	DrinkDTO drinkToDelete = responseToList.getBody().getDrinks().get(0);
-    	
-    	template.delete(resource.toString()+drinkToDelete.getId());
+        DrinkDTO drinkToDelete = responseToList.getBody().getDrinks().get(0);
+        
+        template.delete(resource.toString()+drinkToDelete.getId());
     }
 
     @When("^I search for drinks of type 'beer'$")
     public void searchDrinksByTypeBeer() {
-		responseToList = template.getForEntity(resource.toString()+"types/beer", DrinksDTOList.class);
+        responseToList = template.getForEntity(resource.toString()+"types/BEER", DrinksDTOList.class);
     }
     
     @When("^I search for drinks of type 'hydrazine'$")
     public void searchDrinksByTypeHydra() {
-    	responseToList = template.getForEntity(resource.toString()+"types/hydrazine", DrinksDTOList.class);
+        //TODO Test failing due to 'HYDRAZINE' not being member of enum DrinkType. Should be catched by an ex manager and thrown with custom error instead of 500
+        responseToList = template.getForEntity(resource.toString()+"types/HYDRAZINE", DrinksDTOList.class);
     }
     
     @When("^I search for drinks with name like 'ale'$")
     public void searchForDrinksByName() {
-    	responseToList = template.getForEntity(resource.toString()+"search/ale", DrinksDTOList.class);
+        responseToList = template.getForEntity(resource.toString()+"search/ale", DrinksDTOList.class);
     }
     
     @Then("^I get a list of drinks whose name contains the chars 'ale'$")
     public void shouldGetListOfDrinksWhoseNamesContainsAle() {
-    	DrinksDTOList drinksList = responseToList.getBody();
-    	
-    	assertThat(drinksList.getDrinks().size(), equalTo(2));
-    	assertTrue(drinksList.getDrinks().stream().allMatch(drink -> drink.getName().toLowerCase().contains("ale")));
+        DrinksDTOList drinksList = responseToList.getBody();
+        
+        assertThat(drinksList.getDrinks().size(), equalTo(2));
+        assertTrue(drinksList.getDrinks().stream().allMatch(drink -> drink.getName().toLowerCase().contains("ale")));
     }
     
     @Then("^I get all drinks whose property type is 'beer'$")
     public void shouldBeDrinksOfTypeBeer() {
-    	DrinksDTOList drinksList = responseToList.getBody();
-    	
-    	assertThat(drinksList.getDrinks().size(), equalTo(3));
-    	assertTrue(drinksList.getDrinks().stream().allMatch(drink -> drink.getType().getName().equalsIgnoreCase("beer")));
+        DrinksDTOList drinksList = responseToList.getBody();
+        
+        assertThat(drinksList.getDrinks().size(), equalTo(3));
+        assertTrue(drinksList.getDrinks().stream().allMatch(drink -> DrinkTypeEnum.BEER.equals(drink.getType())));
     }
     
     @Then("^the collection of drinks lacks the deleted one$")
     public void shouldLackDeletedDrink() {
-    	List<DrinkDTO> drinks = responseToList.getBody().getDrinks();
-    	
-    	assertThat(drinks.size(), equalTo(3));
-    	drinks.stream().forEach(drink -> assertThat(drink.getName(), not(equalTo("Dianemayte"))));
+        List<DrinkDTO> drinks = responseToList.getBody().getDrinks();
+        
+        assertThat(drinks.size(), equalTo(3));
+        drinks.stream().forEach(drink -> assertThat(drink.getName(), not(equalTo("Dianemayte"))));
     }
     
     @Then("^it should return code 204$")
@@ -186,44 +179,40 @@ public class DrinksResourceSteps {
     
     @Then("^it should return the created drink$")
     public void shouldReturnCreatedDrink() {
-    	DrinkDTO createdDrink = responseToSingle.getBody();
-    	assertThat(createdDrink, notNullValue());
-    	assertThat(createdDrink.getName(), equalTo("Dianemayte"));
+        DrinkDTO createdDrink = responseToSingle.getBody();
+        assertThat(createdDrink, notNullValue());
+        assertThat(createdDrink.getName(), equalTo("Dianemayte"));
     }
     
     @Then("^that reloaded drink has the new name$")
     public void shouldReturnDrinkWithNewName() {
-    	DrinkDTO updatedDrink = responseToSingle.getBody();
-    	assertThat(updatedDrink.getName(), equalTo("Dianemayte" + " reloaded"));
+        DrinkDTO updatedDrink = responseToSingle.getBody();
+        assertThat(updatedDrink.getName(), equalTo("Dianemayte" + " reloaded"));
     }
 
-	@Before
-	public void setUp() throws MalformedURLException {
-		base = new URL("http://localhost:" + port + "/");
-		resource = new URL(base.toString() + "drinkopedia/api/drinks/");
-		
-		drinkRepository.deleteAll();
-		drinkTypeRepository.deleteAll();
-	}
-	
-	private DrinkType createAndSaveDrinkType(String name) {
-		return drinkTypeRepository.save(new DrinkType(name));
-	}
-	
-	private Drink createAndSaveDrink(String name, String producerName, DrinkType type) {
-		return drinkRepository.save(new Drink(name, producerName, type));
-	}
+    @Before
+    public void setUp() throws MalformedURLException {
+        template = template.withBasicAuth(basicUsername, basicPassword);
+        
+        base = new URL("http://localhost:" + port + "/");
+        resource = new URL(base.toString() + "drinkopedia/api/drinks/");
+        drinkRepository.deleteAll();
+    }
+    
+    private Drink createAndSaveDrink(String name, String producerName, DrinkTypeEnum type) {
+        return drinkRepository.save(new Drink(name, producerName, type));
+    }
 
     protected void assertShouldReturnErrorCode(ResponseEntity<?> response, HttpStatus statusExpected) {
         assertThat(response.getStatusCode(), equalTo(statusExpected));
     }
     
-	RequestCallback requestCallback(final DrinkDTO updatedInstance) {
-	    return clientHttpRequest -> {
-	        ObjectMapper mapper = new ObjectMapper();
-	        mapper.writeValue(clientHttpRequest.getBody(), updatedInstance);
-	        clientHttpRequest.getHeaders().add(
-	          HttpHeaders.CONTENT_TYPE,	MediaType.APPLICATION_JSON_VALUE);
-	    };
-	}
+    RequestCallback requestCallback(final DrinkDTO updatedInstance) {
+        return clientHttpRequest -> {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(clientHttpRequest.getBody(), updatedInstance);
+            clientHttpRequest.getHeaders().add(
+              HttpHeaders.CONTENT_TYPE,    MediaType.APPLICATION_JSON_VALUE);
+        };
+    }
 }

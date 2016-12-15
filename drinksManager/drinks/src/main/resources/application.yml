@@ -19,3 +19,9 @@ spring:
         initialize: true
     jersey:
         application-path: /api
+        
+security:
+  user:
+    name: belzeboss
+    password: 666
+    

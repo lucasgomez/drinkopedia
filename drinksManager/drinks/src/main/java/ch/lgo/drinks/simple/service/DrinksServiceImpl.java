@@ -7,9 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ch.lgo.drinks.simple.dao.IDrinkRepository;
-import ch.lgo.drinks.simple.dao.IDrinkTypeRepository;
 import ch.lgo.drinks.simple.entity.Drink;
-import ch.lgo.drinks.simple.entity.DrinkType;
+import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 
@@ -18,9 +17,6 @@ public class DrinksServiceImpl implements IDrinksService {
 
 	@Autowired
 	IDrinkRepository drinkRepository;
-	
-	@Autowired
-	IDrinkTypeRepository drinkTypeRepository;
 	
 	@Override
 	public List<Drink> getAll() {
@@ -41,14 +37,6 @@ public class DrinksServiceImpl implements IDrinksService {
 
 	@Override
 	public Drink createDrink(Drink drinkToCreate) throws ResourceNotFoundException {
-	    DrinkType drinkType = drinkTypeRepository.loadByName(drinkToCreate.getType().getName());
-	    
-	    if (drinkType == null) {
-	        throw new ResourceNotFoundException("Drink type "+drinkToCreate.getType().getName() + " does not exist");
-	    }
-	    
-	    drinkToCreate.setType(drinkType);
-		
         return drinkRepository.save(drinkToCreate);
 	}
 
@@ -75,13 +63,8 @@ public class DrinksServiceImpl implements IDrinksService {
 	}
 
 	@Override
-	public List<Drink> findDrinksByType(String drinkTypeName) throws UnknownDrinkType {
-		DrinkType type = drinkTypeRepository.loadByName(drinkTypeName);
-		if (type == null) {
-			throw new UnknownDrinkType();
-		}
-		
-		return drinkRepository.findByType(type);
+	public List<Drink> findDrinksByType(DrinkTypeEnum drinkType) throws UnknownDrinkType {		
+		return drinkRepository.findByType(drinkType);
 	}
 
 	@Override
