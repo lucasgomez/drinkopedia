@@ -1,4 +1,4 @@
-package ch.lgo.drinks.simple.behaviourtests;
+package ch.lgo.drinks.simple.behaviourtests.drinks;
 
 import org.junit.runner.RunWith;
 

@@ -3,24 +3,17 @@ package ch.lgo.drinks.simple.service;
 import java.util.List;
 
 import ch.lgo.drinks.simple.entity.Drink;
-import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
+import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
-import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 
-public interface IDrinksService {
+public interface IDrinksService <T extends Drink> {
 
-	public List<Drink> getAll();
+	public List<T> getAll() throws NoContentFoundException;
+                  
+	public T loadById(long drinkId) throws ResourceNotFoundException;
 
-	public Drink loadById(long drinkId) throws ResourceNotFoundException;
+	public void delete(long drinkId) throws ResourceNotFoundException;
 
-	public Drink createDrink(Drink newDrink) throws ResourceNotFoundException;
-
-	public Drink updateDrink(long drinkId, Drink updatedDrink) throws ResourceNotFoundException;
-
-	public void deleteDrink(long drinkId) throws ResourceNotFoundException;
-
-	public List<Drink> findDrinksByType(DrinkTypeEnum drinkType) throws UnknownDrinkType;
-
-	public List<Drink> findDrinksByName(String drinkName);
+	public List<T> findByName(String drinkName) throws NoContentFoundException;
 
 }

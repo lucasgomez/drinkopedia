@@ -1,5 +1,5 @@
 --Post
-curl -i --user belzeboss:666 -X POST -H 'Content-Type:application/json' -d '{"name":"autre binch","producerName":"brasserie2"}' http://localhost:8081/drinkopedia/api/drinks
+curl -i --user belzeboss:666 -X POST -H 'Content-Type:application/json' -d '{"name":"autre binch","producerName":"brasserie2"}' http://localhost:8081/drinkopedia/api/beers
 
 --Get (avec server.servletPath: / server.contextPath: /drinkopedia et spring.jersey.application-path: /api )
 curl -i --user belzeboss:666 -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:8081/drinkopedia/api/drinks

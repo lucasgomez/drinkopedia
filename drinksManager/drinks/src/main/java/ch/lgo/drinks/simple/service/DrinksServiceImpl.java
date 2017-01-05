@@ -1,74 +1,93 @@
 package ch.lgo.drinks.simple.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ch.lgo.drinks.simple.dao.IDrinkRepository;
+import ch.lgo.drinks.simple.dao.BeersRepository;
+import ch.lgo.drinks.simple.dao.IDrinksRepository;
+import ch.lgo.drinks.simple.dao.NonAlcoolicBeverageRepository;
 import ch.lgo.drinks.simple.entity.Drink;
 import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
+import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
-import ch.lgo.drinks.simple.exceptions.UnknownDrinkType;
 
 @Service
-public class DrinksServiceImpl implements IDrinksService {
+public class DrinksServiceImpl implements IDrinksService<Drink> {
 
 	@Autowired
-	IDrinkRepository drinkRepository;
+	BeersRepository beersRepository;
+	@Autowired
+	NonAlcoolicBeverageRepository nabsRepository;
+
+    @Autowired
+	Set<IDrinksRepository<?>> drinksRepositories;
 	
 	@Override
-	public List<Drink> getAll() {
-	    List<Drink> drinksList = new ArrayList<>();
-	    drinkRepository.findAll().forEach(drink -> drinksList.add(drink));
-        return drinksList;
+	public List<Drink> getAll() throws NoContentFoundException {
+	    List<Drink> drinks = new ArrayList<>();
+	    drinksRepositories.parallelStream().forEach(repo -> drinks.addAll(repo.findAll()));
+	    return drinks;
 	}
 
 	@Override
 	public Drink loadById(long drinkId) throws ResourceNotFoundException {
-		Drink drink = drinkRepository.loadById(drinkId);
-		if (drink != null) {
-		    return drink;
-		} else {
-		    throw new ResourceNotFoundException("Drink of id " + drinkId + " does not exists");
-		}
+        List<Drink> drinks = new ArrayList<>();
+        drinksRepositories.parallelStream().forEach(repo -> drinks.add(repo.loadById(drinkId)));
+        
+        if (drinks.isEmpty()) {
+            throw new ResourceNotFoundException("No drink found with id "+drinkId);
+        } else {
+            //Case when more than 2 ignored as should never happen
+            return drinks.get(0);
+        }
 	}
 
 	@Override
-	public Drink createDrink(Drink drinkToCreate) throws ResourceNotFoundException {
-        return drinkRepository.save(drinkToCreate);
+	public void delete(long drinkId) throws ResourceNotFoundException {
+	    List<Drink> all = new ArrayList<>();
+        try {
+            all = getAll();
+        } catch (NoContentFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	    all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
+	    nabsRepository.delete(drinkId);
+	    all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
+	    beersRepository.delete(drinkId);
+	    all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
+//	    drinksRepositories.forEach(repo -> repo.delete(drinkId));
 	}
 
 	@Override
-	public Drink updateDrink(long drinkId, Drink submittedDrinkUpdate) throws ResourceNotFoundException {
-		Drink drinkToUpdate = drinkRepository.loadById(drinkId);
-		if (drinkToUpdate != null) {
-			drinkToUpdate.setName(submittedDrinkUpdate.getName());
-			drinkToUpdate.setProducerName(submittedDrinkUpdate.getProducerName());
-			Drink updatedDrink = drinkRepository.save(drinkToUpdate);
-			return updatedDrink;
-		} else {
-			throw new ResourceNotFoundException("Drink of id " + drinkId + " does not exists");
-		}
+	public List<Drink> findByName(String drinkName) {
+        List<Drink> drinks = new ArrayList<>();
+        drinksRepositories.parallelStream().forEach(repo -> drinks.addAll(repo.findByName(drinkName)));
+        return drinks;
+	}
+	
+	public List<Drink> findByType(DrinkTypeEnum drinkType) {
+	    List<Drink> drinksFound = new ArrayList<>();
+	    switch (drinkType) {
+            case BEER :
+                drinksFound.addAll(beersRepository.findAll());
+                break;
+            case NON_ALCOOLIC_BEVERAGE :
+                drinksFound.addAll(nabsRepository.findAll());
+                break;
+            default :
+                //TODO Complete with other drink types
+                return Collections.emptyList();
+        }
+	    return drinksFound;
+	}
+	
+	public DrinksServiceImpl() {
 	}
 
-	@Override
-	public void deleteDrink(long drinkId) throws ResourceNotFoundException {
-		if (drinkRepository.exists(drinkId)) {
-			drinkRepository.delete(drinkId);
-		} else {
-			throw new ResourceNotFoundException("Drink of id " + drinkId + " does not exists");
-		}
-	}
-
-	@Override
-	public List<Drink> findDrinksByType(DrinkTypeEnum drinkType) throws UnknownDrinkType {		
-		return drinkRepository.findByType(drinkType);
-	}
-
-	@Override
-	public List<Drink> findDrinksByName(String drinkName) {
-		return drinkRepository.findByName(drinkName);
-	}
 }

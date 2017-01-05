@@ -45,8 +45,8 @@ public class DrinkDTO {
 		this.id = drinkEntity.getId();
 		this.name = drinkEntity.getName();
 		this.producerName = drinkEntity.getProducerName();
-		if (drinkEntity.getType() != null) {
-			this.type = drinkEntity.getType();
+		if (drinkEntity.getDrinkType() != null) {
+			this.type = drinkEntity.getDrinkType();
 		}
 	}
 
