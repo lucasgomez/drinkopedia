@@ -74,21 +74,12 @@ public class BeersServiceImpl implements IDrinksService <Beer> {
 
     @Override
     public void delete(long beerId) throws ResourceNotFoundException {
-        List<Beer> all = new ArrayList<>();
-        try {
-            all = getAll();
-        } catch (NoContentFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
         if (beersRepository.exists(beerId)) {
             beersRepository.delete(beerId);
         } else {
             throw new ResourceNotFoundException(
                     "Drink of id " + beerId + " does not exists");
         }
-        all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
     }
 
     @Override

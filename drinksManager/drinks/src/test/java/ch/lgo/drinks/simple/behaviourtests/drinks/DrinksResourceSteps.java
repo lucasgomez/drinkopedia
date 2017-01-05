@@ -60,6 +60,7 @@ public class DrinksResourceSteps {
 
     private ResponseEntity<DrinksDTOList> responseToList;
     private ResponseEntity<DrinkDTO> responseToSingle;
+    private DrinkDTO drinkToDelete;
 
     @Given("^the drink repositories are empty$")
     public void repositoryIsEmpty() {
@@ -80,7 +81,7 @@ public class DrinksResourceSteps {
     
     @When("^I delete the first drink$")
     public void deleteADrink() {
-        DrinkDTO drinkToDelete = responseToList.getBody().getDrinks().get(0);
+        drinkToDelete = responseToList.getBody().getDrinks().get(0);
         
         template.delete(resource.toString()+drinkToDelete.getId());
     }
@@ -121,7 +122,7 @@ public class DrinksResourceSteps {
         List<DrinkDTO> drinks = responseToList.getBody().getDrinks();
         
         assertThat(drinks.size(), equalTo(3));
-        drinks.stream().forEach(drink -> assertThat(drink.getName(), not(equalTo("Dianemayte"))));
+        drinks.stream().forEach(drink -> assertThat(drink.getName(), not(equalTo(drinkToDelete.getName()))));
     }
 
     @Before

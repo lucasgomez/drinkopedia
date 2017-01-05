@@ -31,7 +31,11 @@ public class DrinksServiceImpl implements IDrinksService<Drink> {
 	public List<Drink> getAll() throws NoContentFoundException {
 	    List<Drink> drinks = new ArrayList<>();
 	    drinksRepositories.parallelStream().forEach(repo -> drinks.addAll(repo.findAll()));
-	    return drinks;
+	    if (!drinks.isEmpty()) {
+	        return drinks;
+	    } else {
+	        throw new NoContentFoundException();
+	    }
 	}
 
 	@Override
@@ -49,19 +53,7 @@ public class DrinksServiceImpl implements IDrinksService<Drink> {
 
 	@Override
 	public void delete(long drinkId) throws ResourceNotFoundException {
-	    List<Drink> all = new ArrayList<>();
-        try {
-            all = getAll();
-        } catch (NoContentFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-	    all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
-	    nabsRepository.delete(drinkId);
-	    all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
-	    beersRepository.delete(drinkId);
-	    all.forEach(drink -> System.out.println(drink.getDrinkType() + ") " + drink.getId() + " - " + drink.getName()));
-//	    drinksRepositories.forEach(repo -> repo.delete(drinkId));
+	    drinksRepositories.forEach(repo -> repo.delete(drinkId));
 	}
 
 	@Override
