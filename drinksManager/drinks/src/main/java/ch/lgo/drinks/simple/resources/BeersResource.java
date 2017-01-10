@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -34,6 +35,7 @@ import io.swagger.annotations.ApiOperation;
 @Path("/beers")
 @Api
 @Produces({MediaType.APPLICATION_JSON + "; charset=UTF8"})
+@Consumes({MediaType.APPLICATION_JSON + "; charset=UTF8"})
 public class BeersResource {
 
     @Autowired
