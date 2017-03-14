@@ -1,15 +1,23 @@
 package ch.lgo.drinks.simple.entity;
 
+import java.util.Set;
+
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 @Entity
 public class Beer extends Drink {
 
-    private Double abv;
-    private Long ibu;
-    private Long srm; 
-//    private Set<BeerStyle> styles;
+    private Double abv; //Alcool
+    private Long ibu; //Bitterness
+    private Long srm; //Color 
+    private Set<BeerStyle> styles;
+    private Set<FermentingEnum> fermentings;
+	private Set<Tag> tags; 
     
     public Double getAbv() {
         return abv;
@@ -32,13 +40,30 @@ public class Beer extends Drink {
         this.srm = srm;
     }
     
-//    public Set<BeerStyle> getStyles() {
-//        return styles;
-//    }
-//    public void setStyles(Set<BeerStyle> styles) {
-//        this.styles = styles;
-//    }
-    
+    @ManyToMany
+    public Set<BeerStyle> getStyles() {
+        return styles;
+    }
+    public void setStyles(Set<BeerStyle> styles) {
+        this.styles = styles;
+    }
+
+    @ManyToMany
+    public Set<FermentingEnum> getFermentings() {
+		return fermentings;
+	}
+	public void setFermentings(Set<FermentingEnum> fermentings) {
+		this.fermentings = fermentings;
+	}
+	
+	@ElementCollection
+	public Set<Tag> getTags() {
+		return tags;
+	}
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
+	}
+
     @Override
     @Transient
     public DrinkTypeEnum getDrinkType() {

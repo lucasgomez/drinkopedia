@@ -11,8 +11,9 @@ public class BeerStyle {
     @GeneratedValue
     private Long id;
     private String name;
+    private String description;
     
-    public Long getId() {
+	public Long getId() {
         return id;
     }
     public void setId(Long id) {
@@ -26,4 +27,10 @@ public class BeerStyle {
         this.name = name;
     }
 
+    public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }

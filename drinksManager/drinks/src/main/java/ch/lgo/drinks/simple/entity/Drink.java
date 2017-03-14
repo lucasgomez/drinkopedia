@@ -1,8 +1,12 @@
 package ch.lgo.drinks.simple.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import ch.lgo.drinks.simple.dto.DrinkDTO;
@@ -12,7 +16,8 @@ public abstract class Drink {
 
 	private Long id;
 	private String name;
-	private String producerName;
+	private Producer producer;
+	private Set<Bar> bars = new HashSet<>();
 	
 	@Id
 	@GeneratedValue
@@ -29,12 +34,12 @@ public abstract class Drink {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public String getProducerName() {
-		return producerName;
+	
+	public Producer getProducer() {
+		return producer;
 	}
-	public void setProducerName(String producerName) {
-		this.producerName = producerName;
+	public void setProducer(Producer producer) {
+		this.producer = producer;
 	}
 	
 	public Drink() {
@@ -46,12 +51,14 @@ public abstract class Drink {
 	
 	public Drink(DrinkDTO newDrinkDTO) {
 		this.name = newDrinkDTO.getName();
-		this.producerName = newDrinkDTO.getProducerName();
 	}
 	
-	public Drink(String drinkName, String producerName) {
-		this.name = drinkName;
-		this.producerName = producerName;
+	@ManyToOne
+	public Set<Bar> getBars() {
+		return bars;
+	}
+	public void setBars(Set<Bar> bars) {
+		this.bars = bars;
 	}
 	
 	@Transient
