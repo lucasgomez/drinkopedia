@@ -31,7 +31,7 @@ public class BeersServiceImpl implements IDrinksService <Beer> {
         Beer beerToUpdate = beersRepository.loadById(beerId);
         if (beerToUpdate != null) {
             beerToUpdate.setName(updatedBeer.getName());
-            beerToUpdate.setProducerName(updatedBeer.getProducerName());
+            beerToUpdate.setProducer(updatedBeer.getProducer());
             Beer updatedDrink = beersRepository.save(beerToUpdate);
             return updatedDrink;
         } else {

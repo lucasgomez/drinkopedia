@@ -1,12 +1,11 @@
 package ch.lgo.drinks.simple.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 @Entity
@@ -15,9 +14,9 @@ public class Beer extends Drink {
     private Double abv; //Alcool
     private Long ibu; //Bitterness
     private Long srm; //Color 
-    private Set<BeerStyle> styles;
-    private Set<FermentingEnum> fermentings;
-	private Set<Tag> tags; 
+    private Set<BeerStyle> styles = new HashSet<>();
+    private Set<FermentingEnum> fermentings = new HashSet<>();
+	private Set<Tag> tags = new HashSet<>(); 
     
     public Double getAbv() {
         return abv;
@@ -48,15 +47,15 @@ public class Beer extends Drink {
         this.styles = styles;
     }
 
-    @ManyToMany
+	@ElementCollection
     public Set<FermentingEnum> getFermentings() {
 		return fermentings;
 	}
 	public void setFermentings(Set<FermentingEnum> fermentings) {
 		this.fermentings = fermentings;
 	}
-	
-	@ElementCollection
+
+    @ManyToMany
 	public Set<Tag> getTags() {
 		return tags;
 	}

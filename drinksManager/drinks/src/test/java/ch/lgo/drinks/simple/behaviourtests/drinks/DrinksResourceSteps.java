@@ -26,11 +26,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.lgo.drinks.simple.dao.BeersRepository;
 import ch.lgo.drinks.simple.dao.NonAlcoolicBeverageRepository;
+import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.DrinkDTO;
 import ch.lgo.drinks.simple.dto.list.DrinksDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
 import ch.lgo.drinks.simple.entity.NonAlcoolicBeverage;
+import ch.lgo.drinks.simple.entity.Producer;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -52,6 +54,8 @@ public class DrinksResourceSteps {
     private BeersRepository beersRepository;
     @Autowired
     private NonAlcoolicBeverageRepository nabsRepository;
+    @Autowired
+    private ProducerRepository producerRepository;
     
     @Value("${security.user.name}")
     private String basicUsername;
@@ -68,10 +72,10 @@ public class DrinksResourceSteps {
     
     @Given("^the drink repositories with sample drinks$")
     public void repositoryHasContent() throws MalformedURLException {        
-        createAndSaveBeer("Dianemayte", "ABO");
-        createAndSaveNab("Blurg's Cola", "Aldebaran Beverages");
-        createAndSaveBeer("Big F ale", "Failure Brew");
-        createAndSaveBeer("Marz'Ale", "FdB");
+        createAndSaveBeer("Dianemayte", createAndSaveProducer("ABO"));
+        createAndSaveNab("Blurg's Cola", createAndSaveProducer("Aldebaran Beverages"));
+        createAndSaveBeer("Big F ale", createAndSaveProducer("Failure Brew"));
+        createAndSaveBeer("Marz'Ale", createAndSaveProducer("FdB"));
     }
     
     @When("^I load all drinks$")
@@ -139,20 +143,26 @@ public class DrinksResourceSteps {
         assertThat(response.getStatusCode(), equalTo(statusExpected));
     }
     
-    private Beer createAndSaveBeer(String name, String producerName) {
+    protected Producer createAndSaveProducer(String name) {
+		Producer newProducer = new Producer();
+		newProducer.setName(name);
+		return producerRepository.save(newProducer);
+	}
+    
+    private Beer createAndSaveBeer(String name, Producer producer) {
         Beer newBeer = new Beer();
         newBeer.setName(name);
-        newBeer.setProducerName(producerName);
+        newBeer.setProducer(producer);
         newBeer.setAbv(0.05);
         newBeer.setIbu(30L);
         newBeer.setSrm(20L);
         return beersRepository.save(newBeer);
     }
     
-    private NonAlcoolicBeverage createAndSaveNab(String name, String producerName) {
+    private NonAlcoolicBeverage createAndSaveNab(String name, Producer producer) {
         NonAlcoolicBeverage newNab = new NonAlcoolicBeverage();
         newNab.setName(name);
-        newNab.setProducerName(producerName);
+        newNab.setProducer(producer);
         return nabsRepository.save(newNab);
     }
     

@@ -25,7 +25,7 @@ public class NonAlcoolicBeverageServiceImpl implements IDrinksService<NonAlcooli
         NonAlcoolicBeverage drinkToUpdate = nabRepository.loadById(nabId);
         if (drinkToUpdate != null) {
             drinkToUpdate.setName(updatedBeer.getName());
-            drinkToUpdate.setProducerName(updatedBeer.getProducerName());
+            drinkToUpdate.setProducer(updatedBeer.getProducer());
             NonAlcoolicBeverage updatedDrink = nabRepository.save(drinkToUpdate);
             return updatedDrink;
         } else {

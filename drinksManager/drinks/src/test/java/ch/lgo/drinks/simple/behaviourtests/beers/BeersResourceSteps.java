@@ -28,10 +28,12 @@ import org.springframework.web.client.RequestCallback;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.lgo.drinks.simple.dao.BeersRepository;
+import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.BeerDTO;
-import ch.lgo.drinks.simple.dto.BeersDTOList;
+import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.DrinkTypeEnum;
+import ch.lgo.drinks.simple.entity.Producer;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -57,6 +59,8 @@ public class BeersResourceSteps {
     private String basicPassword;
     @Autowired
     private BeersRepository drinkRepository;
+    @Autowired
+    private ProducerRepository producerRepository;
     
     private Long beerId;
 
@@ -65,13 +69,13 @@ public class BeersResourceSteps {
     }
     
     @Given("^a beer repository with sample beers$")
-    public void repositoryHasContent() throws MalformedURLException {        
-        createAndSaveBeer("Dianemayte", "ABO");
-        createAndSaveBeer("Marz'Ale", "FdB");
-        createAndSaveBeer("Big F ale", "Failure Brew");
+    public void repositoryHasContent() throws MalformedURLException {
+        createAndSaveBeer("Dianemayte", createAndSaveProducer("ABO"));
+        createAndSaveBeer("Marz'Ale", createAndSaveProducer("FdB"));
+        createAndSaveBeer("Big F ale", createAndSaveProducer("Failure Brew"));
     }
-    
-    @When("^I load all beers$")
+
+	@When("^I load all beers$")
     public void loadAllBeers() {
         responseToList = template.getForEntity(resource.toString(), BeersDTOList.class);
     }
@@ -158,10 +162,16 @@ public class BeersResourceSteps {
         assertThat(updatedBeer.getName(), equalTo("Dianemayte" + " reloaded"));
     }
     
-    private Beer createAndSaveBeer(String name, String producerName) {
+    protected Producer createAndSaveProducer(String name) {
+		Producer newProducer = new Producer();
+		newProducer.setName(name);
+		return producerRepository.save(newProducer);
+	}
+    
+    private Beer createAndSaveBeer(String name, Producer producer) {
         Beer newBeer = new Beer();
         newBeer.setName(name);
-        newBeer.setProducerName(producerName);
+        newBeer.setProducer(producer);
         newBeer.setAbv(0.05);
         newBeer.setIbu(30L);
         newBeer.setSrm(20L);

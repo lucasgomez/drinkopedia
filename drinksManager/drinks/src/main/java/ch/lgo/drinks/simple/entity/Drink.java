@@ -6,7 +6,9 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import ch.lgo.drinks.simple.dto.DrinkDTO;
@@ -35,6 +37,7 @@ public abstract class Drink {
 		this.name = name;
 	}
 	
+	@ManyToOne
 	public Producer getProducer() {
 		return producer;
 	}
@@ -53,7 +56,7 @@ public abstract class Drink {
 		this.name = newDrinkDTO.getName();
 	}
 	
-	@ManyToOne
+	@ManyToMany
 	public Set<Bar> getBars() {
 		return bars;
 	}
