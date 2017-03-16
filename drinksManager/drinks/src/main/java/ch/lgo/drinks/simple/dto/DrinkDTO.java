@@ -8,6 +8,8 @@ public class DrinkDTO {
 	private Long id;
 	private String name;
 	private String producerName;
+	private String producerOriginName;
+	private String producerOriginShortName;
 	private DrinkTypeEnum type;
 
 	public Long getId() {
@@ -30,6 +32,21 @@ public class DrinkDTO {
 	public void setProducerName(String producerName) {
 		this.producerName = producerName;
 	}
+	
+	public String getProducerOriginName() {
+		return producerOriginName;
+	}
+	public void setProducerOriginName(String producerOriginName) {
+		this.producerOriginName = producerOriginName;
+	}
+	
+	public String getProducerOriginShortName() {
+		return producerOriginShortName;
+	}
+	public void setProducerOriginShortName(String producerOriginShortName) {
+		this.producerOriginShortName = producerOriginShortName;
+	}
+
 	
 	public DrinkTypeEnum getType() {
 		return type;

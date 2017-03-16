@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class Producer {
+public class Producer implements IHasId {
 
 	private Long id;
 	private String name;	

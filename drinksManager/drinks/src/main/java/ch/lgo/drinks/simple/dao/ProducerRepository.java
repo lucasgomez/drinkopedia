@@ -17,7 +17,7 @@ import ch.lgo.drinks.simple.entity.QProducer;
 
 @Repository
 @Transactional
-public class ProducerRepository {
+public class ProducerRepository implements ICrudRepository<Producer> {
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -55,3 +55,4 @@ public class ProducerRepository {
         new JPADeleteClause(em, qProducer).execute();
     }
 }
+

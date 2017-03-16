@@ -5,11 +5,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class Place {
+public class Place implements IHasId {
 
 	private Long id;
 	private String name;
-	private String shortname;
+	private String shortName;
 	
 	@Id
 	@GeneratedValue
@@ -27,10 +27,10 @@ public class Place {
 		this.name = name;
 	}
 
-	public String getShortname() {
-		return shortname;
+	public String getShortName() {
+		return shortName;
 	}
-	public void setShortname(String shortname) {
-		this.shortname = shortname;
+	public void setShortName(String shortname) {
+		this.shortName = shortname;
 	}
 }
