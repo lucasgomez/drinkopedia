@@ -38,20 +38,32 @@ public class DebugResource {
 	@GET
     @ApiOperation(value = "Find all beers")
     public Response insertDummyBeersAndProviders() throws NoContentFoundException, BadCreationRequestException {
-        createAndSaveBeer("Dianemayte", createAndSaveProducer("ABO", "VD"));
-        createAndSaveBeer("Marz'Ale", createAndSaveProducer("FdB", "CH"));
-        createAndSaveBeer("Big F ale", createAndSaveProducer("Failure Brew", "UK"));
+		Place eng = createAndSaveOrigin("Angleterre", "UK");
+		Place sco = createAndSaveOrigin("Ecosse", "UK");
+		Place vv = createAndSaveOrigin("Vevey", "CH");
+		
+		Producer robinsons = createAndSaveProducer("Robinson's Brewery", eng);
+		Producer brewdog = createAndSaveProducer("Brewdog", sco);
+		Producer fdb = createAndSaveProducer("FdB", vv);
+		
+		createAndSaveBeer("Trooper Red 'N' Black", robinsons);
+        createAndSaveBeer("Dianemayte", fdb);
+        createAndSaveBeer("Black Hammer", brewdog);
 
         return Response.created(null).build();
     }
     
-    protected Producer createAndSaveProducer(String name, String origin) throws BadCreationRequestException {
+	protected Place createAndSaveOrigin(String name, String shortname) throws BadCreationRequestException {
+		Place newPlace = new Place();
+		newPlace.setName(name);
+		newPlace.setShortName(shortname);
+		return placeService.create(newPlace);
+	}
+	
+    protected Producer createAndSaveProducer(String name, Place origin) throws BadCreationRequestException {
 		Producer newProducer = new Producer();
 		newProducer.setName(name);
-		Place newPlace = new Place();
-		newPlace.setName(origin);
-		newPlace = placeService.create(newPlace);
-		newProducer.setOrigin(newPlace);
+		newProducer.setOrigin(origin);
 		return producerService.create(newProducer);
 	}
     

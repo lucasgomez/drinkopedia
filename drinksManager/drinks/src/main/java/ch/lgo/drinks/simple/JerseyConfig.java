@@ -11,6 +11,7 @@ import ch.lgo.drinks.simple.resources.BusinessExceptionMapper;
 import ch.lgo.drinks.simple.resources.DebugResource;
 import ch.lgo.drinks.simple.resources.DrinksResource;
 import ch.lgo.drinks.simple.resources.GenericExceptionMapper;
+import ch.lgo.drinks.simple.resources.OutputResource;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
@@ -34,6 +35,7 @@ public class JerseyConfig extends ResourceConfig {
     private void registerEndpoints() {
         register(DrinksResource.class);
         register(BeersResource.class);
+        register(OutputResource.class);
         register(DebugResource.class);
         register(BusinessExceptionMapper.class);
         register(GenericExceptionMapper.class);
