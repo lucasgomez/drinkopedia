@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
-import ch.lgo.drinks.simple.service.OdtOutputService;
+import ch.lgo.drinks.simple.service.OdsOutputService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiOperation;
 public class OutputResource {
 
 	@Autowired
-	private OdtOutputService outputService;
+	private OdsOutputService outputService;
 	@Autowired
 	private BeersServiceImpl beersService;
 	@Autowired
@@ -41,7 +41,7 @@ public class OutputResource {
 		List<Beer> beers = beersService.getAll();
 		List<BeerDTO> beersList = new ArrayList<>();
 		beers.forEach(beer -> beersList.add(modelMapper.map(beer, BeerDTO.class)));
-		outputService.outputTapBeers(beersList, "mu.odt");
+		outputService.outputBottlesPriceList(beersList);
         return Response.created(null).build();
     }
 	
