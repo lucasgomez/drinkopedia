@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import ch.lgo.drinks.simple.resources.BeersResource;
 import ch.lgo.drinks.simple.resources.BusinessExceptionMapper;
-import ch.lgo.drinks.simple.resources.DebugResource;
 import ch.lgo.drinks.simple.resources.DrinksResource;
 import ch.lgo.drinks.simple.resources.GenericExceptionMapper;
 import ch.lgo.drinks.simple.resources.OutputResource;
@@ -36,7 +35,6 @@ public class JerseyConfig extends ResourceConfig {
         register(DrinksResource.class);
         register(BeersResource.class);
         register(OutputResource.class);
-        register(DebugResource.class);
         register(BusinessExceptionMapper.class);
         register(GenericExceptionMapper.class);
     }

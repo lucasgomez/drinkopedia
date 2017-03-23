@@ -14,7 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.lgo.drinks.simple.dto.BeerDTO;
+import ch.lgo.drinks.simple.dto.DetailedPrintingDrinkDTO;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
 import ch.lgo.drinks.simple.service.OdsOutputService;
@@ -39,8 +39,8 @@ public class OutputResource {
     @ApiOperation(value = "Find all beers")
     public Response createBeerOutput() throws Exception {
 		List<Beer> beers = beersService.getAll();
-		List<BeerDTO> beersList = new ArrayList<>();
-		beers.forEach(beer -> beersList.add(modelMapper.map(beer, BeerDTO.class)));
+		List<DetailedPrintingDrinkDTO> beersList = new ArrayList<>();
+		beers.forEach(beer -> beersList.add(modelMapper.map(beer, DetailedPrintingDrinkDTO.class)));
 		outputService.outputBottlesPriceList(beersList);
         return Response.created(null).build();
     }

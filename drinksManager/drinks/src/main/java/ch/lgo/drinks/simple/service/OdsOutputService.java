@@ -14,7 +14,7 @@ import org.odftoolkit.simple.table.Table;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
-import ch.lgo.drinks.simple.dto.BeerDTO;
+import ch.lgo.drinks.simple.dto.DetailedPrintingDrinkDTO;
 
 @Service
 public class OdsOutputService {
@@ -24,7 +24,7 @@ public class OdsOutputService {
 	private static final String BREWERY_STYLE_NAME = "Brewery";
 	private static final String VOLUME_STYLE_NAME = "Volume";
 	
-	public void outputBottlesPriceList(List<BeerDTO> beers) throws Exception {
+	public void outputBottlesPriceList(List<DetailedPrintingDrinkDTO> list) throws Exception {
 		
 
 		SpreadsheetDocument document = SpreadsheetDocument.newSpreadsheetDocument();
@@ -34,7 +34,7 @@ public class OdsOutputService {
 		prepareColumnsWidth(table);
 		
 		int rowIndex = 0;
-		for (BeerDTO beer : beers) {
+		for (DetailedPrintingDrinkDTO beer : list) {
 			Row firstRow = table.getRowByIndex(rowIndex++);
 			Row secondRow = table.getRowByIndex(rowIndex++);
 			addBeerLines(beer, firstRow, secondRow);
@@ -77,7 +77,7 @@ public class OdsOutputService {
 	 * @param rowNumber row id wher to start insertion
 	 * @return Row number of the next available cell
 	 */
-	private void addBeerLines(BeerDTO beer, Row firstRow, Row secondRow) {
+	private void addBeerLines(DetailedPrintingDrinkDTO beer, Row firstRow, Row secondRow) {
 		int colIndex = 0;
 		
 		//Setup format
@@ -85,16 +85,16 @@ public class OdsOutputService {
 		secondRow.setHeight(4.9, true);
 		
 		//1st row
-		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, beer.getName());
+		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, beer.getBeerName());
 		colIndex++; //empty cell
-		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, "33cl");
-		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, displayABV(beer.getAbv()));
+		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, displayVolume(beer.getVolumeInCl()));
+		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, displayABV(beer.getBeerAbv()));
 		colIndex++;
-		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, displayPrice(3.5));
+		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, displayPrice(beer.getPrice()));
                                        
 		//2nd row                      
 		colIndex = 0;                  
-		writeCell(secondRow, colIndex++, BREWERY_STYLE_NAME, String.format("%s (%s)", beer.getProducerName(), beer.getProducerOriginShortName()));
+		writeCell(secondRow, colIndex++, BREWERY_STYLE_NAME, String.format("%s (%s)", beer.getBeerProducerName(), beer.getBeerProducerOriginShortName()));
 		writeCell(secondRow, colIndex++, BREWERY_STYLE_NAME, "Lager, Noire");
 	}
 	
@@ -113,9 +113,13 @@ public class OdsOutputService {
 		return format.format(price) + " .-";
 	}
 
+	private String displayVolume(int volume) {
+		return String.format("%s cl", volume);
+	}
+
 	private String displayABV(double abv) {
 		DecimalFormat format = new DecimalFormat("#.#%");
-		return format.format(abv);
+		return "'"+format.format(abv);
 	}
 
 	private void cleanOutDocument(OfficeSpreadsheetElement officeSpreadsheetElement) {
