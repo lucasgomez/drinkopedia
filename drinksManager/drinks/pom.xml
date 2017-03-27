@@ -20,6 +20,14 @@
 		<cucumber.version>1.2.4</cucumber.version>
 	</properties>
 
+	<repositories>
+		<!-- GitHub for maven -->
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -173,6 +181,17 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- <dependency>
+			<groupId>com.github.matchami</groupId>
+			<artifactId>docx5j</artifactId>
+			<version>master-SNAPSHOT</version>
+		</dependency> -->
+
+		<dependency>
+			<groupId>com.jumbletree</groupId>
+			<artifactId>docx5j</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

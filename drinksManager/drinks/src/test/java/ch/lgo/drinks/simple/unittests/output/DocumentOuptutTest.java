@@ -1,5 +1,7 @@
 package ch.lgo.drinks.simple.unittests.output;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +15,15 @@ import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.entity.SellableBottledDrink;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
-import ch.lgo.drinks.simple.service.OdsOutputService;
+import ch.lgo.drinks.simple.service.XlsxOutputService;
 
 public class DocumentOuptutTest {
 	
 	@Test
-	public void exportPriceListOds() throws NoContentFoundException, BadCreationRequestException, Exception {
-		OdsOutputService service = new OdsOutputService();
-		service.outputBottlesPriceList(insertDummyBeersAndProviders());
+	public void exportPriceList() throws NoContentFoundException, BadCreationRequestException, Exception {
+		XlsxOutputService service = new XlsxOutputService();
+		File output = service.outputBottlesPriceList(insertDummyBeersAndProviders(), "src/test/resources/output/", "ohm");
+		Desktop.getDesktop().open(output);
 	}
 	
 	private List<DetailedPrintingDrinkDTO> insertDummyBeersAndProviders() throws NoContentFoundException, BadCreationRequestException {
@@ -36,7 +39,7 @@ public class DocumentOuptutTest {
 		
 		List<SellableBottledDrink> drinks = new ArrayList<>();
 		drinks.add(createAndSaveSellingBeer("Trooper Red 'N' Black", robinsons, 5.5, 24, 6.0, 33));
-		drinks.add(createAndSaveSellingBeer("Dianemayte", fdb, 8.0, 45, 5.5, 50));
+		drinks.add(createAndSaveSellingBeer("Dianemayte", fdb, 8.0, 45, 15.5, 50));
 		drinks.add(createAndSaveSellingBeer("Black Hammer", brewdog, 7.2, 42, 6.5, 33));
 		
 		List<DetailedPrintingDrinkDTO> beersDTO = new ArrayList<>();

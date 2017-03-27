@@ -9,7 +9,6 @@ import org.odftoolkit.odfdom.dom.style.props.OdfTextProperties;
 import org.odftoolkit.odfdom.incubator.doc.office.OdfOfficeStyles;
 import org.odftoolkit.odfdom.incubator.doc.style.OdfStyle;
 import org.odftoolkit.simple.TextDocument;
-import org.odftoolkit.simple.text.Paragraph;
 import org.springframework.stereotype.Service;
 
 import ch.lgo.drinks.simple.dto.BeerDTO;
@@ -44,7 +43,6 @@ public class OdtOutputService {
 			 * E.g. : Trooper Red 'N' Black -> 5.2% -> 6.- Robinson Brewery,
 			 * Lager, Blonde, DE
 			 */
-			Paragraph paragraph = document.addParagraph(null);
 			document.newParagraph()
 					.addStyledContent(BEER_STYLE_NAME, beer.getName() + TAB)
 					.addStyledContent(VOLUME_STYLE_NAME, displayABV(beer.getAbv()) + TAB)
