@@ -6,7 +6,7 @@ import javax.persistence.Id;
 public class SellableBottledDrink implements IHasId {
 
 	private Long id;
-	private Beer beer;
+	private Beer drink;
 	private Integer volumeInCl;
 	private Double price;
 	
@@ -21,11 +21,11 @@ public class SellableBottledDrink implements IHasId {
 		this.id = id;
 	}
 	
-	public Beer getBeer() {
-		return beer;
+	public Beer getDrink() {
+		return drink;
 	}
-	public void setBeer(Beer beer) {
-		this.beer = beer;
+	public void setDrink(Beer beer) {
+		this.drink = beer;
 	}
 	
 	public Integer getVolumeInCl() {

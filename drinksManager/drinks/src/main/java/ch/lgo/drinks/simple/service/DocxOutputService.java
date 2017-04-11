@@ -1,10 +1,10 @@
 package ch.lgo.drinks.simple.service;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.wml.P;
 import org.odftoolkit.odfdom.dom.style.OdfStyleFamily;
 import org.odftoolkit.odfdom.dom.style.props.OdfTextProperties;
 import org.odftoolkit.odfdom.incubator.doc.style.OdfStyle;
@@ -14,40 +14,51 @@ import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.springframework.stereotype.Service;
 
+import com.jumbletree.docx5j.docx.DOCXBuilder;
+import com.jumbletree.docx5j.docx.Paragraph;
+
 import ch.lgo.drinks.simple.dto.DetailedPrintingDrinkDTO;
 
 @Service
-public class DocxOutputService {
+public class DocxOutputService extends AbstractDocx5JHelper {
 
 	private static final String BEER_STYLE_NAME = "Beername";
 	private static final String INFOS_STYLE_NAME = "Infos";
 	private static final String BREWERY_STYLE_NAME = "Brewery";
 	private static final String VOLUME_STYLE_NAME = "Volume";
+	private static final String EXTENSION = ".docx";
 
-	public void outputBottlesPriceList(List<DetailedPrintingDrinkDTO> list) throws Exception {
+	public File outputBottlesPriceList(List<DetailedPrintingDrinkDTO> list, String path, String baseFileName) throws Exception {
+		DOCXBuilder builder = new DOCXBuilder();
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
 
+		for (DetailedPrintingDrinkDTO beer : list) {
+			Paragraph paragraph = builder.createParagraph()
+//			.addBoldText(beer.getDrinkName()).addTabDefinition(0, "left", );
+			.addBoldText(beer.getDrinkName()).tab().addBoldText(displayPrice(beer.getPrice()));
+			
+			wordMLPackage.getMainDocumentPart().addParagraph(paragraph.toString());
+			
+//			paragraph.
+		}
+		
+		//TODO Try tabs with rule
+		//TODO Add text with bold/normal
+		//TODO Add tabs
+		//TODO Add styles
+		//TODO Justify
+		//TODO Refactor
+		
+//		Save saver = new Save(wordMLPackage);
+//		saver.save(out);
+
 //		createStyles(wordMLPackage);
-		P paragraph = wordMLPackage.getMainDocumentPart().addStyledParagraphOfText("Title", "Hello Maven Central");
-
+//		P paragraph = wordMLPackage.getMainDocumentPart().addStyledParagraphOfText("Title", "Hello Maven Central");
 //		wordMLPackage.getMainDocumentPart().addParagraphOfText("from docx4j!");
-
 		// Now save it
-		wordMLPackage.save(new java.io.File(System.getProperty("user.dir") + "/helloMavenCentral.docx"));
-
-
-//		prepareColumnsWidth(table);
-//
-//		int rowIndex = 0;
-//		for (DetailedPrintingDrinkDTO beer : list) {
-//			Row firstRow = table.getRowByIndex(rowIndex++);
-//			Row secondRow = table.getRowByIndex(rowIndex++);
-//			addBeerLines(beer, firstRow, secondRow);
-//			// Empty line
-//			rowIndex++;
-//		}
-//
-//		document.save("phi.ods");
+		File file = new File(buildFullName(path, baseFileName, EXTENSION));
+		wordMLPackage.save(file);
+		return file;
 	}
 
 	private void prepareColumnsWidth(Table table) {
@@ -93,18 +104,18 @@ public class DocxOutputService {
 		secondRow.setHeight(4.9, true);
 
 		// 1st row
-		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, beer.getBeerName());
-		colIndex++; // empty cell
-		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, displayVolume(beer.getVolumeInCl()));
-		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, displayABV(beer.getBeerAbv()));
-		colIndex++;
-		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, displayPrice(beer.getPrice()));
-
-		// 2nd row
-		colIndex = 0;
-		writeCell(secondRow, colIndex++, BREWERY_STYLE_NAME,
-				String.format("%s (%s)", beer.getBeerProducerName(), beer.getBeerProducerOriginShortName()));
-		writeCell(secondRow, colIndex++, BREWERY_STYLE_NAME, "Lager, Noire");
+//		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, beer.getDrinkName());
+//		colIndex++; // empty cell
+//		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, displayVolume(beer.getVolumeInCl()));
+//		writeCell(firstRow, colIndex++, VOLUME_STYLE_NAME, displayABV(beer.getBeerAbv()));
+//		colIndex++;
+//		writeCell(firstRow, colIndex++, BEER_STYLE_NAME, displayPrice(beer.getPrice()));
+//
+//		// 2nd row
+//		colIndex = 0;
+//		writeCell(secondRow, colIndex++, BREWERY_STYLE_NAME,
+//				String.format("%s (%s)", beer.getBeerProducerName(), beer.getBeerProducerOriginShortName()));
+//		writeCell(secondRow, colIndex++, BREWERY_STYLE_NAME, "Lager, Noire");
 	}
 
 	private void setColumnWidth(Table table, int columnIndex, double width) {

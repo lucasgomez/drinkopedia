@@ -4,14 +4,16 @@ public class DetailedPrintingDrinkDTO {
 	
 	private Long id;
 	private Long beerId;
-	private String beerName;
-	private String beerProducerName;
-	private String beerProducerOriginShortName;
-    private Double beerAbv;
-    private Long beerIbu;
-    private Long beerSrm; 
+	private String drinkName;
+	private String drinkProducerName;
+	private String drinkProducerOriginName;
+	private String drinkProducerOriginShortName;
+    private Double drinkAbv;
+    private Long drinkIbu;
+    private Long drinkSrm; 
 	private Integer volumeInCl;
 	private Double price;
+	private String drinkComment;
 	
 	public Long getId() {
 		return id;
@@ -27,46 +29,53 @@ public class DetailedPrintingDrinkDTO {
 		this.beerId = beerId;
 	}
 	
-	public String getBeerName() {
-		return beerName;
+	public String getDrinkName() {
+		return drinkName;
 	}
-	public void setBeerName(String beerName) {
-		this.beerName = beerName;
+	public void setDrinkName(String beerName) {
+		this.drinkName = beerName;
 	}
-	
-	public String getBeerProducerName() {
-		return beerProducerName;
+
+	public String getDrinkProducerName() {
+		return drinkProducerName;
 	}
-	public void setBeerProducerName(String beerProducerName) {
-		this.beerProducerName = beerProducerName;
-	}
-	
-	public String getBeerProducerOriginShortName() {
-		return beerProducerOriginShortName;
-	}
-	public void setBeerProducerOriginShortName(String beerProducerOriginShortName) {
-		this.beerProducerOriginShortName = beerProducerOriginShortName;
+	public void setDrinkProducerName(String drinkProducerName) {
+		this.drinkProducerName = drinkProducerName;
 	}
 	
-	public Double getBeerAbv() {
-		return beerAbv;
+	public String getDrinkProducerOriginName() {
+		return drinkProducerOriginName;
 	}
-	public void setBeerAbv(Double beerAbv) {
-		this.beerAbv = beerAbv;
-	}
-	
-	public Long getBeerIbu() {
-		return beerIbu;
-	}
-	public void setBeerIbu(Long beerIbu) {
-		this.beerIbu = beerIbu;
+	public void setDrinkProducerOriginName(String drinkProducerOriginName) {
+		this.drinkProducerOriginName = drinkProducerOriginName;
 	}
 	
-	public Long getBeerSrm() {
-		return beerSrm;
+	public String getDrinkProducerOriginShortName() {
+		return drinkProducerOriginShortName;
 	}
-	public void setBeerSrm(Long beerSrm) {
-		this.beerSrm = beerSrm;
+	public void setDrinkProducerOriginShortName(String drinkProducerOriginShortName) {
+		this.drinkProducerOriginShortName = drinkProducerOriginShortName;
+	}
+	
+	public Double getDrinkAbv() {
+		return drinkAbv;
+	}
+	public void setDrinkAbv(Double drinkAbv) {
+		this.drinkAbv = drinkAbv;
+	}
+	
+	public Long getDrinkIbu() {
+		return drinkIbu;
+	}
+	public void setDrinkIbu(Long drinkIbu) {
+		this.drinkIbu = drinkIbu;
+	}
+	
+	public Long getDrinkSrm() {
+		return drinkSrm;
+	}
+	public void setDrinkSrm(Long drinkSrm) {
+		this.drinkSrm = drinkSrm;
 	}
 	
 	public Integer getVolumeInCl() {
@@ -81,5 +90,12 @@ public class DetailedPrintingDrinkDTO {
 	}
 	public void setPrice(Double price) {
 		this.price = price;
+	}
+
+	public String getDrinkComment() {
+		return drinkComment;
+	}
+	public void setDrinkComment(String drinkComment) {
+		this.drinkComment = drinkComment;
 	}
 }

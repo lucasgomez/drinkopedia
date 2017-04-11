@@ -18,6 +18,7 @@ public abstract class Drink {
 	private Long id;
 	private String name;
 	private Producer producer;
+	private String comment;
 	private Set<Bar> bars = new HashSet<>();
 	
 	@Id
@@ -44,15 +45,11 @@ public abstract class Drink {
 		this.producer = producer;
 	}
 	
-	public Drink() {
+	public String getComment() {
+		return comment;
 	}
-		
-	public Drink(String name) {
-		this.name = name;
-	}
-	
-	public Drink(DrinkDTO newDrinkDTO) {
-		this.name = newDrinkDTO.getName();
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 	
 	@ManyToMany
@@ -65,4 +62,15 @@ public abstract class Drink {
 	
 	@Transient
 	public abstract DrinkTypeEnum getDrinkType();
+
+	public Drink() {
+	}
+		
+	public Drink(String name) {
+		this.name = name;
+	}
+	
+	public Drink(DrinkDTO newDrinkDTO) {
+		this.name = newDrinkDTO.getName();
+	}
 }

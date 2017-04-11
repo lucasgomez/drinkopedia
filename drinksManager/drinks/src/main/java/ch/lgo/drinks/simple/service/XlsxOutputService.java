@@ -3,29 +3,22 @@ package ch.lgo.drinks.simple.service;
 import java.awt.Color;
 import java.io.File;
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.stereotype.Service;
-import org.xlsx4j.jaxb.Context;
-import org.xlsx4j.sml.CTRst;
-import org.xlsx4j.sml.CTXstringWhitespace;
-import org.xlsx4j.sml.Cell;
-import org.xlsx4j.sml.Row;
-import org.xlsx4j.sml.STCellType;
 import org.xlsx4j.sml.STHorizontalAlignment;
 
 import com.jumbletree.docx5j.xlsx.XLSXFile;
+import com.jumbletree.docx5j.xlsx.builders.CellBuilder;
+import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
 import ch.lgo.drinks.simple.dto.DetailedPrintingDrinkDTO;
 
 @Service
-public class XlsxOutputService {
+public class XlsxOutputService extends AbstractDocx5JHelper {
 
 	private static final double FIRST_ROW_HEIGHT = 22.28;
 	private static final double SECOND_ROW_HEIGHT = 15.27;
@@ -34,43 +27,40 @@ public class XlsxOutputService {
 	private static final String INFOS_STYLE_NAME = "Infos";
 	private static final String BREWERY_STYLE_NAME = "Brewery";
 	private static final String VOLUME_STYLE_NAME = "Volume";
+	private static final String DESCRIPTION_STYLE_NAME = "Description";
 	private static final String FONT_NAME = "Calibri";
+	private static final String EXTENSION = ".xlsx";
 	
-	public File outputBottlesPriceList(List<DetailedPrintingDrinkDTO> list, String path, String baseFileName) throws Exception {
+	public File outputBottlesPriceLists(List<DetailedPrintingDrinkDTO> list, String path, String baseFileName) throws Exception {
 		XLSXFile file = new XLSXFile();
 		
 		createStyles(file);
-		WorksheetBuilder sheet = file.getWorkbookBuilder().getSheet(0);
-		sheet.setName("Beers");
+		insertSummarizedList(list, file.getWorkbookBuilder().getSheet(0));
+		insertDetailedList(list, file.getWorkbookBuilder().appendSheet());
+		
+		File out = new File(buildFullName(path, baseFileName, EXTENSION));
+		file.save(out);
+		return out;
+	}
+	
+	public void insertSummarizedList(List<DetailedPrintingDrinkDTO> list, WorksheetBuilder sheet) throws Exception {
+		sheet.setName("BigList");
 		
 		prepareColumnsWidth(sheet);
 		
 		for (DetailedPrintingDrinkDTO beer : list) {
 			addBeerLines(sheet, beer);
 		}
-		
-		File out = new File(buildFullName(path, baseFileName));
-		file.save(out);
-		return out;
 	}
 	
-	private String buildFullName(String path, String baseFileName) {
-		StringBuilder fullPath = new StringBuilder();
-		if (StringUtils.isNotBlank(path)) {
-			fullPath.append(path);
-			if (!path.substring(path.length()-1, path.length()).contentEquals("/")) {
-				fullPath.append("/");
-			}
-		}
-		if (StringUtils.isNoneBlank(baseFileName)) {
-			fullPath.append(baseFileName);
-		} else {
-			fullPath.append("phi");
-		}
-		fullPath.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("_yyyy-MM-dd_HH-mm-ss")));
-		fullPath.append(".xlsx");
+	public void insertDetailedList(List<DetailedPrintingDrinkDTO> list, WorksheetBuilder sheet) throws Exception {
+		sheet.setName("DetailedList");
 		
-		return fullPath.toString();
+		prepareColumnsWidth(sheet);
+		
+		for (DetailedPrintingDrinkDTO beer : list) {
+			addDetailedBeerLines(sheet, beer);
+		}
 	}
 
 	private void prepareColumnsWidth(WorksheetBuilder sheet) throws Docx4JException {
@@ -88,6 +78,7 @@ public class XlsxOutputService {
 		createStyle(BREWERY_STYLE_NAME, file, 12, true);
 		createStyle(VOLUME_STYLE_NAME, file, 14, false, STHorizontalAlignment.RIGHT);
 		createStyle(PRICE_STYLE_NAME, file, 20, true, STHorizontalAlignment.RIGHT);
+		createStyle(DESCRIPTION_STYLE_NAME, file, 12, false, STHorizontalAlignment.JUSTIFY);
 	}
 	
 	private void createStyle(String styleName, XLSXFile document, Integer fontSize, boolean isBold) {
@@ -105,12 +96,14 @@ public class XlsxOutputService {
 	private void addBeerLines(WorksheetBuilder sheet, DetailedPrintingDrinkDTO beer) throws Docx4JException {
 		
 		sheet.nextRow()
+				.sheet()
+			 .nextRow()
 				.height(FIRST_ROW_HEIGHT, true)
 				.nextCell()
 					.row()
 				.nextCell()
 					.style(BEER_STYLE_NAME)
-					.value(beer.getBeerName())
+					.value(beer.getDrinkName())
 					.row()
 				.nextCell()
 					.row()
@@ -120,7 +113,7 @@ public class XlsxOutputService {
 					.row()
 				.nextCell()
 					.style(VOLUME_STYLE_NAME)
-					.value(displayABV(beer.getBeerAbv()))
+					.value(displayABV(beer.getDrinkAbv()))
 					.row()
 				.nextCell()
 					.style(PRICE_STYLE_NAME)
@@ -132,36 +125,32 @@ public class XlsxOutputService {
 				.nextCell()
 					.row()
 				.nextCell()
-					.style(BREWERY_STYLE_NAME)
-					.value(String.format("%s (%s)", beer.getBeerProducerName(), beer.getBeerProducerOriginShortName()))
+					.style(BREWERY_STYLE_NAME) //TODO Format & merge cells
+					.value(String.format("%s (%s - %s)", beer.getDrinkProducerName(), beer.getDrinkProducerOriginShortName(), beer.getDrinkProducerOriginShortName()))
 					.row()
 				.nextCell()
 					.style(INFOS_STYLE_NAME)
-					.value("Lager, Noire")
-					.row()
-				.sheet()
-			.nextRow();
+					.value(String.format("%s - %s", "lager", "noire")); //TODO Replace placeholders
 	}
 	
-	private Cell createCell(String content) {
-		Cell cell = Context.getsmlObjectFactory().createCell();
-		CTXstringWhitespace ctx = Context.getsmlObjectFactory().createCTXstringWhitespace();
-		ctx.setValue(content);
+	private void addDetailedBeerLines(WorksheetBuilder sheet, DetailedPrintingDrinkDTO beer) throws Docx4JException {
+		addBeerLines(sheet, beer);
 		
-		CTRst ctrst = new CTRst();
-		ctrst.setT(ctx);
-
-		cell.setT(STCellType.INLINE_STR);
-		cell.setIs(ctrst); 
-		return cell;
-	}
-	
-	private void addNewCell(Row row, String styleName, String content) {
-		row.getC().add(createCell(content));
-	}
-	
-	private void addEmptyCell(Row row) {
-		row.getC().add(Context.getsmlObjectFactory().createCell());
+		//Add details
+		RowBuilder row = sheet.nextRow().height(SECOND_ROW_HEIGHT);
+		CellBuilder firstCell = row.nextCell();
+		CellBuilder lastCell = firstCell.row().nextCell().row().nextCell().row().nextCell();
+		
+//		XLSXRange range = new XLSXRange(sheet, firstCell, lastCell);
+//		firstCell.row()
+//			.nextCell()
+//				.style(DESCRIPTION_STYLE_NAME)
+//				.value(beer.getDrinkComment())
+//				.row()
+//			.addExplicitSpan(1, 4);
+		
+		//TODO Merge 4 cells
+		//TODO Autoheight
 	}
 	
 	private String displayPrice(double price) {

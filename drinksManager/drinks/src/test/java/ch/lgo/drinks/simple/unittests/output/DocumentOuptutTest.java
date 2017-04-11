@@ -15,13 +15,24 @@ import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.entity.SellableBottledDrink;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
+import ch.lgo.drinks.simple.service.DocxOutputService;
 import ch.lgo.drinks.simple.service.XlsxOutputService;
 
 public class DocumentOuptutTest {
 	
+	private static final String LOREM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tellus ipsum, sollicitudin at metus ultrices, vestibulum feugiat lectus. Integer gravida ultrices est, vel euismod dolor cursus non. Mauris varius, est sit amet vestibulum vehicula, ipsum diam pulvinar est, eget facilisis turpis ante non neque. Pellentesque scelerisque velit sit amet tincidunt euismod. Donec lobortis, augue vehicula dapibus suscipit, urna purus semper dolor, id ultricies sapien sapien vel felis. Integer fringilla iaculis sapien, id feugiat leo luctus vel. Sed eget commodo nulla. ";
+	private static final String LOREM_SHORT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tellus ipsum, sollicitudin at metus ultrices";
+
 	@Test
 	public void exportPriceList() throws NoContentFoundException, BadCreationRequestException, Exception {
 		XlsxOutputService service = new XlsxOutputService();
+		File output = service.outputBottlesPriceLists(insertDummyBeersAndProviders(), "src/test/resources/output/", "ohm");
+		Desktop.getDesktop().open(output);
+	}
+	
+	@Test
+	public void exportPriceListAsDocx() throws NoContentFoundException, BadCreationRequestException, Exception {
+		DocxOutputService service = new DocxOutputService();
 		File output = service.outputBottlesPriceList(insertDummyBeersAndProviders(), "src/test/resources/output/", "ohm");
 		Desktop.getDesktop().open(output);
 	}
@@ -38,9 +49,9 @@ public class DocumentOuptutTest {
 		Producer fdb = createAndSaveProducer("FdB", vv);
 		
 		List<SellableBottledDrink> drinks = new ArrayList<>();
-		drinks.add(createAndSaveSellingBeer("Trooper Red 'N' Black", robinsons, 5.5, 24, 6.0, 33));
-		drinks.add(createAndSaveSellingBeer("Dianemayte", fdb, 8.0, 45, 15.5, 50));
-		drinks.add(createAndSaveSellingBeer("Black Hammer", brewdog, 7.2, 42, 6.5, 33));
+		drinks.add(createAndSaveSellingBeer("Trooper Red 'N' Black", LOREM_LONG, robinsons, 5.5, 24, 6.0, 33));
+		drinks.add(createAndSaveSellingBeer("Dianemayte", LOREM_SHORT, fdb, 8.0, 45, 15.5, 50));
+		drinks.add(createAndSaveSellingBeer("Black Hammer", "Rien à dire", brewdog, 7.2, 42, 6.5, 33));
 		
 		List<DetailedPrintingDrinkDTO> beersDTO = new ArrayList<>();
 		drinks.forEach(beer -> beersDTO.add(modelMapper.map(beer, DetailedPrintingDrinkDTO.class)));
@@ -61,15 +72,16 @@ public class DocumentOuptutTest {
 		return newProducer;
 	}
     
-    private SellableBottledDrink createAndSaveSellingBeer(String name, Producer producer, Double abv, Integer ibu, Double price, Integer volume) throws BadCreationRequestException {
+    private SellableBottledDrink createAndSaveSellingBeer(String name, String comment, Producer producer, Double abv, Integer ibu, Double price, Integer volume) throws BadCreationRequestException {
         Beer newBeer = new Beer();
         newBeer.setName(name);
+        newBeer.setComment(comment);
         newBeer.setProducer(producer);
         newBeer.setAbv(abv);
         newBeer.setIbu(30L);
         
         SellableBottledDrink sellableDrink = new SellableBottledDrink();
-        sellableDrink.setBeer(newBeer);
+        sellableDrink.setDrink(newBeer);
         sellableDrink.setPrice(price);
         sellableDrink.setVolumeInCl(volume);
         return sellableDrink;
