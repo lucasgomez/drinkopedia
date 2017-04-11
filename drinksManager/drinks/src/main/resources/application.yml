@@ -12,13 +12,33 @@ server:
     basedir:
     backgroundProcessorDelay: 30 # secs
     
+debug: true
+
 spring:
     jpa:
-        generate-ddl: true
+      show-sql: true
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      generate-ddl: true
+      properties:
+        javax:
+          persistence:
+            schema-generation:
+              create-source: metadata
+              scripts:
+                action: create
+                create-target: create.sql
     datasource:
         initialize: true
+        url: jdbc:postgresql://localhost:5432/drinkopedia
+        username: postgres
+        password: postgres
     jersey:
         application-path: /api
+        
+#spring.datasource.url= jdbc:postgresql://localhost:5432/springbootdb
+#spring.datasource.username=postgres
+#spring.datasource.password=postgres@123
+#spring.jpa.hibernate.ddl-auto=create-drop
         
 security:
   user:
