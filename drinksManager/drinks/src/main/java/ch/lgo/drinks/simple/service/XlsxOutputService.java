@@ -15,7 +15,7 @@ import com.jumbletree.docx5j.xlsx.builders.CellBuilder;
 import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
-import ch.lgo.drinks.simple.dto.DetailedPrintingDrinkDTO;
+import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 
 @Service
 public class XlsxOutputService extends AbstractDocx5JHelper {
@@ -31,7 +31,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	private static final String FONT_NAME = "Calibri";
 	private static final String EXTENSION = ".xlsx";
 	
-	public File outputBottlesPriceLists(List<DetailedPrintingDrinkDTO> list, String path, String baseFileName) throws Exception {
+	public File outputBottlesPriceLists(List<BottledBeerDetailedDto> list, String path, String baseFileName) throws Exception {
 		XLSXFile file = new XLSXFile();
 		
 		createStyles(file);
@@ -43,22 +43,22 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		return out;
 	}
 	
-	public void insertSummarizedList(List<DetailedPrintingDrinkDTO> list, WorksheetBuilder sheet) throws Exception {
+	public void insertSummarizedList(List<BottledBeerDetailedDto> list, WorksheetBuilder sheet) throws Exception {
 		sheet.setName("BigList");
 		
 		prepareColumnsWidth(sheet);
 		
-		for (DetailedPrintingDrinkDTO beer : list) {
+		for (BottledBeerDetailedDto beer : list) {
 			addBeerLines(sheet, beer);
 		}
 	}
 	
-	public void insertDetailedList(List<DetailedPrintingDrinkDTO> list, WorksheetBuilder sheet) throws Exception {
+	public void insertDetailedList(List<BottledBeerDetailedDto> list, WorksheetBuilder sheet) throws Exception {
 		sheet.setName("DetailedList");
 		
 		prepareColumnsWidth(sheet);
 		
-		for (DetailedPrintingDrinkDTO beer : list) {
+		for (BottledBeerDetailedDto beer : list) {
 			addDetailedBeerLines(sheet, beer);
 		}
 	}
@@ -93,7 +93,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		
 	}
 	
-	private void addBeerLines(WorksheetBuilder sheet, DetailedPrintingDrinkDTO beer) throws Docx4JException {
+	private void addBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {
 		
 		sheet.nextRow()
 				.sheet()
@@ -103,21 +103,21 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.row()
 				.nextCell()
 					.style(BEER_STYLE_NAME)
-					.value(beer.getDrinkName())
+					.value(beer.getName())
 					.row()
 				.nextCell()
 					.row()
 				.nextCell()
 					.style(VOLUME_STYLE_NAME)
-					.value(displayVolume(beer.getVolumeInCl()))
+					.value(displayVolume(beer))
 					.row()
 				.nextCell()
 					.style(VOLUME_STYLE_NAME)
-					.value(displayABV(beer.getDrinkAbv()))
+					.value(displayABV(beer))
 					.row()
 				.nextCell()
 					.style(PRICE_STYLE_NAME)
-					.value(displayPrice(beer.getPrice()))
+					.value(displayPrice(beer))
 					.row()
 				.sheet()
 			.nextRow()
@@ -126,14 +126,14 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.row()
 				.nextCell()
 					.style(BREWERY_STYLE_NAME) //TODO Format & merge cells
-					.value(String.format("%s (%s - %s)", beer.getDrinkProducerName(), beer.getDrinkProducerOriginShortName(), beer.getDrinkProducerOriginShortName()))
+					.value(String.format("%s (%s - %s)", beer.getProducerName(), beer.getProducerOriginShortName(), beer.getProducerOriginShortName()))
 					.row()
 				.nextCell()
 					.style(INFOS_STYLE_NAME)
 					.value(String.format("%s - %s", "lager", "noire")); //TODO Replace placeholders
 	}
 	
-	private void addDetailedBeerLines(WorksheetBuilder sheet, DetailedPrintingDrinkDTO beer) throws Docx4JException {
+	private void addDetailedBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {
 		addBeerLines(sheet, beer);
 		
 		//Add details
@@ -153,17 +153,26 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		//TODO Autoheight
 	}
 	
-	private String displayPrice(double price) {
+	private String displayPrice(BottledBeerDetailedDto beer) {
 		DecimalFormat format = new DecimalFormat("#.0");
-		return format.format(price) + " .-";
+		if (beer.getBottlePrice() != null)
+			return format.format(beer.getBottlePrice()) + " .-";
+		else
+			return "";
 	}
 
-	private String displayVolume(int volume) {
-		return String.format("%s cl", volume);
+	private String displayVolume(BottledBeerDetailedDto beer) {
+		if (beer.getBottleVolumeInCl() != null)
+			return String.format("%s cl", beer.getBottleVolumeInCl());
+		else
+			return "";
 	}
 
-	private String displayABV(double abv) {
+	private String displayABV(BottledBeerDetailedDto beer) {
 		DecimalFormat format = new DecimalFormat("#.0");
-		return format.format(abv)+"%";
+		if (beer.getAbv() != null)
+			return format.format(beer.getAbv())+"%";
+		else
+			return "";
 	}
 }

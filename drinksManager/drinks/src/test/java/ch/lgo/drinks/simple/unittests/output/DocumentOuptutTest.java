@@ -8,11 +8,11 @@ import java.util.List;
 import org.junit.Test;
 import org.modelmapper.ModelMapper;
 
-import ch.lgo.drinks.simple.dto.DetailedPrintingDrinkDTO;
+import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.Place;
 import ch.lgo.drinks.simple.entity.Producer;
-import ch.lgo.drinks.simple.entity.SellableBottledDrink;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.service.DocxOutputService;
@@ -37,7 +37,7 @@ public class DocumentOuptutTest {
 		Desktop.getDesktop().open(output);
 	}
 	
-	private List<DetailedPrintingDrinkDTO> insertDummyBeersAndProviders() throws NoContentFoundException, BadCreationRequestException {
+	private List<BottledBeerDetailedDto> insertDummyBeersAndProviders() throws NoContentFoundException, BadCreationRequestException {
 		ModelMapper modelMapper = new ModelMapper();
 		
 		Place eng = createAndSaveOrigin("Angleterre", "UK");
@@ -48,13 +48,13 @@ public class DocumentOuptutTest {
 		Producer brewdog = createAndSaveProducer("Brewdog", sco);
 		Producer fdb = createAndSaveProducer("FdB", vv);
 		
-		List<SellableBottledDrink> drinks = new ArrayList<>();
-		drinks.add(createAndSaveSellingBeer("Trooper Red 'N' Black", LOREM_LONG, robinsons, 5.5, 24, 6.0, 33));
-		drinks.add(createAndSaveSellingBeer("Dianemayte", LOREM_SHORT, fdb, 8.0, 45, 15.5, 50));
-		drinks.add(createAndSaveSellingBeer("Black Hammer", "Rien à dire", brewdog, 7.2, 42, 6.5, 33));
+		List<Beer> drinks = new ArrayList<>();
+		drinks.add(createAndSaveSellingBeer("Trooper Red 'N' Black", LOREM_LONG, robinsons, 5.5, 24, 6.0, 33L));
+		drinks.add(createAndSaveSellingBeer("Dianemayte", LOREM_SHORT, fdb, 8.0, 45, 15.5, 50L));
+		drinks.add(createAndSaveSellingBeer("Black Hammer", "Rien à dire", brewdog, 7.2, 42, 6.5, 33L));
 		
-		List<DetailedPrintingDrinkDTO> beersDTO = new ArrayList<>();
-		drinks.forEach(beer -> beersDTO.add(modelMapper.map(beer, DetailedPrintingDrinkDTO.class)));
+		List<BottledBeerDetailedDto> beersDTO = new ArrayList<>();
+		drinks.forEach(beer -> beersDTO.add(modelMapper.map(beer, BottledBeerDetailedDto.class)));
         return beersDTO;
     }
     
@@ -72,7 +72,7 @@ public class DocumentOuptutTest {
 		return newProducer;
 	}
     
-    private SellableBottledDrink createAndSaveSellingBeer(String name, String comment, Producer producer, Double abv, Integer ibu, Double price, Integer volume) throws BadCreationRequestException {
+    private Beer createAndSaveSellingBeer(String name, String comment, Producer producer, Double abv, Integer ibu, Double price, Long volume) throws BadCreationRequestException {
         Beer newBeer = new Beer();
         newBeer.setName(name);
         newBeer.setComment(comment);
@@ -80,10 +80,12 @@ public class DocumentOuptutTest {
         newBeer.setAbv(abv);
         newBeer.setIbu(30L);
         
-        SellableBottledDrink sellableDrink = new SellableBottledDrink();
-        sellableDrink.setDrink(newBeer);
+        BottledBeer sellableDrink = new BottledBeer();
+        sellableDrink.setBeer(newBeer);
         sellableDrink.setPrice(price);
         sellableDrink.setVolumeInCl(volume);
-        return sellableDrink;
+        
+        newBeer.setBottle(sellableDrink);
+        return newBeer;
     }
 }

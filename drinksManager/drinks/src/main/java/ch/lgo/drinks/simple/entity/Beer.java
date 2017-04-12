@@ -3,21 +3,55 @@ package ch.lgo.drinks.simple.entity;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Transient;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity
-public class Beer extends Drink {
+public class Beer {
 
+	private Long id;
+	private String name;
+	private Producer producer;
     private Double abv; //Alcool
     private Long ibu; //Bitterness
     private Long srm; //Color 
-    private Set<BeerStyle> styles = new HashSet<>();
-    private Set<FermentingEnum> fermentings = new HashSet<>();
-	private Set<Tag> tags = new HashSet<>(); 
-    
+    private Long plato;
+	private BeerStyle style;
+    private FermentingEnum fermenting;
+	private String comment;
+	private BottledBeer bottle;
+	private TapBeer tap;
+	private Set<Bar> bars = new HashSet<>();
+	
+	@Id
+	@GeneratedValue
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@ManyToOne
+	public Producer getProducer() {
+		return producer;
+	}
+	public void setProducer(Producer producer) {
+		this.producer = producer;
+	}
+	
     public Double getAbv() {
         return abv;
     }
@@ -38,37 +72,58 @@ public class Beer extends Drink {
     public void setSrm(Long srm) {
         this.srm = srm;
     }
-    
-    @ManyToMany
-    public Set<BeerStyle> getStyles() {
-        return styles;
-    }
-    public void setStyles(Set<BeerStyle> styles) {
-        this.styles = styles;
-    }
 
-	@ElementCollection
-    public Set<FermentingEnum> getFermentings() {
-		return fermentings;
+    public Long getPlato() {
+		return plato;
 	}
-	public void setFermentings(Set<FermentingEnum> fermentings) {
-		this.fermentings = fermentings;
+	public void setPlato(Long plato) {
+		this.plato = plato;
 	}
-
-    @ManyToMany
-	public Set<Tag> getTags() {
-		return tags;
+	
+	@ManyToOne
+	public BeerStyle getStyle() {
+		return style;
 	}
-	public void setTags(Set<Tag> tags) {
-		this.tags = tags;
+	public void setStyle(BeerStyle style) {
+		this.style = style;
 	}
 
-    @Override
-    @Transient
-    public DrinkTypeEnum getDrinkType() {
-        return DrinkTypeEnum.BEER;
-    }
+	@Enumerated(EnumType.STRING)
+	public FermentingEnum getFermenting() {
+		return fermenting;
+	}
+	public void setFermenting(FermentingEnum fermenting) {
+		this.fermenting = fermenting;
+	}
+	
+	public String getComment() {
+		return comment;
+	}
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+	
+	public BottledBeer getBottle() {
+		return bottle;
+	}
+	public void setBottle(BottledBeer bottle) {
+		this.bottle = bottle;
+	}
+	
+	public TapBeer getTap() {
+		return tap;
+	}
+	public void setTap(TapBeer tap) {
+		this.tap = tap;
+	}
 
-    public Beer() {}
-    
+	@OneToMany(mappedBy="beers")
+	public Set<Bar> getBars() {
+		return bars;
+	}
+	public void setBars(Set<Bar> bars) {
+		this.bars = bars;
+	}
+
+	public Beer() {}
 }

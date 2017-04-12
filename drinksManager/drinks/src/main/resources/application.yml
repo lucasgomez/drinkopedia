@@ -17,7 +17,7 @@ debug: true
 spring:
     jpa:
       show-sql: true
-      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      #database-platform: org.hibernate.dialect.PostgreSQLDialect
       generate-ddl: true
       properties:
         javax:
@@ -27,11 +27,11 @@ spring:
               scripts:
                 action: create
                 create-target: create.sql
-    datasource:
-        initialize: true
-        url: jdbc:postgresql://localhost:5432/drinkopedia
-        username: postgres
-        password: postgres
+    #datasource:
+    #    initialize: true
+    #    url: jdbc:postgresql://localhost:5432/drinkopedia
+    #    username: postgres
+    #    password: postgres
     jersey:
         application-path: /api
         

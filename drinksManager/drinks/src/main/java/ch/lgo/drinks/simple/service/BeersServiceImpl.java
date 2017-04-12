@@ -15,7 +15,7 @@ import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 
 @Service
-public class BeersServiceImpl implements IDrinksService <Beer> {
+public class BeersServiceImpl {
 
     //TODO Check if not worth adding a "Rest Service" wrapper to manage REST specific behaviour such as ResourceNotFoundException and DTO translation
     @Autowired
@@ -50,7 +50,6 @@ public class BeersServiceImpl implements IDrinksService <Beer> {
         return null;
     }
 
-    @Override
     public List<Beer> getAll() throws NoContentFoundException {
         List<Beer> beersFound = new ArrayList<>(beersRepository.findAll());
         
@@ -61,7 +60,6 @@ public class BeersServiceImpl implements IDrinksService <Beer> {
         }
     }
 
-    @Override
     public Beer loadById(long drinkId) throws ResourceNotFoundException {
         Beer beer = beersRepository.loadById(drinkId);
         if (beer != null) {
@@ -72,7 +70,6 @@ public class BeersServiceImpl implements IDrinksService <Beer> {
         }
     }
 
-    @Override
     public void delete(long beerId) throws ResourceNotFoundException {
         if (beersRepository.exists(beerId)) {
             beersRepository.delete(beerId);
@@ -82,7 +79,6 @@ public class BeersServiceImpl implements IDrinksService <Beer> {
         }
     }
 
-    @Override
     public List<Beer> findByName(String beerName) throws NoContentFoundException {
         List<Beer> beersFound = new ArrayList<>(beersRepository.findByName(beerName));
 

@@ -1,6 +1,6 @@
 package ch.lgo.drinks.simple.dto;
 
-public class BeerDTO extends DrinkDTO {
+public class BeerDTO {
 
     private Double abv;
     private Long ibu;

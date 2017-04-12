@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import com.jumbletree.docx5j.docx.DOCXBuilder;
 import com.jumbletree.docx5j.docx.Paragraph;
 
-import ch.lgo.drinks.simple.dto.DetailedPrintingDrinkDTO;
+import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 
 @Service
 public class DocxOutputService extends AbstractDocx5JHelper {
@@ -28,14 +28,14 @@ public class DocxOutputService extends AbstractDocx5JHelper {
 	private static final String VOLUME_STYLE_NAME = "Volume";
 	private static final String EXTENSION = ".docx";
 
-	public File outputBottlesPriceList(List<DetailedPrintingDrinkDTO> list, String path, String baseFileName) throws Exception {
+	public File outputBottlesPriceList(List<BottledBeerDetailedDto> list, String path, String baseFileName) throws Exception {
 		DOCXBuilder builder = new DOCXBuilder();
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
 
-		for (DetailedPrintingDrinkDTO beer : list) {
+		for (BottledBeerDetailedDto beer : list) {
 			Paragraph paragraph = builder.createParagraph()
 //			.addBoldText(beer.getDrinkName()).addTabDefinition(0, "left", );
-			.addBoldText(beer.getDrinkName()).tab().addBoldText(displayPrice(beer.getPrice()));
+			.addBoldText(beer.getName()).tab().addBoldText(displayPrice(beer.getBottlePrice()));
 			
 			wordMLPackage.getMainDocumentPart().addParagraph(paragraph.toString());
 			
@@ -96,7 +96,7 @@ public class DocxOutputService extends AbstractDocx5JHelper {
 	 *            row id wher to start insertion
 	 * @return Row number of the next available cell
 	 */
-	private void addBeerLines(DetailedPrintingDrinkDTO beer, Row firstRow, Row secondRow) {
+	private void addBeerLines(BottledBeerDetailedDto beer, Row firstRow, Row secondRow) {
 		int colIndex = 0;
 
 		// Setup format

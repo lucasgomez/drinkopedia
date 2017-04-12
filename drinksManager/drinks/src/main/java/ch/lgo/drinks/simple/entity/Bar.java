@@ -6,14 +6,14 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class Bar {
 
 	private Long id;
 	private String name;
-	private Set<Drink> drinks = new HashSet<>();
+	private Set<Beer> beers = new HashSet<>();
 
 	@Id
 	@GeneratedValue
@@ -30,12 +30,12 @@ public class Bar {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	@OneToMany(mappedBy="bars")
-	public Set<Drink> getDrinks() {
-		return drinks;
+
+	@ManyToMany
+	public Set<Beer> getBeers() {
+		return beers;
 	}
-	public void setDrinks(Set<Drink> drinks) {
-		this.drinks = drinks;
+	public void setBeers(Set<Beer> beers) {
+		this.beers = beers;
 	}
 }

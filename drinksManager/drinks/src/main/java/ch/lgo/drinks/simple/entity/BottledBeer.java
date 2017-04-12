@@ -1,13 +1,16 @@
 package ch.lgo.drinks.simple.entity;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
-public class SellableBottledDrink implements IHasId {
+@Entity
+public class BottledBeer implements IHasId {
 
 	private Long id;
-	private Beer drink;
-	private Integer volumeInCl;
+	private Beer beer;
+	private Long volumeInCl;
 	private Double price;
 	
 	@Override
@@ -21,17 +24,18 @@ public class SellableBottledDrink implements IHasId {
 		this.id = id;
 	}
 	
-	public Beer getDrink() {
-		return drink;
+	@ManyToOne
+	public Beer getBeer() {
+		return beer;
 	}
-	public void setDrink(Beer beer) {
-		this.drink = beer;
+	public void setBeer(Beer beer) {
+		this.beer = beer;
 	}
 	
-	public Integer getVolumeInCl() {
+	public Long getVolumeInCl() {
 		return volumeInCl;
 	}
-	public void setVolumeInCl(Integer volume) {
+	public void setVolumeInCl(Long volume) {
 		this.volumeInCl = volume;
 	}
 	
