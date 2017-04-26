@@ -12,7 +12,7 @@ server:
     basedir:
     backgroundProcessorDelay: 30 # secs
     
-debug: true
+#debug: true
 
 spring:
     jpa:

@@ -3,7 +3,7 @@ package ch.lgo.drinks.simple.entity;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
 public class TapBeer implements IHasId {
@@ -12,6 +12,7 @@ public class TapBeer implements IHasId {
 	private Beer beer;
 	private Double priceSmall;
 	private Double priceBig;
+	private Double buyingPricePerLiter;
 	
 	@Override
 	@Id
@@ -24,7 +25,7 @@ public class TapBeer implements IHasId {
 		this.id = id;
 	}
 	
-	@ManyToOne
+	@OneToOne(optional=false)
 	public Beer getBeer() {
 		return beer;
 	}
@@ -44,5 +45,12 @@ public class TapBeer implements IHasId {
 	}
 	public void setPriceBig(Double priceBig) {
 		this.priceBig = priceBig;
+	}
+	
+	public Double getBuyingPricePerLiter() {
+		return buyingPricePerLiter;
+	}
+	public void setBuyingPricePerLiter(Double buyingPricePerLiter) {
+		this.buyingPricePerLiter = buyingPricePerLiter;
 	}
 }

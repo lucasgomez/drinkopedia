@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Beer {
@@ -19,7 +20,8 @@ public class Beer {
 	private Producer producer;
     private Double abv; //Alcool
     private Long ibu; //Bitterness
-    private Long srm; //Color 
+    private Long srm; //Color
+    private BeerColor color;
     private Long plato;
 	private BeerStyle style;
     private FermentingEnum fermenting;
@@ -103,6 +105,7 @@ public class Beer {
 		this.comment = comment;
 	}
 	
+	@OneToOne(optional=true)
 	public BottledBeer getBottle() {
 		return bottle;
 	}
@@ -110,6 +113,7 @@ public class Beer {
 		this.bottle = bottle;
 	}
 	
+	@OneToOne(optional=true)
 	public TapBeer getTap() {
 		return tap;
 	}

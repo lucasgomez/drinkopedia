@@ -5,8 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class BeerStyle {
-    
+public class BeerColor {
+	
     @Id
     @GeneratedValue
     private Long id;
@@ -25,11 +25,11 @@ public class BeerStyle {
     public void setName(String name) {
         this.name = name;
     }
-
-	public BeerStyle() {
-	}
-
-	public BeerStyle(String styleName) {
-		this.name = styleName;
-	}
+    
+    public BeerColor(String name) {
+    	this.name = name;
+    }
+    
+    public BeerColor() {
+    }
 }

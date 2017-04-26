@@ -3,7 +3,7 @@ package ch.lgo.drinks.simple.entity;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
 public class BottledBeer implements IHasId {
@@ -24,7 +24,7 @@ public class BottledBeer implements IHasId {
 		this.id = id;
 	}
 	
-	@ManyToOne
+	@OneToOne(optional=false)
 	public Beer getBeer() {
 		return beer;
 	}

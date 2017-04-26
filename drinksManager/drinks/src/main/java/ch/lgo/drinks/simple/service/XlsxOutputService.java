@@ -2,11 +2,17 @@ package ch.lgo.drinks.simple.service;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
 
 import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.springframework.stereotype.Service;
 import org.xlsx4j.sml.STHorizontalAlignment;
 
@@ -31,6 +37,54 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	private static final String FONT_NAME = "Calibri";
 	private static final String EXTENSION = ".xlsx";
 	
+	private class DocumentBuilder {
+		private XLSXFile file;
+		private boolean firstSheet;
+		
+		public DocumentBuilder() throws JAXBException, InvalidFormatException {
+			file = new XLSXFile();
+			firstSheet = true;
+		}
+		
+		public DocumentBuilder appendSheet(String title, Set<String> values) throws Exception {
+			WorksheetBuilder sheet = firstSheet ? file.getWorkbookBuilder().getSheet(0)
+												: file.getWorkbookBuilder().appendSheet();
+			firstSheet = false;
+			
+			insertStrings(new ArrayList<>(values), sheet, title);
+			return this;
+		}
+		
+		public File save(String fullName) throws IOException, Docx4JException {
+			File out = new File(fullName);
+			file.save(out);
+			return out;
+		}
+
+		private void insertStrings(List<String> content, WorksheetBuilder sheet, String sheetTitle) throws Exception {
+			sheet.setName(sheetTitle);
+			for (String value : content) {
+				addContent(sheet, value);
+			}
+		}
+	}
+	
+	public File outputBeerStylesAndColors(Set<String> styleNames, Set<String> colorNames, String path, String baseFileName) throws Exception {
+		return new DocumentBuilder()
+				.appendSheet("Styles", styleNames)
+				.appendSheet("Colors", colorNames)
+				.save(buildFullName(path, baseFileName, EXTENSION));
+	}
+	
+	public File outputBeersColors(Set<String> colorsNames, String path, String baseFileName) throws Exception {
+		XLSXFile file = new XLSXFile();
+		insertStrings(new ArrayList<>(colorsNames), file.getWorkbookBuilder().getSheet(0));
+		
+		File out = new File(buildFullName(path, baseFileName, EXTENSION));
+		file.save(out);
+		return out;
+	}
+	
 	public File outputBottlesPriceLists(List<BottledBeerDetailedDto> list, String path, String baseFileName) throws Exception {
 		XLSXFile file = new XLSXFile();
 		
@@ -41,6 +95,13 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		File out = new File(buildFullName(path, baseFileName, EXTENSION));
 		file.save(out);
 		return out;
+	}
+	
+	public void insertStrings(List<String> content, WorksheetBuilder sheet) throws Exception {
+		sheet.setName("BigList");
+		for (String value : content) {
+			addContent(sheet, value);
+		}
 	}
 	
 	public void insertSummarizedList(List<BottledBeerDetailedDto> list, WorksheetBuilder sheet) throws Exception {
@@ -91,6 +152,10 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.withAlignment(horizontal, null)
 					.installAs(styleName);
 		
+	}
+	
+	private void addContent(WorksheetBuilder sheet, String value) throws Docx4JException {
+		sheet.nextRow().nextCell().value(value);
 	}
 	
 	private void addBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {

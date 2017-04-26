@@ -95,11 +95,11 @@
 			<artifactId>hsqldb</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		
+
 		<dependency>
-		  <groupId>org.postgresql</groupId>
-		  <artifactId>postgresql</artifactId>
-		  <version>9.4-1206-jdbc42</version>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.4-1206-jdbc42</version>
 		</dependency>
 
 		<dependency>
@@ -133,18 +133,7 @@
 			<version>2.2.5</version>
 		</dependency>
 
-		<!-- Output -->
-		<dependency>
-			<groupId>org.odftoolkit</groupId>
-			<artifactId>odfdom-java</artifactId>
-			<version>0.8.7</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.odftoolkit</groupId>
-			<artifactId>simple-odf</artifactId>
-			<version>0.8.1-incubating</version>
-		</dependency>
+		<!-- Input / Output -->
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -158,6 +147,11 @@
 			<version>3.3.3</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.5</version>
+		</dependency>
 
 		<!-- Config -->
 		<dependency>
@@ -187,12 +181,12 @@
 			<scope>test</scope>
 		</dependency>
 
-	    <dependency>
-	        <groupId>com.github.matchami</groupId>
-	        <artifactId>docx5j</artifactId>
-	        <version>-SNAPSHOT</version>
-	    </dependency>
-		
+		<dependency>
+			<groupId>com.github.matchami</groupId>
+			<artifactId>docx5j</artifactId>
+			<version>-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>

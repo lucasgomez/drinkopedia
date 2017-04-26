@@ -6,6 +6,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import ch.lgo.drinks.simple.resources.BeerImporterResource;
 import ch.lgo.drinks.simple.resources.BeersResource;
 import ch.lgo.drinks.simple.resources.BusinessExceptionMapper;
 import ch.lgo.drinks.simple.resources.GenericExceptionMapper;
@@ -32,6 +33,7 @@ public class JerseyConfig extends ResourceConfig {
 
     private void registerEndpoints() {
         register(BeersResource.class);
+        register(BeerImporterResource.class);
         register(OutputResource.class);
         register(BusinessExceptionMapper.class);
         register(GenericExceptionMapper.class);
