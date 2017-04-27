@@ -40,6 +40,12 @@ public class BeersRepository {
         QBeer qBeer = QBeer.beer;
         return query.from(qBeer).where(qBeer.name.likeIgnoreCase("%"+beerName+"%")).fetch();
     }
+    
+    public Beer loadByExternalCode(String externalCode) {
+        JPAQuery<Beer> query = new JPAQuery<>(em);
+        QBeer qBeer = QBeer.beer;
+        return query.from(qBeer).where(qBeer.externalId.equalsIgnoreCase(externalCode)).fetchOne();
+    }
 
     public void delete(long beerId) {
         QBeer qBeer = QBeer.beer;

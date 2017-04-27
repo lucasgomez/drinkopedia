@@ -7,6 +7,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
@@ -54,7 +56,16 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 			insertStrings(new ArrayList<>(values), sheet, title);
 			return this;
 		}
-		
+		//TODO Duplicated code
+		public DocumentBuilder appendSheet(String title, Map<String, List<String>> values) throws Exception {
+			WorksheetBuilder sheet = firstSheet ? file.getWorkbookBuilder().getSheet(0)
+					: file.getWorkbookBuilder().appendSheet();
+			firstSheet = false;
+			
+			insertStrings(values, sheet, title);
+			return this;
+		}
+
 		public File save(String fullName) throws IOException, Docx4JException {
 			File out = new File(fullName);
 			file.save(out);
@@ -67,6 +78,13 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 				addContent(sheet, value);
 			}
 		}
+		
+		private void insertStrings(Map<String, List<String>> content, WorksheetBuilder sheet, String sheetTitle) throws Docx4JException {
+			sheet.setName(sheetTitle);
+			for (Entry<String, List<String>> entry : content.entrySet()) {
+				addContent(sheet, entry.getKey(), entry.getValue());
+			}
+		}
 	}
 	
 	public File outputBeerStylesAndColors(Set<String> styleNames, Set<String> colorNames, String path, String baseFileName) throws Exception {
@@ -76,13 +94,10 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 				.save(buildFullName(path, baseFileName, EXTENSION));
 	}
 	
-	public File outputBeersColors(Set<String> colorsNames, String path, String baseFileName) throws Exception {
-		XLSXFile file = new XLSXFile();
-		insertStrings(new ArrayList<>(colorsNames), file.getWorkbookBuilder().getSheet(0));
-		
-		File out = new File(buildFullName(path, baseFileName, EXTENSION));
-		file.save(out);
-		return out;
+	public File outputBeersAndCode(Map<String, List<String>> beersAndCode, String path, String baseFileName) throws InvalidFormatException, IOException, Docx4JException, JAXBException, Exception {
+		return new DocumentBuilder()
+				.appendSheet("Styles", beersAndCode)
+				.save(buildFullName(path, baseFileName, EXTENSION));
 	}
 	
 	public File outputBottlesPriceLists(List<BottledBeerDetailedDto> list, String path, String baseFileName) throws Exception {
@@ -156,6 +171,15 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	
 	private void addContent(WorksheetBuilder sheet, String value) throws Docx4JException {
 		sheet.nextRow().nextCell().value(value);
+	}
+	
+	private void addContent(WorksheetBuilder sheet, String key, List<String> values) throws Docx4JException {
+		RowBuilder builder = sheet.nextRow().nextCell().value(key).row();
+		if (values != null) {
+			for (String value : values) {
+				builder = builder.nextCell().value(value).row();
+			}
+		}
 	}
 	
 	private void addBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {

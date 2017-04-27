@@ -1,6 +1,8 @@
 package ch.lgo.drinks.simple.resources;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.xlsx4j.exceptions.Xlsx4jException;
 
+import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
@@ -60,12 +63,28 @@ public class BeerImporterResource {
 			      .build();
     }
     
+    @GET
+    @Path("extractbeers/")
+    public Response extractBeers() throws Exception {
+    	Map<String, List<String>> unreferencedBeersAndCode = importDataService.extractUnreferencedBeersAndCode(IMPORT_FOLDER+"commandeAmstein.xlsx");
+    	
+    	File output = outputService.outputBeersAndCode(unreferencedBeersAndCode, OUTPUT_FOLDER, "extractedBeers");
+    	
+    	return null;
+    }
     
     @GET
     @Path("importdata/")
     public Response importData() throws Docx4JException, Xlsx4jException {
     	Set<BeerStyle> importedBeerStyles = importDataService.importBeerStyles(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 0);
     	Set<BeerColor> importedBeerColors = importDataService.importBeerColors(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 1);
+    	return Response.ok().build();
+    }
+    
+    @GET
+    @Path("importbeers/")
+    public Response importBeers() throws Docx4JException, Xlsx4jException {
+    	Set<Beer> importedBeerStyles = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
     	return Response.ok().build();
     }
 }

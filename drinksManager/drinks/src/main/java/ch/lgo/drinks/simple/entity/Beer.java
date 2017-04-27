@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 public class Beer {
 
 	private Long id;
+	private String externalId; //Code Amstein
 	private String name;
 	private Producer producer;
     private Double abv; //Alcool
@@ -37,6 +38,13 @@ public class Beer {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getExternalId() {
+		return externalId;
+	}
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
 	}
 	
 	public String getName() {

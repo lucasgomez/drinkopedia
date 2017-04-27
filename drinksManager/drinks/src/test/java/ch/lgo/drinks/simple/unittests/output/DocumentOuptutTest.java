@@ -4,17 +4,14 @@ import java.awt.Desktop;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.junit.Test;
 import org.modelmapper.ModelMapper;
-import org.xlsx4j.exceptions.Xlsx4jException;
 
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 import ch.lgo.drinks.simple.entity.Beer;
@@ -23,7 +20,6 @@ import ch.lgo.drinks.simple.entity.Place;
 import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
-import ch.lgo.drinks.simple.service.ImportDataService;
 import ch.lgo.drinks.simple.service.XlsxOutputService;
 
 public class DocumentOuptutTest {
@@ -36,27 +32,6 @@ public class DocumentOuptutTest {
 		XlsxOutputService service = new XlsxOutputService();
 		File output = service.outputBottlesPriceLists(insertDummyBeersAndProviders(), "src/test/resources/output/", "ohm");
 		Desktop.getDesktop().open(output);
-	}
-	
-//	@Test
-//	public void exportPriceListAsDocx() throws NoContentFoundException, BadCreationRequestException, Exception {
-//		DocxOutputService service = new DocxOutputService();
-//		File output = service.outputBottlesPriceList(insertDummyBeersAndProviders(), "src/test/resources/output/", "ohm");
-//		Desktop.getDesktop().open(output);
-//	}
-	
-	@Test
-	public void tryImportBeers() throws Docx4JException, Xlsx4jException {
-		ImportDataService service = new ImportDataService();
-		service.importBeersNameFromFile("src/test/resources/input/import_biere_2017.xlsx");
-	}
-	
-	@Test
-	public void tryImportStyles() throws Exception {
-		ImportDataService importService = new ImportDataService();
-		XlsxOutputService outputService = new XlsxOutputService();
-		Set<String> unreferencedColors = importService.extractUnreferencedBeersColors("src/test/resources/input/beersdetails.xlsx");
-		File output = outputService.outputBeersColors(unreferencedColors, "src/test/resources/output/", "beersColors.xlsx");
 	}
 	
 	@Test

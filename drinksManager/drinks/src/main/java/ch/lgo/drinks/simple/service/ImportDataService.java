@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -26,7 +27,6 @@ import org.xlsx4j.sml.Worksheet;
 import ch.lgo.drinks.simple.dao.BeerColorRepository;
 import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
-import ch.lgo.drinks.simple.dto.BeerStyleDTO;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
@@ -46,9 +46,10 @@ public class ImportDataService {
 		Set<String> colorsToCreate = new HashSet<>();
 		
 		//Filers already existing colors
-		readAndProcessContent(pathAndFilename, 0, 2, 
+		readAndProcessContent(pathAndFilename, 0,
 				colorName -> colorsRepository.findByName(colorName).isEmpty(), 
-				colorName -> colorsToCreate.add(colorName));
+				colorName -> colorsToCreate.add(colorName),
+				2);
 		
 		return colorsToCreate;
 	}
@@ -57,34 +58,58 @@ public class ImportDataService {
 		Set<String> stylesToCreate = new HashSet<>();
 		//TODO Manage file not found
 		//Filers already existing styles
-		readAndProcessContent(pathAndFilename, 0, 5,
+		readAndProcessContent(pathAndFilename, 0,
 				styleName -> stylesRepository.findByName(styleName).isEmpty(),
-				styleName -> stylesToCreate.add(styleName));
+				styleName -> stylesToCreate.add(styleName), 
+				5);
 		
 		stylesToCreate.forEach(createdStyle -> System.out.println(createdStyle));
 		return stylesToCreate;
 	}
+	
+	public Map<String, List<String>> extractUnreferencedBeersAndCode(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		Map<String, List<String>> beersToCreate = new HashMap<>();
+		//Filers already existing styles
+		readAndProcessContent(pathAndFilename, 0,
+				record -> beersRepository.loadByExternalCode(record.getKey()) == null,
+				record -> beersToCreate.put(record.getKey(), record.getValue()),
+				0, 1);
+		
+		return beersToCreate;
+	}
 
-	private void readAndProcessContent(String path, int sheetId, int columnId, Consumer<String> action) throws Docx4JException, Xlsx4jException {
-		readAndProcessContent(path, sheetId, columnId, item -> true, action);
+	private void readAndProcessContent(String path, int sheetId, Consumer<String> action, int columnId) throws Docx4JException, Xlsx4jException {
+		readAndProcessContent(path, sheetId, item -> true, action, columnId);
 	}
 	
-	private void readAndProcessContent(String path, int sheetId, int columnId, Predicate<String> filter, Consumer<String> action) throws Docx4JException, Xlsx4jException {
+	private void readAndProcessContent(String path, int sheetId, Predicate<String> filter, Consumer<String> action, int columnId) throws Docx4JException, Xlsx4jException {
 		WorkbookPart workbook = openSpreadsheetFile(path);
 		DataFormatter formatter = new DataFormatter();
-		
-		Set<String> details = readContent(workbook.getWorksheet(0), columnId, formatter);
+
+		Set<String> details = readContent(workbook.getWorksheet(0), formatter, columnId);
 		
 		//Create and persist beers
 		details.stream().filter(filter).forEach(action);
+	}
+	
+	//TODO Satan, please forbid those parameters type
+	private void readAndProcessContent(String path, int sheetId, Predicate<Entry<String, List<String>>> filter, Consumer<Entry<String, List<String>>> action, int codeColumnId, int... columnsId) throws Docx4JException, Xlsx4jException {
+		WorkbookPart workbook = openSpreadsheetFile(path);
+		DataFormatter formatter = new DataFormatter();
+
+		Map<String, List<String>> details = readContent(workbook.getWorksheet(0), formatter, codeColumnId, columnsId);
+		
+		//Create and persist beers
+		details.entrySet().stream().filter(filter).forEach(action);
 	}
 
 	public Set<BeerStyle> importBeerStyles(String pathAndFilename, int sheetId) throws Docx4JException, Xlsx4jException {
 		Set<BeerStyle> createdStyles = new HashSet<>();
 		
 		//Filers already existing colors
-		readAndProcessContent(pathAndFilename, sheetId, 0, 
-				styleName -> createdStyles.add(stylesRepository.save(new BeerStyle(styleName))));
+		readAndProcessContent(pathAndFilename, sheetId, 
+				styleName -> createdStyles.add(stylesRepository.save(new BeerStyle(styleName))),
+				0);
 		
 		return createdStyles;
 	}
@@ -93,7 +118,7 @@ public class ImportDataService {
 		WorkbookPart workbook = openSpreadsheetFile(path);
 		DataFormatter formatter = new DataFormatter();
 		
-		Set<String> colors = readContent(workbook.getWorksheet(sheetId), 0, formatter);
+		Set<String> colors = readContent(workbook.getWorksheet(sheetId), formatter, 0);
 		Set<BeerColor> createdColors = new HashSet<>();
 		
 		//Create and persist beers
@@ -102,22 +127,24 @@ public class ImportDataService {
 		createdColors.forEach(color -> System.out.println(color.getId()+" : "+color.getName()));
 		return createdColors;
 	}
-	
-	public List<BeerStyleDTO> importBeersNameFromFile(String pathAndFilename) throws Docx4JException, Xlsx4jException {
-		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
-		DataFormatter formatter = new DataFormatter();
 
-		Set<String> tapBeersName = readContent(workbook.getWorksheet(0), 0, formatter);
-		Set<String> bottledBeersName = readContent(workbook.getWorksheet(1), 0, formatter);
+	public Set<Beer> importBeers(String pathAndFilename, int sheetId, int externalCodeColumnId, int nameColumnId) throws Docx4JException, Xlsx4jException {
+		Set<Beer> createBeers = new HashSet<>();
+		
+		//Filers already existing colors
+		readAndProcessContent(pathAndFilename, sheetId,
+				mu -> true,
+				newBeer -> createBeers.add(beersRepository.save(createBeer(newBeer.getKey(), newBeer.getValue().get(0)))),
+				0, 1);
+		
+		return createBeers;
+	}
 
-		Map<STATUS_ENUM, Set<Beer>> tapResult = sortBeersByReferencingStatus(tapBeersName);
-		Map<STATUS_ENUM, Set<Beer>> bottledResult = sortBeersByReferencingStatus(bottledBeersName);
-		
-		printBeersReferencedOrNot(tapResult, "Tap beer:");
-		printBeersReferencedOrNot(bottledResult, "Bottled beer");
-		
-		Set<Beer> newTapBeers = persistBeers(tapResult.get(STATUS_ENUM.NEW));
-		return null;
+	private Beer createBeer(String externalCode, String name) {
+		Beer newBeer = new Beer();
+		newBeer.setName(name);
+		newBeer.setExternalId(externalCode);
+		return newBeer;
 	}
 
 	private Beer addTap(Beer beerToTap) {
@@ -180,7 +207,7 @@ public class ImportDataService {
 		}
 	}
 	
-	private Set<String> readContent(WorksheetPart sheet, int columnId, DataFormatter formatter) {
+	private Set<String> readContent(WorksheetPart sheet, DataFormatter formatter, int columnId) {
 		Set<String> result = new HashSet<>();
 		String readValue;
 		Worksheet ws = sheet.getJaxbElement();
@@ -193,6 +220,35 @@ public class ImportDataService {
 				readValue = formatter.formatCellValue(c);
 				if (StringUtils.isNotBlank(readValue))
 					result.add(readValue);
+			}
+		}
+		return result;
+	}
+	
+	private Map<String, List<String>> readContent(WorksheetPart sheet, DataFormatter formatter, int codeColumnId, int... columnsId) {
+		Map<String, List<String>> result = new HashMap<>();
+		String readValue;
+		String readCode;
+		Worksheet ws = sheet.getJaxbElement();
+		SheetData data = ws.getSheetData();
+		Cell c;
+		
+		for (Row r : data.getRow()) {
+			if (!r.getC().isEmpty()) {
+				List<String> line = new ArrayList<>();
+				c = r.getC().get(codeColumnId);
+				readCode = formatter.formatCellValue(c); 
+				
+				if (StringUtils.isNotBlank(readCode)) {
+					for (int columnId : columnsId) {
+						c = r.getC().get(columnId);
+						
+						readValue = formatter.formatCellValue(c);
+						if (StringUtils.isNotBlank(readValue))
+							line.add(readValue);
+					}
+					result.put(readCode, line);
+				}
 			}
 		}
 		return result;
