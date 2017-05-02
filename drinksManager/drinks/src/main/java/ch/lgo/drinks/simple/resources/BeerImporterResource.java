@@ -35,8 +35,8 @@ import io.swagger.annotations.Api;
 @Consumes({MediaType.APPLICATION_JSON + "; charset=UTF8"})
 public class BeerImporterResource {
 
-    private static final String IMPORT_FOLDER = "src/test/resources/input/";
-	private static final String OUTPUT_FOLDER = "src/test/resources/output/";
+    private static final String IMPORT_FOLDER = "src/main/resources/input/";
+	private static final String OUTPUT_FOLDER = "src/main/resources/output/";
 	@Autowired
     private BeersServiceImpl beersService;
     @Autowired
@@ -72,6 +72,22 @@ public class BeerImporterResource {
     	
     	return null;
     }
+	
+	@GET
+	@Path("extractprices/")
+	public Response extractPricesAndServiceType() throws Exception {
+		Set<Beer> unreferencedBeersAndCode = importDataService.extractUnreferencedPricesAnServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
+		
+		return null;
+	}
+	
+	@GET
+	@Path("importbeerdetails/")
+	public Response extractBeerDetails() throws Exception {
+		Set<Beer> unreferencedBeersAndCode = importDataService.importBeersDetails(IMPORT_FOLDER+"beersdetails.xlsx");
+		
+		return null;
+	}
     
     @GET
     @Path("importdata/")

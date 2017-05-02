@@ -1,6 +1,9 @@
 package ch.lgo.drinks.simple.service;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,7 +11,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -30,6 +35,7 @@ import ch.lgo.drinks.simple.dao.BeersRepository;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
+import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.TapBeer;
 
 @Service
@@ -78,6 +84,92 @@ public class ImportDataService {
 		return beersToCreate;
 	}
 
+	public Set<Beer> extractUnreferencedPricesAnServiceType(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		Map<String, List<String>> beersToComplete = new HashMap<>();
+		Map<STATUS_ENUM, List<String>> tapBeersToComplete = new HashMap<>();
+
+		//Get all existing beer and map by ExternalId
+		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
+				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		
+		//Retrieve data for existing beers only
+		readAndProcessContent(pathAndFilename, 0,
+				record -> beersByExternalId.get(record.getKey()) != null, 
+				record -> beersToComplete.put(record.getKey(), record.getValue()),
+				0, 3, 5);
+		
+		Predicate<Entry<String, List<String>>> tapBeersFilter = beerDetails -> beerDetails.getValue().get(0).contains("L");
+		Function<Entry<String, List<String>>, TapBeer> tapBeersConverter = beerDetails -> tapBeerFromEntry(beerDetails, beersByExternalId.get(beerDetails.getKey()));
+		Function<Entry<String, List<String>>, BottledBeer> bottledBeersConverter = beerDetails -> bottledBeerfromEntry(beerDetails, beersByExternalId.get(beerDetails.getKey()));
+		
+		//Use Collect instead
+		Set<TapBeer> tapBeersToCreate = beersToComplete.entrySet().stream()
+		    	.filter(tapBeersFilter)
+		    	.map(tapBeersConverter)
+		    	.collect(Collectors.toSet());
+		Set<BottledBeer> bottledBeersToCreate = beersToComplete.entrySet().stream()
+		    	.filter(tapBeersFilter.negate())
+		    	.map(bottledBeersConverter)
+		    	.collect(Collectors.toSet());
+		
+		Set<Beer> beerWithPrice = tapBeersToCreate.stream()
+									.map(tapBeer -> beersRepository.addTapBeer(tapBeer))
+									.collect(Collectors.toSet());
+		beerWithPrice.addAll(bottledBeersToCreate.stream()
+				.map(bottledBeer -> beersRepository.addBottledBeer(bottledBeer))
+				.collect(Collectors.toSet()));
+		
+		return beerWithPrice;
+	}
+	
+	public Set<Beer> importBeersDetails(String pathAndFilename) throws Xlsx4jException, Docx4JException {
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		DataFormatter formatter = new DataFormatter();
+
+		List<List<String>> content = readContent2(workbook.getWorksheet(0), formatter, Arrays.asList(0, 2, 3, 4, 5, 6));
+		
+		Map<String, Beer> beersByExtCode = beersRepository.findAll().stream()
+				.collect(Collectors.toMap(beer -> beer.getExternalId(), beer -> beer));
+		Map<String, BeerColor> colorsByName = colorsRepository.findAll().stream()
+				.collect(Collectors.toMap(color -> color.getName(), color -> color));
+		Map<String, BeerStyle> stylesByName = stylesRepository.findAll().stream()
+				.collect(Collectors.toMap(style -> style.getName(), style -> style));
+		
+		return content.stream()
+				.filter(row -> {
+					String[] parts = row.get(0).split(" - ");
+					return parts.length > 1 && beersByExtCode.get(parts[0]) != null;
+				})
+				.map(row -> {
+					Beer beer = beersByExtCode.get(row.get(0).split(" - ")[0]);
+					beer.setColor(colorsByName.get(row.get(1)));
+//					beer.setPlato(Long.valueOf(row.get(2)));
+					beer.setIbu(Long.valueOf(3));
+					beer.setStyle(stylesByName.get(row.get(4)));
+					try {
+						beer.setAbv(Double.valueOf(row.get(5)));
+					} catch (NumberFormatException ex) {}
+					return beersRepository.save(beer);
+				})
+				.collect(Collectors.toSet());
+	}
+
+	private TapBeer tapBeerFromEntry(Entry<String, List<String>> entry, Beer beer) {
+		TapBeer tap = new TapBeer();
+		tap.setBeer(beer);
+		Double price = Double.valueOf(entry.getValue().get(1));
+		tap.setBuyingPricePerLiter(price);
+		return tap;
+	}
+	
+	private BottledBeer bottledBeerfromEntry(Entry<String, List<String>> entry, Beer beer) {
+		BottledBeer tap = new BottledBeer();
+		tap.setBeer(beer);
+		Double price = Double.valueOf(entry.getValue().get(1));
+		tap.setPrice(price);
+		return tap;
+	}
+	
 	private void readAndProcessContent(String path, int sheetId, Consumer<String> action, int columnId) throws Docx4JException, Xlsx4jException {
 		readAndProcessContent(path, sheetId, item -> true, action, columnId);
 	}
@@ -252,6 +344,41 @@ public class ImportDataService {
 			}
 		}
 		return result;
+	}
+
+	private List<List<String>> readContent2(WorksheetPart sheet, DataFormatter formatter, List<Integer> columns) {
+		Worksheet ws = sheet.getJaxbElement();
+		SheetData data = ws.getSheetData();
+		
+		List<String> columnsToRead = columns.stream()
+				.map(id -> getColumnId(id))
+				.collect(Collectors.toList());
+		
+		return data.getRow().stream()
+				.map(row -> row.getC().stream()
+							.filter(cell -> columnsToRead.contains(cell.getR().substring(0, 1)))
+							.map(cell -> formatter.formatCellValue(cell))
+							.collect(Collectors.toList()))
+				.collect(Collectors.toList());
+	}
+	
+	private static String buildCellAdress(int col, int row) {
+		String str = getColumnId(col);
+		return str + (row+1);
+	}
+	
+	private static String getColumnId(int col) {
+		if (col >= 26) {
+			int colBit = col % 26;
+			System.out.println("Bit: " + colBit);
+			col = col - colBit;
+			col = col / 26;
+			col -= 1;
+			System.out.println("Col: " + col);
+			return getColumnId(col) + getColumnId(colBit);
+		} else {
+			return String.valueOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(col));
+		}
 	}
 
 	private WorkbookPart openSpreadsheetFile(String inputfilepath) throws Docx4JException {

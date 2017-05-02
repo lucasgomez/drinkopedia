@@ -1,8 +1,9 @@
 package ch.lgo.drinks.simple.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -15,7 +16,6 @@ public class BottledBeer implements IHasId {
 	
 	@Override
 	@Id
-	@GeneratedValue
 	public Long getId() {
 		return id;
 	}
@@ -24,7 +24,8 @@ public class BottledBeer implements IHasId {
 		this.id = id;
 	}
 	
-	@OneToOne(optional=false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
 	public Beer getBeer() {
 		return beer;
 	}

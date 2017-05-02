@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -23,7 +24,7 @@ public class Beer {
     private Long ibu; //Bitterness
     private Long srm; //Color
     private BeerColor color;
-    private Long plato;
+	private Long plato;
 	private BeerStyle style;
     private FermentingEnum fermenting;
 	private String comment;
@@ -83,6 +84,14 @@ public class Beer {
         this.srm = srm;
     }
 
+    @ManyToOne
+    public BeerColor getColor() {
+		return color;
+	}
+	public void setColor(BeerColor color) {
+		this.color = color;
+	}
+
     public Long getPlato() {
 		return plato;
 	}
@@ -113,7 +122,7 @@ public class Beer {
 		this.comment = comment;
 	}
 	
-	@OneToOne(optional=true)
+	@OneToOne(optional=true, fetch = FetchType.LAZY, mappedBy="beer")
 	public BottledBeer getBottle() {
 		return bottle;
 	}
@@ -121,7 +130,7 @@ public class Beer {
 		this.bottle = bottle;
 	}
 	
-	@OneToOne(optional=true)
+	@OneToOne(optional=true, fetch = FetchType.LAZY, mappedBy="beer")
 	public TapBeer getTap() {
 		return tap;
 	}
