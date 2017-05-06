@@ -60,6 +60,10 @@ public class BeersServiceImpl {
         }
     }
 
+	public List<Beer> getAllWithService() {
+		return beersRepository.findAllWithServices();
+	}
+
     public Beer loadById(long drinkId) throws ResourceNotFoundException {
         Beer beer = beersRepository.loadById(drinkId);
         if (beer != null) {

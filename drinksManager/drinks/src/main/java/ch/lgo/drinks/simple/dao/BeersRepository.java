@@ -43,6 +43,18 @@ public class BeersRepository {
         		.fetch();
     }
 
+	public List<Beer> findAllWithServices() {
+		JPAQuery<Beer> query = new JPAQuery<>(em);
+        QBeer qBeer = QBeer.beer;
+        QTapBeer tapBeer = QTapBeer.tapBeer;
+        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+        return query
+        		.from(qBeer)
+        		.leftJoin(qBeer.tap, tapBeer)
+        		.leftJoin(qBeer.bottle, bottledBeer)
+        		.fetch();
+	}
+
     public List<Beer> findByName(String beerName) {
         //TODO Something like the google search of NJ instead of exact match ignore case
         JPAQuery<Beer> query = new JPAQuery<>(em);
@@ -104,21 +116,25 @@ public class BeersRepository {
     }
 
 	public Beer addBottledBeer(BottledBeer bottledBeer) {
-    	Beer beer = bottledBeer.getBeer();
-    	em.refresh(beer);
+    	Beer beer = loadById(bottledBeer.getBeer().getId());
     	bottledBeer.setBeer(beer);
-    	
-		BottledBeer mergedBottle = em.merge(bottledBeer);
-		beer.setBottle(bottledBeer);
-		return em.merge(beer);
+    	em.persist(bottledBeer);
+		return loadById(bottledBeer.getBeer().getId());
 	}
 
 	public Beer addTapBeer(TapBeer tapBeer) {
     	Beer beer = loadById(tapBeer.getBeer().getId());
     	tapBeer.setBeer(beer);
 		em.persist(tapBeer);
-		TapBeer find = em.find(TapBeer.class, tapBeer.getId());
+		//TODO Should return an entity where tap is fetched!
 		return loadById(tapBeer.getBeer().getId());
+	}
+
+	public void clearService() {
+		QTapBeer tapBeer = QTapBeer.tapBeer;
+		new JPADeleteClause(em, tapBeer).execute();
+		QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+		new JPADeleteClause(em, bottledBeer).execute();
 	}
 
 }

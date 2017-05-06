@@ -103,4 +103,12 @@ public class BeerImporterResource {
     	Set<Beer> importedBeerStyles = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
     	return Response.ok().build();
     }
+    
+    @GET
+    @Path("clearservice/")
+    public Response clearService() {
+    	//TODO Move to a suitable place...
+    	importDataService.clearService();
+    	return Response.ok().build();
+    }
 }

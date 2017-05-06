@@ -9,6 +9,9 @@ import javax.persistence.OneToOne;
 @Entity
 public class TapBeer implements IHasId {
 	
+	public static Long VOLUME_SMALL_CL= 33L;
+	public static Long VOLUME_BIG_CL= 50L;
+
 	private Long id;
 	private Beer beer;
 	private Double priceSmall;

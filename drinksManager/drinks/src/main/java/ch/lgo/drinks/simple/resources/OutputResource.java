@@ -1,5 +1,6 @@
 package ch.lgo.drinks.simple.resources;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,8 @@ import io.swagger.annotations.ApiOperation;
 @Consumes({MediaType.APPLICATION_JSON + "; charset=UTF8"})
 public class OutputResource {
 
+    private static final String IMPORT_FOLDER = "src/main/resources/input/";
+	private static final String OUTPUT_FOLDER = "src/main/resources/output/";
 	@Autowired
 	private XlsxOutputService outputService;
 	@Autowired
@@ -41,8 +44,16 @@ public class OutputResource {
 		List<Beer> beers = beersService.getAll();
 		List<BottledBeerDetailedDto> beersList = new ArrayList<>();
 		beers.forEach(beer -> beersList.add(modelMapper.map(beer, BottledBeerDetailedDto.class)));
-		outputService.outputBottlesPriceLists(beersList, "src/test/resources/output/", "ohm");
+		outputService.outputBottlesPriceLists(beersList, OUTPUT_FOLDER, "ohm");
         return Response.created(null).build();
     }
+	
+	@GET
+	@Path("pricesdefinition")
+	public Response createBeersPriceDefinition() throws Exception {
+		List<Beer> beers = beersService.getAllWithService();
+		File file = outputService.outputBeersPricesWithDetails(beers, OUTPUT_FOLDER, "pricesCalculation");
+		return null;
+	}
 	
 }

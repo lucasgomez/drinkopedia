@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -24,6 +24,8 @@ import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
+import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.TapBeer;
 
 @Service
 public class XlsxOutputService extends AbstractDocx5JHelper {
@@ -38,55 +40,81 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	private static final String DESCRIPTION_STYLE_NAME = "Description";
 	private static final String FONT_NAME = "Calibri";
 	private static final String EXTENSION = ".xlsx";
-	
-	private class DocumentBuilder {
-		private XLSXFile file;
-		private boolean firstSheet;
-		
-		public DocumentBuilder() throws JAXBException, InvalidFormatException {
-			file = new XLSXFile();
-			firstSheet = true;
-		}
-		
-		public DocumentBuilder appendSheet(String title, Set<String> values) throws Exception {
-			WorksheetBuilder sheet = firstSheet ? file.getWorkbookBuilder().getSheet(0)
-												: file.getWorkbookBuilder().appendSheet();
-			firstSheet = false;
-			
-			insertStrings(new ArrayList<>(values), sheet, title);
-			return this;
-		}
-		//TODO Duplicated code
-		public DocumentBuilder appendSheet(String title, Map<String, List<String>> values) throws Exception {
-			WorksheetBuilder sheet = firstSheet ? file.getWorkbookBuilder().getSheet(0)
-					: file.getWorkbookBuilder().appendSheet();
-			firstSheet = false;
-			
-			insertStrings(values, sheet, title);
-			return this;
-		}
+	private static final double TAP_BEER_RATIO = 3L;
 
-		public File save(String fullName) throws IOException, Docx4JException {
-			File out = new File(fullName);
-			file.save(out);
-			return out;
-		}
+	//TODO Separate beer related processing with output itself
+	public File outputBeersPricesWithDetails(List<Beer> beers, String path, String baseFileName) throws Exception {
+		Map<String, List<Beer>> beersByType = beers.stream()
+				.filter(beer -> beer.getTap() != null || beer.getBottle() != null)
+				.collect(Collectors.groupingBy(beer -> beer.getTap() != null ? "tap" : "bottle"));
 
-		private void insertStrings(List<String> content, WorksheetBuilder sheet, String sheetTitle) throws Exception {
-			sheet.setName(sheetTitle);
-			for (String value : content) {
-				addContent(sheet, value);
-			}
-		}
+		//Start at 1 due to title line
+		int rowNum = 1;
+		List<List<String>> content = beersByType.get("tap").stream()
+			.map(tapBeer -> tapBeerToTupple(tapBeer, 1))
+			.collect(Collectors.toList());
 		
-		private void insertStrings(Map<String, List<String>> content, WorksheetBuilder sheet, String sheetTitle) throws Docx4JException {
-			sheet.setName(sheetTitle);
-			for (Entry<String, List<String>> entry : content.entrySet()) {
-				addContent(sheet, entry.getKey(), entry.getValue());
-			}
-		}
+		content.add(0, Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","BuyingPricePerLiter","PriceBig","PriceSmall",
+				"Ideal selling price big", "Ideal selling price small", "Price per alc Cl big", "Price per alc Cl small"));
+		
+		return new DocumentBuilder().appendSheet("Prices calc", content).save(buildFullName(path, baseFileName, EXTENSION));
 	}
-	
+
+	/**
+	 * [0] Id 
+	 * [1] ExternalId
+	 * [2] Name
+	 * [3] Style
+	 * [4] Color 
+	 * [5] Abv 
+	 * [6] BuyingPricePerLiter
+	 * [7] PriceBig 
+	 * [8] PriceSmall
+	 * [9] Ideal selling price big
+	 * [10] Ideal selling price small
+	 * [11] Alcool price per Cl big
+	 * [12] Alccol price per Cl small
+	 * @param tapBeer
+	 * @return
+	 */
+	private List<String> tapBeerToTupple(Beer tapBeer, int rowNum) {
+		//Add fields from tapBeer
+		List<String> result = new ArrayList<>();
+		result.add(tapBeer.getId().toString());
+		result.add(tapBeer.getExternalId());
+		result.add(tapBeer.getName());
+		result.add(tapBeer.getStyle() != null ? tapBeer.getStyle().getName() : "");
+		result.add(tapBeer.getColor() != null ? tapBeer.getColor().getName() : "");
+		result.add(tapBeer.getAbv() != null ? tapBeer.getAbv().toString() : "");
+		result.add(tapBeer.getTap() != null ? tapBeer.getTap().getBuyingPricePerLiter().toString() : "");
+		result.add(tapBeer.getTap() != null && tapBeer.getTap().getPriceBig() != null
+				? tapBeer.getTap().getPriceBig().toString() : "");
+		result.add(tapBeer.getTap() != null && tapBeer.getTap().getPriceSmall() != null
+				? tapBeer.getTap().getPriceSmall().toString() : "");
+
+		//Add calculated price
+		DecimalFormat format = new DecimalFormat("#.000");
+		Double pricePerCl = tapBeer.getTap().getBuyingPricePerLiter() / 100;
+		String idealSellingPriceBig = format.format(pricePerCl * TapBeer.VOLUME_BIG_CL * TAP_BEER_RATIO);
+		String idealSellingPriceSmall = format.format(pricePerCl * TapBeer.VOLUME_SMALL_CL * TAP_BEER_RATIO);
+		result.add(idealSellingPriceBig); // [9]
+		result.add(idealSellingPriceSmall); // [10]
+		
+		//Add formula to calculate price / cl of alcohol
+		String cellAdressAbv = buildCellAdress(5, rowNum);
+		String cellAdressPriceBig = buildCellAdress(7, rowNum);
+		String cellAdressPriceSmall = buildCellAdress(8, rowNum);
+		// Volume of Alc = Volume * ABV / 100
+		// Price per Cl of alc = price / volume of alc
+		String alcoholPriceFormulaBig = String.format("= %s / (%s * %s / 100)", cellAdressPriceBig, TapBeer.VOLUME_BIG_CL, cellAdressAbv);
+		String alcoholPriceFormulaSmall = String.format("= %s / (%s * %s / 100)", cellAdressPriceSmall, TapBeer.VOLUME_SMALL_CL, cellAdressAbv);
+		
+		result.add(alcoholPriceFormulaBig); // [11]
+		result.add(alcoholPriceFormulaSmall); // [12]
+		
+		return result;
+	}
+
 	public File outputBeerStylesAndColors(Set<String> styleNames, Set<String> colorNames, String path, String baseFileName) throws Exception {
 		return new DocumentBuilder()
 				.appendSheet("Styles", styleNames)
@@ -167,19 +195,6 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.withAlignment(horizontal, null)
 					.installAs(styleName);
 		
-	}
-	
-	private void addContent(WorksheetBuilder sheet, String value) throws Docx4JException {
-		sheet.nextRow().nextCell().value(value);
-	}
-	
-	private void addContent(WorksheetBuilder sheet, String key, List<String> values) throws Docx4JException {
-		RowBuilder builder = sheet.nextRow().nextCell().value(key).row();
-		if (values != null) {
-			for (String value : values) {
-				builder = builder.nextCell().value(value).row();
-			}
-		}
 	}
 	
 	private void addBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {
@@ -263,5 +278,25 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 			return format.format(beer.getAbv())+"%";
 		else
 			return "";
+	}
+
+	//TODO Merge with duplicate method in ImportDataService
+	private static String buildCellAdress(int col, int row) {
+		String str = getColumnId(col);
+		return str + (row+1);
+	}
+	
+	private static String getColumnId(int col) {
+		if (col >= 26) {
+			int colBit = col % 26;
+			System.out.println("Bit: " + colBit);
+			col = col - colBit;
+			col = col / 26;
+			col -= 1;
+			System.out.println("Col: " + col);
+			return getColumnId(col) + getColumnId(colBit);
+		} else {
+			return String.valueOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(col));
+		}
 	}
 }

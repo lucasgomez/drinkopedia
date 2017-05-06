@@ -392,4 +392,8 @@ public class ImportDataService {
 		NEW;
 	}
 
+	public void clearService() {
+		beersRepository.clearService();
+	}
+
 }
