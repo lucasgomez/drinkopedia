@@ -137,4 +137,12 @@ public class BeersRepository {
 		new JPADeleteClause(em, bottledBeer).execute();
 	}
 
+	public TapBeer save(TapBeer tap) {
+		return em.merge(tap);
+	}
+
+	public BottledBeer save(BottledBeer tap) {
+		return em.merge(tap);
+	}
+
 }

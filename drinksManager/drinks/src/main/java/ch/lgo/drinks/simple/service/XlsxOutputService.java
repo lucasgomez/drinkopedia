@@ -45,8 +45,8 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	private static final String EXTENSION = ".xlsx";
 	private static final double TAP_BEER_RATIO = 3.0;
 	private static final double BOTTLED_BEER_RATIO = 2.3;
-	private static final DecimalFormat PRICES_CALCULATION_FORMAT = new DecimalFormat("#.000");
-	private static final DecimalFormat PRICES_DISPLAY_FORMAT = new DecimalFormat("#,0");
+	private static final DecimalFormat PRICES_CALCULATION_FORMAT = new DecimalFormat("#0.000");
+	private static final DecimalFormat PRICES_DISPLAY_FORMAT = new DecimalFormat("#0.0");
 	
 	//TODO Separate beer related processing with output itself
 	public File outputBeersPricesWithDetails(List<Beer> beers, String path, String baseFileName) throws Exception {
@@ -97,18 +97,16 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		result.add(bottledBeer.getName());
 		result.add(bottledBeer.getStyle() != null ? bottledBeer.getStyle().getName() : "");
 		result.add(bottledBeer.getColor() != null ? bottledBeer.getColor().getName() : "");
-		result.add(bottledBeer.getAbv() != null ? PRICES_DISPLAY_FORMAT.format(bottledBeer.getAbv()) : ""); // [5] 
+		result.add(formatForDisplay(bottledBeer.getAbv())); // [5] 
 		
 		BottledBeer bottle = bottledBeer.getBottle();
 		result.add(bottledBeer.getBottle() != null && bottle.getVolumeInCl() != null
-				? PRICES_DISPLAY_FORMAT.format(bottle.getVolumeInCl()) : ""); // [6]
-		result.add(bottledBeer.getBottle() != null && bottle.getBuyingPrice() != null
-				? PRICES_DISPLAY_FORMAT.format(bottle.getBuyingPrice()) : ""); // [7]
-		result.add(bottledBeer.getBottle() != null && bottle.getSellingPrice() != null
-				? PRICES_DISPLAY_FORMAT.format(bottle.getSellingPrice()) : ""); // [8]
+				? bottle.getVolumeInCl().toString() : ""); // [6]
+		result.add(formatForCalcul(bottle.getBuyingPrice())); // [7]
+		result.add(formatForDisplay(bottle.getSellingPrice())); // [8]
 
 		//Add calculated price
-		String idealSellingPrice = PRICES_CALCULATION_FORMAT.format(bottledBeer.getBottle().getBuyingPrice() * BOTTLED_BEER_RATIO);
+		String idealSellingPrice = formatForCalcul(bottle.getBuyingPrice() * BOTTLED_BEER_RATIO);
 		result.add(idealSellingPrice); // [9]
 		
 		//Add formula to calculate price / cl of alcohol
@@ -122,6 +120,20 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		result.add(alcoholPriceFormulaBig); // [9]
 		
 		return result;
+	}
+
+	private String formatForDisplay(Double price) {
+		if (price != null)
+			return PRICES_DISPLAY_FORMAT.format(price).replace(".", ",");
+		else
+			return "";
+	}
+	
+	private String formatForCalcul(Double price) {
+		if (price != null)
+			return PRICES_CALCULATION_FORMAT.format(price).replace(".", ",");
+		else
+			return "";
 	}
 
 	/**
@@ -149,12 +161,10 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		result.add(tapBeer.getName());
 		result.add(tapBeer.getStyle() != null ? tapBeer.getStyle().getName() : "");
 		result.add(tapBeer.getColor() != null ? tapBeer.getColor().getName() : "");
-		result.add(tapBeer.getAbv() != null ? PRICES_DISPLAY_FORMAT.format(tapBeer.getAbv()) : "");
-		result.add(tapBeer.getTap() != null ? tapBeer.getTap().getBuyingPricePerLiter().toString() : "");
-		result.add(tapBeer.getTap() != null && tapBeer.getTap().getPriceBig() != null
-				? PRICES_DISPLAY_FORMAT.format(tapBeer.getTap().getPriceBig()) : "");
-		result.add(tapBeer.getTap() != null && tapBeer.getTap().getPriceSmall() != null
-				? PRICES_DISPLAY_FORMAT.format(tapBeer.getTap().getPriceSmall()) : "");
+		result.add(formatForDisplay(tapBeer.getAbv()));
+		result.add(formatForCalcul(tapBeer.getTap().getBuyingPricePerLiter()));
+		result.add(formatForDisplay(tapBeer.getTap().getPriceBig()));
+		result.add(formatForDisplay(tapBeer.getTap().getPriceSmall()));
 
 		//Add calculated price
 		Double pricePerCl = tapBeer.getTap().getBuyingPricePerLiter() / 100;

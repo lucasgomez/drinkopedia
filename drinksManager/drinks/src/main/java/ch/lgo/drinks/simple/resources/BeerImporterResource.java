@@ -103,16 +103,24 @@ public class BeerImporterResource {
 		
 		return null;
 	}
+    
+    @GET
+    @Path("importsellingprices")
+    public Response importSellingPrices() throws Docx4JException, Xlsx4jException {
+    	importDataService.importSellingPrices(IMPORT_FOLDER+"pricesCalculation.xlsx");
+    	return null;
+    }
 	
     //TODO temp method
     @GET
 	@Path("importalldebug/")
 	public Response extractAll() throws Exception {
-    	Set<BeerStyle> importedBeerStyles = importDataService.importBeerStyles(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 0);
-    	Set<BeerColor> importedBeerColors = importDataService.importBeerColors(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 1);
-    	Set<Beer> beers = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
-    	Set<Beer> details = importDataService.importBeersDetails(IMPORT_FOLDER+"beersdetails.xlsx");
-		Set<Beer> prices = importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
+    	importDataService.importBeerStyles(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 0);
+    	importDataService.importBeerColors(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 1);
+    	importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
+    	importDataService.importBeersDetails(IMPORT_FOLDER+"beersdetails.xlsx");
+		importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
+    	importDataService.importSellingPrices(IMPORT_FOLDER+"pricesCalculation.xlsx");
 		
 		return null;
 	}

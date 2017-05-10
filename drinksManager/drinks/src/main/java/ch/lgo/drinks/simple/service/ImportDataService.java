@@ -134,6 +134,66 @@ public class ImportDataService {
 		
 		return beerWithPrice;
 	}
+
+	public Set<Beer> importSellingPrices(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		Map<Long, Beer> beersById = beersRepository.findAll().stream()
+				.collect(Collectors.toMap(beer -> beer.getId(), beer -> beer));
+		
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		List<List<String>> tapContent = readContent2(workbook.getWorksheet(0), Arrays.asList(0, 7, 8));
+		List<List<String>> bottledContent = readContent2(workbook.getWorksheet(1), Arrays.asList(0, 8));
+		
+		List<TapBeer> tapBeers = tapContent.stream()
+				//TODO Check if id is long, prices are doubles
+			.filter(row -> row.size() == 3
+						&& StringUtils.isNotBlank(row.get(0)) 
+						&& StringUtils.isNotBlank(row.get(1)) 
+						&& StringUtils.isNotBlank(row.get(2)))
+			.filter(row -> {
+				try {
+					Long.valueOf(row.get(0));
+					Double.valueOf(row.get(1));
+					Double.valueOf(row.get(2));
+					return true;
+				} catch (NumberFormatException e) {
+					return false;
+				}
+			})
+			.filter(row -> beersById.get(Long.valueOf(row.get(0))) != null && beersById.get(Long.valueOf(row.get(0))).getTap() != null)
+			.map(row -> {
+				TapBeer tap = beersById.get(Long.valueOf(row.get(0))).getTap();
+				tap.setPriceBig(Double.valueOf(row.get(1)));
+				tap.setPriceSmall(Double.valueOf(row.get(2)));
+				return tap;
+			})
+			.map(tap -> beersRepository.save(tap))
+			.collect(Collectors.toList());
+		
+		List<BottledBeer> bottledBeers = bottledContent.stream()
+				//TODO Check if id is long, prices are doubles
+				.filter(row -> row.size() == 2 
+						&& StringUtils.isNotBlank(row.get(0)) 
+						&& StringUtils.isNotBlank(row.get(1)))
+				.filter(row -> {
+					try {
+						Long.valueOf(row.get(0));
+						Double.valueOf(row.get(1));
+						return true;
+					} catch (NumberFormatException e) {
+						return false;
+					}
+				})
+				.filter(row -> beersById.get(Long.valueOf(row.get(0))) != null && beersById.get(Long.valueOf(row.get(0))).getBottle() != null)
+				.map(row -> {
+					BottledBeer bottle = beersById.get(Long.valueOf(row.get(0))).getBottle();
+					bottle.setSellingPrice(Double.valueOf(row.get(1)));
+					return bottle;
+				})
+				.map(bottle -> beersRepository.save(bottle))
+				.collect(Collectors.toList());
+		
+		return null;
+	}
 	
 	public Set<Beer> importBeersDetails(String pathAndFilename) throws Xlsx4jException, Docx4JException {
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
