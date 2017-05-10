@@ -12,7 +12,8 @@ public class BottledBeer implements IHasId {
 	private Long id;
 	private Beer beer;
 	private Long volumeInCl;
-	private Double price;
+	private Double sellingPrice;
+	private Double buyingPrice;
 	
 	@Override
 	@Id
@@ -40,11 +41,18 @@ public class BottledBeer implements IHasId {
 		this.volumeInCl = volume;
 	}
 	
-	public Double getPrice() {
-		return price;
+	public Double getSellingPrice() {
+		return sellingPrice;
 	}
-	public void setPrice(Double price) {
-		this.price = price;
+	public void setSellingPrice(Double price) {
+		this.sellingPrice = price;
+	}
+	
+	public Double getBuyingPrice() {
+		return buyingPrice;
+	}
+	public void setBuyingPrice(Double buyingPrice) {
+		this.buyingPrice = buyingPrice;
 	}
 
 }

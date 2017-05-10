@@ -2,6 +2,8 @@ package ch.lgo.drinks.simple.resources;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -19,7 +21,9 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable ex) {
-
+    	Logger.getGlobal().log(Level.SEVERE, ex.getMessage(), ex);
+    	
+    	//TODO Adapt this stupid code to provide something useful... 
         ErrorMessage errorMessage = new ErrorMessage();     
         setHttpStatus(ex, errorMessage);
         errorMessage.setCode(Status.NOT_FOUND.getStatusCode());

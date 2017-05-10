@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -84,34 +83,48 @@ public class ImportDataService {
 		return beersToCreate;
 	}
 
-	public Set<Beer> extractUnreferencedPricesAnServiceType(String pathAndFilename) throws Docx4JException, Xlsx4jException {
-		Map<String, List<String>> beersToComplete = new HashMap<>();
-		Map<STATUS_ENUM, List<String>> tapBeersToComplete = new HashMap<>();
-
+	//TODO Split into methods
+	public Set<Beer> readAndImportPricesAndServiceType(String pathAndFilename) throws Docx4JException, Xlsx4jException {
 		//Get all existing beer and map by ExternalId
 		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
 				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		Predicate<List<String>> tapBeersFilter = beerDetails -> beerDetails.get(1).contains("L");
+		Map<String, List<String>> beersToComplete = new HashMap<>();
+
+		//Read content of file and filters out non existing beers
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(1, 10, 14))
+				.stream()
+				.filter(record -> beersByExternalId.get(record.get(0)) != null)
+				.collect(Collectors.toList());
 		
-		//Retrieve data for existing beers only
-		readAndProcessContent(pathAndFilename, 0,
-				record -> beersByExternalId.get(record.getKey()) != null, 
-				record -> beersToComplete.put(record.getKey(), record.getValue()),
-				0, 3, 5);
-		
-		Predicate<Entry<String, List<String>>> tapBeersFilter = beerDetails -> beerDetails.getValue().get(0).contains("L");
-		Function<Entry<String, List<String>>, TapBeer> tapBeersConverter = beerDetails -> tapBeerFromEntry(beerDetails, beersByExternalId.get(beerDetails.getKey()));
-		Function<Entry<String, List<String>>, BottledBeer> bottledBeersConverter = beerDetails -> bottledBeerfromEntry(beerDetails, beersByExternalId.get(beerDetails.getKey()));
-		
-		//Use Collect instead
-		Set<TapBeer> tapBeersToCreate = beersToComplete.entrySet().stream()
+		//From content create tap and bottle objects
+		Set<TapBeer> tapBeersToCreate = content.stream()
 		    	.filter(tapBeersFilter)
-		    	.map(tapBeersConverter)
+		    	.map(tapRecord -> {
+		    		TapBeer tap = new TapBeer();
+		    		Beer beer = beersByExternalId.get(tapRecord.get(0));
+		    		tap.setBeer(beer);
+		    		Double price = Double.valueOf(tapRecord.get(2));
+		    		tap.setBuyingPricePerLiter(price);
+		    		return tap;
+		    	})
 		    	.collect(Collectors.toSet());
-		Set<BottledBeer> bottledBeersToCreate = beersToComplete.entrySet().stream()
+		Set<BottledBeer> bottledBeersToCreate = content.stream()
 		    	.filter(tapBeersFilter.negate())
-		    	.map(bottledBeersConverter)
+		    	.map(tapRecord -> {
+		    		BottledBeer bottle = new BottledBeer();
+		    		Beer beer = beersByExternalId.get(tapRecord.get(0));
+		    		bottle.setBeer(beer);
+		    		Double price = Double.valueOf(tapRecord.get(2));
+		    		bottle.setBuyingPrice(price);
+		    		Long volume = Long.valueOf(tapRecord.get(1).split("/")[1]);
+		    		bottle.setVolumeInCl(volume);
+		    		return bottle;
+		    	})
 		    	.collect(Collectors.toSet());
 		
+		//From tap / bottles to create, save then store resulting Beer
 		Set<Beer> beerWithPrice = tapBeersToCreate.stream()
 									.map(tapBeer -> beersRepository.addTapBeer(tapBeer))
 									.collect(Collectors.toSet());
@@ -124,9 +137,8 @@ public class ImportDataService {
 	
 	public Set<Beer> importBeersDetails(String pathAndFilename) throws Xlsx4jException, Docx4JException {
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
-		DataFormatter formatter = new DataFormatter();
 
-		List<List<String>> content = readContent2(workbook.getWorksheet(0), formatter, Arrays.asList(0, 2, 3, 4, 5, 6));
+		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(0, 2, 3, 4, 5, 6));
 		
 		Map<String, Beer> beersByExtCode = beersRepository.findAll().stream()
 				.collect(Collectors.toMap(beer -> beer.getExternalId(), beer -> beer));
@@ -154,10 +166,10 @@ public class ImportDataService {
 				.collect(Collectors.toSet());
 	}
 
-	private TapBeer tapBeerFromEntry(Entry<String, List<String>> entry, Beer beer) {
+	private TapBeer tapBeerFromEntry(List<String> entry, Beer beer) {
 		TapBeer tap = new TapBeer();
 		tap.setBeer(beer);
-		Double price = Double.valueOf(entry.getValue().get(1));
+		Double price = Double.valueOf(entry.get(2));
 		tap.setBuyingPricePerLiter(price);
 		return tap;
 	}
@@ -166,7 +178,7 @@ public class ImportDataService {
 		BottledBeer tap = new BottledBeer();
 		tap.setBeer(beer);
 		Double price = Double.valueOf(entry.getValue().get(1));
-		tap.setPrice(price);
+		tap.setSellingPrice(price);
 		return tap;
 	}
 	
@@ -346,7 +358,8 @@ public class ImportDataService {
 		return result;
 	}
 
-	private List<List<String>> readContent2(WorksheetPart sheet, DataFormatter formatter, List<Integer> columns) {
+	private List<List<String>> readContent2(WorksheetPart sheet, List<Integer> columns) {
+		DataFormatter formatter = new DataFormatter();
 		Worksheet ws = sheet.getJaxbElement();
 		SheetData data = ws.getSheetData();
 		

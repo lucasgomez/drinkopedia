@@ -72,26 +72,10 @@ public class BeerImporterResource {
     	
     	return null;
     }
-	
-	@GET
-	@Path("extractprices/")
-	public Response extractPricesAndServiceType() throws Exception {
-		Set<Beer> unreferencedBeersAndCode = importDataService.extractUnreferencedPricesAnServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
-		
-		return null;
-	}
-	
-	@GET
-	@Path("importbeerdetails/")
-	public Response extractBeerDetails() throws Exception {
-		Set<Beer> unreferencedBeersAndCode = importDataService.importBeersDetails(IMPORT_FOLDER+"beersdetails.xlsx");
-		
-		return null;
-	}
     
     @GET
-    @Path("importdata/")
-    public Response importData() throws Docx4JException, Xlsx4jException {
+    @Path("importcolorandstyles/")
+    public Response importColorsAndStyles() throws Docx4JException, Xlsx4jException {
     	Set<BeerStyle> importedBeerStyles = importDataService.importBeerStyles(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 0);
     	Set<BeerColor> importedBeerColors = importDataService.importBeerColors(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 1);
     	return Response.ok().build();
@@ -103,6 +87,35 @@ public class BeerImporterResource {
     	Set<Beer> importedBeerStyles = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
     	return Response.ok().build();
     }
+    
+    @GET
+    @Path("importbeerdetails/")
+    public Response extractBeerDetails() throws Exception {
+    	Set<Beer> unreferencedBeersAndCode = importDataService.importBeersDetails(IMPORT_FOLDER+"beersdetails.xlsx");
+    	
+    	return null;
+    }
+	
+    @GET
+	@Path("importprices/")
+	public Response extractPricesAndServiceType() throws Exception {
+		Set<Beer> unreferencedBeersAndCode = importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
+		
+		return null;
+	}
+	
+    //TODO temp method
+    @GET
+	@Path("importalldebug/")
+	public Response extractAll() throws Exception {
+    	Set<BeerStyle> importedBeerStyles = importDataService.importBeerStyles(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 0);
+    	Set<BeerColor> importedBeerColors = importDataService.importBeerColors(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 1);
+    	Set<Beer> beers = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
+    	Set<Beer> details = importDataService.importBeersDetails(IMPORT_FOLDER+"beersdetails.xlsx");
+		Set<Beer> prices = importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
+		
+		return null;
+	}
     
     @GET
     @Path("clearservice/")

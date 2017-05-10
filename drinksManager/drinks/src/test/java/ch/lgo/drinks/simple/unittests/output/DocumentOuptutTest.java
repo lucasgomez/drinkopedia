@@ -111,7 +111,7 @@ public class DocumentOuptutTest {
         
         BottledBeer sellableDrink = new BottledBeer();
         sellableDrink.setBeer(newBeer);
-        sellableDrink.setPrice(price);
+        sellableDrink.setSellingPrice(price);
         sellableDrink.setVolumeInCl(volume);
         
         newBeer.setBottle(sellableDrink);

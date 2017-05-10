@@ -17,6 +17,7 @@ import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 
 import com.jumbletree.docx5j.xlsx.XLSXFile;
+import com.jumbletree.docx5j.xlsx.builders.CellBuilder;
 import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
@@ -119,11 +120,11 @@ public abstract class AbstractDocx5JHelper {
 	}
 	
 	protected void addContent(WorksheetBuilder sheet, List<String> values) {
-		RowBuilder builder;
+		CellBuilder cell;
 		try {
-			builder = sheet.nextRow().nextCell().row();
+			cell = sheet.nextRow().nextCell();
 			for (String value : values) {
-				builder = builder.nextCell().value(value).row();
+				cell = cell.value(value).row().nextCell();
 			}
 		} catch (Docx4JException e) {
 			//Yes, I know...
