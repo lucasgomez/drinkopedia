@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -32,12 +30,16 @@ public abstract class AbstractDocx5JHelper {
 			firstSheet = true;
 		}
 		
-		public DocumentBuilder appendSheet(String title, Set<String> values) throws Exception {
+		public DocumentBuilder appendSheet(String sheetTitle, String columnTitle, List<String> list) throws Exception {
 			WorksheetBuilder sheet = firstSheet ? file.getWorkbookBuilder().getSheet(0)
 												: file.getWorkbookBuilder().appendSheet();
 			firstSheet = false;
 			
-			insertStrings(new ArrayList<>(values), sheet, title);
+			sheet.setName(sheetTitle);
+			addContent(sheet, columnTitle);
+			for (String value : list) {
+				addContent(sheet, value);
+			}
 			return this;
 		}
 		//TODO Duplicated code
@@ -51,12 +53,15 @@ public abstract class AbstractDocx5JHelper {
 			return this;
 		}
 		
-		public DocumentBuilder appendSheet(String title, List<List<String>> values) throws Exception {
+		public DocumentBuilder appendSheet2(String sheetTitle, List<String> titles, List<List<String>> lists) throws Exception {
 			WorksheetBuilder sheet = firstSheet ? file.getWorkbookBuilder().getSheet(0)
 					: file.getWorkbookBuilder().appendSheet();
 			firstSheet = false;
 			
-			insertStrings2(values, sheet, title);
+			sheet.setName(sheetTitle);
+			addContent(sheet, titles);
+			lists.forEach(list -> addContent(sheet, list));
+			
 			return this;
 		}
 
@@ -106,16 +111,26 @@ public abstract class AbstractDocx5JHelper {
 		return fullPath.toString();
 	}
 	
-	protected void addContent(WorksheetBuilder sheet, String value) throws Docx4JException {
-		sheet.nextRow().nextCell().value(value);
+	protected void addContent(WorksheetBuilder sheet, String value) {
+		try {
+			sheet.nextRow().nextCell().value(value);
+		} catch (Docx4JException e) {
+			//Yes, I know...
+			throw new RuntimeException(e);
+		}
 	}
 	
-	protected void addContent(WorksheetBuilder sheet, String key, List<String> values) throws Docx4JException {
-		RowBuilder builder = sheet.nextRow().nextCell().value(key).row();
-		if (values != null) {
-			for (String value : values) {
-				builder = builder.nextCell().value(value).row();
+	protected void addContent(WorksheetBuilder sheet, String key, List<String> values) {
+		try {
+			RowBuilder builder = sheet.nextRow().nextCell().value(key).row();
+			if (values != null) {
+				for (String value : values) {
+					builder = builder.nextCell().value(value).row();
+				}
 			}
+		} catch (Docx4JException e) {
+			//Yes, I know...
+			throw new RuntimeException(e);
 		}
 	}
 	

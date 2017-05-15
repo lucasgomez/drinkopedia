@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -26,6 +28,8 @@ import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.BeerColor;
+import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.TapBeer;
 
@@ -48,6 +52,40 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	private static final DecimalFormat PRICES_CALCULATION_FORMAT = new DecimalFormat("#0.000");
 	private static final DecimalFormat PRICES_DISPLAY_FORMAT = new DecimalFormat("#0.0");
 	
+	public File theFullMonty(List<Beer> allBeers, String path, String baseFileName) throws Exception {
+		Set<BeerColor> colors = allBeers.stream()
+			.map(beer -> beer.getColor())
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet());
+		
+		Set<BeerStyle> styles = allBeers.stream()
+			.map(beer -> beer.getStyle())
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet());
+		
+		return new DocumentBuilder()
+				.appendSheet("Colors", "Color",
+						colors.stream()
+						.map(color -> color.getName())
+						.sorted()
+						.collect(Collectors.toList()))
+				.appendSheet("Styles", "Style",
+						styles.stream()
+						.map(style -> style.getName())
+						.sorted()
+						.collect(Collectors.toList()))
+				.appendSheet2("Beers", Arrays.asList("External Id", "Name", "Comment", "ABV"),
+						allBeers.stream()
+						.map(beer -> Arrays.asList(
+								beer.getExternalId(),
+								beer.getName(),
+								beer.getComment(),
+								formatForDisplay(beer.getAbv())
+								))
+						.collect(Collectors.toList()))
+				.save(buildFullName(path, baseFileName, EXTENSION));
+	}
+	
 	//TODO Separate beer related processing with output itself
 	public File outputBeersPricesWithDetails(List<Beer> beers, String path, String baseFileName) throws Exception {
 		Map<String, List<Beer>> beersByType = beers.stream()
@@ -62,14 +100,20 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 				.mapToObj(bottledBeerId -> bottledBeerToTupple(beersByType.get("bottle").get(bottledBeerId), bottledBeerId+1))
 				.collect(Collectors.toList());
 
-		tapContent.add(0, Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","BuyingPricePerLiter","PriceBig","PriceSmall",
-				"Ideal selling price big", "Ideal selling price small", "Price per alc Cl big", "Price per alc Cl small"));
-		bottleContent.add(0, Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","Volume (cl)","Buying Price",
-				"Selling price", "Ideal selling price", "Price per alc Cl"));
-		
+		List<String> tapTitles = Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","BuyingPricePerLiter","PriceBig","PriceSmall",
+				"Ideal selling price big", "Ideal selling price small", "Price per alc Cl big", "Price per alc Cl small");
+		 List<String> bottlesTitles = Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","Volume (cl)","Buying Price",
+				"Selling price", "Ideal selling price", "Price per alc Cl");
+	
 		return new DocumentBuilder()
-				.appendSheet("Tap calc", tapContent)
-				.appendSheet("Bottles calc", bottleContent)
+				.appendSheet2("Tap calc", tapTitles, tapContent)
+				.appendSheet2("Bottles calc", bottlesTitles, bottleContent)
+				.save(buildFullName(path, baseFileName, EXTENSION));
+	}
+	
+	public File outputContent(List<List<String>> content, String path, String baseFileName) throws Exception {
+		return new DocumentBuilder()
+				.appendSheet2("Data", Collections.singletonList("content"), content)
 				.save(buildFullName(path, baseFileName, EXTENSION));
 	}
 
@@ -188,10 +232,10 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		return result;
 	}
 
-	public File outputBeerStylesAndColors(Set<String> styleNames, Set<String> colorNames, String path, String baseFileName) throws Exception {
+	public File outputBeerStylesAndColors(List<String> styleNames, List<String> colorNames, String path, String baseFileName) throws Exception {
 		return new DocumentBuilder()
-				.appendSheet("Styles", styleNames)
-				.appendSheet("Colors", colorNames)
+				.appendSheet("Styles", "Style", styleNames)
+				.appendSheet("Colors", "Color", colorNames)
 				.save(buildFullName(path, baseFileName, EXTENSION));
 	}
 	

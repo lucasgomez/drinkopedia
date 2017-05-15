@@ -31,10 +31,13 @@ import org.xlsx4j.sml.Worksheet;
 import ch.lgo.drinks.simple.dao.BeerColorRepository;
 import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
+import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.BottledBeer;
+import ch.lgo.drinks.simple.entity.Producer;
+import ch.lgo.drinks.simple.entity.StrengthEnum;
 import ch.lgo.drinks.simple.entity.TapBeer;
 
 @Service
@@ -46,6 +49,8 @@ public class ImportDataService {
 	private BeerColorRepository colorsRepository;
 	@Autowired
 	private BeerStylesRepository stylesRepository;
+	@Autowired
+	private ProducerRepository producerRepository;
 
 	public Set<String> extractUnreferencedBeersColors(String pathAndFilename) throws Docx4JException, Xlsx4jException {
 		Set<String> colorsToCreate = new HashSet<>();
@@ -248,9 +253,8 @@ public class ImportDataService {
 	
 	private void readAndProcessContent(String path, int sheetId, Predicate<String> filter, Consumer<String> action, int columnId) throws Docx4JException, Xlsx4jException {
 		WorkbookPart workbook = openSpreadsheetFile(path);
-		DataFormatter formatter = new DataFormatter();
 
-		Set<String> details = readContent(workbook.getWorksheet(0), formatter, columnId);
+		Set<String> details = readContent(workbook.getWorksheet(0), columnId);
 		
 		//Create and persist beers
 		details.stream().filter(filter).forEach(action);
@@ -280,9 +284,8 @@ public class ImportDataService {
 
 	public Set<BeerColor> importBeerColors(String path, int sheetId) throws Docx4JException, Xlsx4jException {
 		WorkbookPart workbook = openSpreadsheetFile(path);
-		DataFormatter formatter = new DataFormatter();
 		
-		Set<String> colors = readContent(workbook.getWorksheet(sheetId), formatter, 0);
+		Set<String> colors = readContent(workbook.getWorksheet(sheetId), 0);
 		Set<BeerColor> createdColors = new HashSet<>();
 		
 		//Create and persist beers
@@ -371,7 +374,8 @@ public class ImportDataService {
 		}
 	}
 	
-	private Set<String> readContent(WorksheetPart sheet, DataFormatter formatter, int columnId) {
+	private Set<String> readContent(WorksheetPart sheet, int columnId) {
+		DataFormatter formatter = new DataFormatter();
 		Set<String> result = new HashSet<>();
 		String readValue;
 		Worksheet ws = sheet.getJaxbElement();
@@ -419,6 +423,10 @@ public class ImportDataService {
 	}
 
 	private List<List<String>> readContent2(WorksheetPart sheet, List<Integer> columns) {
+		return readContent2(sheet, columns, false);
+	}
+	
+	private List<List<String>> readContent2(WorksheetPart sheet, List<Integer> columns, boolean skipTitleRow) {
 		DataFormatter formatter = new DataFormatter();
 		Worksheet ws = sheet.getJaxbElement();
 		SheetData data = ws.getSheetData();
@@ -428,6 +436,7 @@ public class ImportDataService {
 				.collect(Collectors.toList());
 		
 		return data.getRow().stream()
+				.skip(skipTitleRow ? 1 : 0)
 				.map(row -> row.getC().stream()
 							.filter(cell -> columnsToRead.contains(cell.getR().substring(0, 1)))
 							.map(cell -> formatter.formatCellValue(cell))
@@ -467,6 +476,87 @@ public class ImportDataService {
 
 	public void clearService() {
 		beersRepository.clearService();
+	}
+
+	/**
+	 * [0] Article
+	 * [2] Acidité
+	 * [3] Amertume
+	 * [4] Aspect
+	 * [5] Description courte
+	 * [6] Douceur
+	 * [8] Gout
+	 * [9] Houblonnage
+	 * [11] Mets
+	 * [12] Nez
+	 * [13] Remarque
+	 * @param string
+	 * @return
+	 * @throws Xlsx4jException 
+	 * @throws Docx4JException 
+	 */
+	public List<List<String>> extractRowsByExternalId(String pathAndFilename) throws Xlsx4jException, Docx4JException {
+		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
+				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		return readContent2(workbook.getWorksheet(0), Arrays.asList(0, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13))
+				.stream()
+			.filter(row -> beersByExternalId.keySet().contains(row.get(0).split(" - ")[0])
+							|| row.get(0).startsWith("Article"))
+			.collect(Collectors.toList());
+	}
+
+	public Set<Beer> importDescriptions(String pathAndFilename) throws Xlsx4jException, Docx4JException {
+		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
+				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(0, 1, 7, 8, 9, 10));
+		content.remove(0);
+		return content.stream()
+				.filter(row -> beersByExternalId.keySet().contains(row.get(0).split(" - ")[0]))
+				.map(row -> {
+					Beer beer = beersByExternalId.get(row.get(0).split(" - ")[0]);
+					beer.setComment(row.get(1));
+					beer.setSourness(getStrengthFromWeirdNumber(row.get(2)));
+					beer.setBitterness(getStrengthFromWeirdNumber(row.get(3)));
+					beer.setSweetness(getStrengthFromWeirdNumber(row.get(4)));
+					beer.setHopping(getStrengthFromWeirdNumber(row.get(5)));
+					return beer;
+				})
+				.map(beerToUpdate -> beersRepository.save(beerToUpdate))
+				.collect(Collectors.toSet());
+	}
+	
+	public Set<Producer> importBeerProviders(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		return readContent(workbook.getWorksheet(0), 1).stream()
+			.map(Producer::new)
+			.map(producerRepository::save)
+			.collect(Collectors.toSet());
+	}
+	
+	public Set<Beer> updateBeersWithProducers(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+
+		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
+				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		Map<String, Producer> producersByName = producerRepository.findAll().stream()
+			.collect(Collectors.toMap(producer -> producer.getName(), producer -> producer));
+		
+		return readContent2(workbook.getWorksheet(0), Arrays.asList(0, 1, 2), true).stream()
+				.map(row -> beersByExternalId.get(row.get(0))
+								.setProducer(producersByName.get(row.get(1)))
+								.setName(row.get(2))
+					)
+				.map(beersRepository::save)
+				.collect(Collectors.toSet());				
+	}
+	
+	private StrengthEnum getStrengthFromWeirdNumber(String weirdNumber) {
+		String rank = weirdNumber.substring(0, 1);
+		return StrengthEnum.getStrengthByRank(Integer.valueOf(rank));
 	}
 
 }

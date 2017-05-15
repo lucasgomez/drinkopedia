@@ -23,7 +23,11 @@ public class Beer {
     private Double abv; //Alcool
     private Long ibu; //Bitterness
     private Long srm; //Color
-    private BeerColor color;
+    private StrengthEnum bitterness;
+    private StrengthEnum sourness;
+    private StrengthEnum sweetness;
+    private StrengthEnum hopping;
+	private BeerColor color;
 	private Long plato;
 	private BeerStyle style;
     private FermentingEnum fermenting;
@@ -37,113 +41,164 @@ public class Beer {
 	public Long getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public Beer setId(Long id) {
 		this.id = id;
+		return this;
 	}
 
 	public String getExternalId() {
 		return externalId;
 	}
-	public void setExternalId(String externalId) {
+	public Beer setExternalId(String externalId) {
 		this.externalId = externalId;
+		return this;
 	}
 	
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public Beer setName(String name) {
 		this.name = name;
+		return this;
 	}
 	
 	@ManyToOne
 	public Producer getProducer() {
 		return producer;
 	}
-	public void setProducer(Producer producer) {
+	public Beer setProducer(Producer producer) {
 		this.producer = producer;
+		return this;
 	}
 	
     public Double getAbv() {
         return abv;
     }
-    public void setAbv(Double abv) {
+    public Beer setAbv(Double abv) {
         this.abv = abv;
+		return this;
     }
     
     public Long getIbu() {
         return ibu;
     }
-    public void setIbu(Long ibu) {
+    public Beer setIbu(Long ibu) {
         this.ibu = ibu;
+		return this;
     }
     
     public Long getSrm() {
         return srm;
     }
-    public void setSrm(Long srm) {
+    public Beer setSrm(Long srm) {
         this.srm = srm;
+		return this;
     }
+
+	@Enumerated(EnumType.STRING)
+    public StrengthEnum getBitterness() {
+		return bitterness;
+	}
+	public Beer setBitterness(StrengthEnum bitterness) {
+		this.bitterness = bitterness;
+		return this;
+	}
+
+	@Enumerated(EnumType.STRING)
+	public StrengthEnum getSourness() {
+		return sourness;
+	}
+	public Beer setSourness(StrengthEnum sourness) {
+		this.sourness = sourness;
+		return this;
+	}
+
+	@Enumerated(EnumType.STRING)
+	public StrengthEnum getSweetness() {
+		return sweetness;
+	}
+	public Beer setSweetness(StrengthEnum sweetness) {
+		this.sweetness = sweetness;
+		return this;
+	}
+
+	@Enumerated(EnumType.STRING)
+	public StrengthEnum getHopping() {
+		return hopping;
+	}
+	public Beer setHopping(StrengthEnum hopping) {
+		this.hopping = hopping;
+		return this;
+	}
 
     @ManyToOne
     public BeerColor getColor() {
 		return color;
 	}
-	public void setColor(BeerColor color) {
+	public Beer setColor(BeerColor color) {
 		this.color = color;
+		return this;
 	}
 
     public Long getPlato() {
 		return plato;
 	}
-	public void setPlato(Long plato) {
+	public Beer setPlato(Long plato) {
 		this.plato = plato;
+		return this;
 	}
 	
 	@ManyToOne
 	public BeerStyle getStyle() {
 		return style;
 	}
-	public void setStyle(BeerStyle style) {
+	public Beer setStyle(BeerStyle style) {
 		this.style = style;
+		return this;
 	}
 
 	@Enumerated(EnumType.STRING)
 	public FermentingEnum getFermenting() {
 		return fermenting;
 	}
-	public void setFermenting(FermentingEnum fermenting) {
+	public Beer setFermenting(FermentingEnum fermenting) {
 		this.fermenting = fermenting;
+		return this;
 	}
 	
 	public String getComment() {
 		return comment;
 	}
-	public void setComment(String comment) {
+	public Beer setComment(String comment) {
 		this.comment = comment;
+		return this;
 	}
 	
 	@OneToOne(optional=true, fetch = FetchType.LAZY, mappedBy="beer")
 	public BottledBeer getBottle() {
 		return bottle;
 	}
-	public void setBottle(BottledBeer bottle) {
+	public Beer setBottle(BottledBeer bottle) {
 		this.bottle = bottle;
+		return this;
 	}
 	
 	@OneToOne(optional=true, fetch = FetchType.LAZY, mappedBy="beer")
 	public TapBeer getTap() {
 		return tap;
 	}
-	public void setTap(TapBeer tap) {
+	public Beer setTap(TapBeer tap) {
 		this.tap = tap;
+		return this;
 	}
 
 	@OneToMany(mappedBy="beers")
 	public Set<Bar> getBars() {
 		return bars;
 	}
-	public void setBars(Set<Bar> bars) {
+	public Beer setBars(Set<Bar> bars) {
 		this.bars = bars;
+		return this;
 	}
 
 	public Beer() {}

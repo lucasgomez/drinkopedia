@@ -1,6 +1,7 @@
 package ch.lgo.drinks.simple.resources;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class BeerImporterResource {
 		Set<String> unreferencedStyles = importDataService.extractUnreferencedBeersStyles(IMPORT_FOLDER+"beersdetails.xlsx");
 		Set<String> unreferencedColors = importDataService.extractUnreferencedBeersColors(IMPORT_FOLDER+"beersdetails.xlsx");
 		
-		File output = outputService.outputBeerStylesAndColors(unreferencedStyles, unreferencedColors, OUTPUT_FOLDER, "extractedBeerDetails");
+		File output = outputService.outputBeerStylesAndColors(new ArrayList<>(unreferencedStyles), new ArrayList<>(unreferencedColors), OUTPUT_FOLDER, "extractedBeerDetails");
     	
 		return Response.ok(output.getAbsolutePath(), MediaType.APPLICATION_JSON)
 			      .header("Content-Disposition", "attachment; filename=\"" + output.getName() + "\"" ) //optional
@@ -110,6 +111,36 @@ public class BeerImporterResource {
     	importDataService.importSellingPrices(IMPORT_FOLDER+"pricesCalculation.xlsx");
     	return null;
     }
+    
+    @GET
+    @Path("importdescriptions")
+    public Response importDescriptions() throws Xlsx4jException, Docx4JException {
+    	Set<Beer> beersWithDesc = importDataService.importDescriptions(IMPORT_FOLDER+"completedDescriptions.xlsx");
+    	
+    	return null;
+    }
+    
+    @GET
+    @Path("filterbyextid")
+    public Response filterByExternalId() throws Exception {
+    	List<List<String>> content = importDataService.extractRowsByExternalId(IMPORT_FOLDER+"descriptifs.xlsx");
+    	outputService.outputContent(content, OUTPUT_FOLDER, "filteredDescriptions");
+    	return null;
+    }
+    
+    @GET
+    @Path("importproducers")
+    public Response importProducers() throws Exception {
+    	importDataService.importBeerProviders(IMPORT_FOLDER+"extractedBeersWithProducer.xlsx");
+    	return null;
+    }
+    
+    @GET
+    @Path("addproducers")
+    public Response addProducersToBeer() throws Exception {
+    	importDataService.updateBeersWithProducers(IMPORT_FOLDER+"extractedBeersWithProducer.xlsx");
+    	return null;
+    }
 	
     //TODO temp method
     @GET
@@ -121,6 +152,7 @@ public class BeerImporterResource {
     	importDataService.importBeersDetails(IMPORT_FOLDER+"beersdetails.xlsx");
 		importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
     	importDataService.importSellingPrices(IMPORT_FOLDER+"pricesCalculation.xlsx");
+    	importDataService.importDescriptions(IMPORT_FOLDER+"completedDescriptions.xlsx");
 		
 		return null;
 	}

@@ -35,4 +35,11 @@ public class Producer implements IHasId {
 	public void setOrigin(Place origin) {
 		this.origin = origin;
 	}
+	
+	public Producer(String name) {
+		this.name = name;
+	}
+	
+	public Producer() {
+	}
 }

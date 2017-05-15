@@ -35,8 +35,7 @@ public class AbstractResourcesStep <D, L> {
     protected ProducerRepository producerRepository;
     
     protected Producer createAndSaveProducer(String name) {
-		Producer newProducer = new Producer();
-		newProducer.setName(name);
+		Producer newProducer = new Producer(name);
 		return producerRepository.save(newProducer);
 	}
     

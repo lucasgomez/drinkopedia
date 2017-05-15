@@ -29,7 +29,6 @@ import io.swagger.annotations.ApiOperation;
 @Consumes({MediaType.APPLICATION_JSON + "; charset=UTF8"})
 public class OutputResource {
 
-    private static final String IMPORT_FOLDER = "src/main/resources/input/";
 	private static final String OUTPUT_FOLDER = "src/main/resources/output/";
 	@Autowired
 	private XlsxOutputService outputService;
@@ -53,6 +52,13 @@ public class OutputResource {
 	public Response createBeersPriceDefinition() throws Exception {
 		List<Beer> beers = beersService.getAllWithService();
 		File file = outputService.outputBeersPricesWithDetails(beers, OUTPUT_FOLDER, "pricesCalculation");
+		return null;
+	}
+	
+	@GET
+	@Path("fullmonty")
+	public Response fullMonty() throws Exception {
+		outputService.theFullMonty(beersService.getAllWithService(), OUTPUT_FOLDER, "fullMonty");
 		return null;
 	}
 	
