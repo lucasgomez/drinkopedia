@@ -5,8 +5,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import ch.lgo.drinks.simple.dao.NamedEntity;
+
 @Entity
-public class Producer implements IHasId {
+public class Producer implements HasId, NamedEntity {
 
 	private Long id;
 	private String name;	
@@ -17,23 +19,26 @@ public class Producer implements IHasId {
 	public Long getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public Producer setId(Long id) {
 		this.id = id;
+		return this;
 	}
 	
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public Producer setName(String name) {
 		this.name = name;
+		return this;
 	}
 	
 	@ManyToOne
 	public Place getOrigin() {
 		return origin;
 	}
-	public void setOrigin(Place origin) {
+	public Producer setOrigin(Place origin) {
 		this.origin = origin;
+		return this;
 	}
 	
 	public Producer(String name) {

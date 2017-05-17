@@ -4,8 +4,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import ch.lgo.drinks.simple.dao.NamedEntity;
+
 @Entity
-public class BeerStyle {
+public class BeerStyle implements NamedEntity {
     
     @Id
     @GeneratedValue

@@ -26,11 +26,15 @@ import com.jumbletree.docx5j.xlsx.builders.CellBuilder;
 import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
+import ch.lgo.drinks.simple.dao.NamedEntity;
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.BottledBeer;
+import ch.lgo.drinks.simple.entity.Place;
+import ch.lgo.drinks.simple.entity.Producer;
+import ch.lgo.drinks.simple.entity.StrengthEnum;
 import ch.lgo.drinks.simple.entity.TapBeer;
 
 @Service
@@ -63,6 +67,16 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 			.filter(Objects::nonNull)
 			.collect(Collectors.toSet());
 		
+		Set<Producer> producers = allBeers.stream()
+				.map(beer -> beer.getProducer())
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+		
+		Set<Place> places = producers.stream()
+				.map(producer -> producer.getOrigin())
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+		
 		return new DocumentBuilder()
 				.appendSheet("Colors", "Color",
 						colors.stream()
@@ -74,18 +88,70 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 						.map(style -> style.getName())
 						.sorted()
 						.collect(Collectors.toList()))
-				.appendSheet2("Beers", Arrays.asList("External Id", "Name", "Comment", "ABV"),
+				.appendSheet2("Places", Arrays.asList("Name", "Shortname"),
+						places.stream()
+						.map(place -> Arrays.asList(place.getName(), place.getShortName()))
+						.collect(Collectors.toList()))
+				.appendSheet2("Producers", Arrays.asList("Name", "Origin"),
+						producers.stream()
+						.map(producer -> Arrays.asList(
+								producer.getName(), 
+								displayName(producer.getOrigin())))
+						.collect(Collectors.toList()))
+				.appendSheet2("Beers", Arrays.asList("External Id", "Name", "Color", "Style", "Comment", 
+						"ABV", "Producer", "Hopping", "Bitterness", "Sourness", "Sweetness"),
 						allBeers.stream()
 						.map(beer -> Arrays.asList(
 								beer.getExternalId(),
 								beer.getName(),
+								displayName(beer.getColor()),
+								displayName(beer.getStyle()),
 								beer.getComment(),
-								formatForDisplay(beer.getAbv())
-								))
+								formatForDisplay(beer.getAbv()),
+								displayName(beer.getProducer()),
+								displayStrength(beer.getHopping()),
+								displayStrength(beer.getBitterness()),
+								displayStrength(beer.getSourness()),
+								displayStrength(beer.getSweetness())
+							))
 						.collect(Collectors.toList()))
+				.appendSheet2("Tap", Arrays.asList("Buying price / L", "Price "+TapBeer.VOLUME_SMALL_CL, "Price "+TapBeer.VOLUME_BIG_CL),
+						allBeers.stream()
+						.map(beer -> beer.getTap())
+						.filter(Objects::nonNull)
+						.map(tap -> Arrays.asList(
+								formatForDisplay(tap.getBuyingPricePerLiter()),
+								formatForDisplay(tap.getPriceSmall()),
+								formatForDisplay(tap.getPriceBig())
+							))
+						.collect(Collectors.toList()))
+				.appendSheet2("Bottle", Arrays.asList("Buying price", "Price", "Volume (cl)"),
+						allBeers.stream()
+						.map(beer -> beer.getBottle())
+						.filter(Objects::nonNull)
+						.map(bottle -> Arrays.asList(
+								formatForDisplay(bottle.getBuyingPrice()),
+								formatForDisplay(bottle.getSellingPrice()),
+								bottle.getVolumeInCl().toString()
+							))
+						.collect(Collectors.toList())
+						)
 				.save(buildFullName(path, baseFileName, EXTENSION));
 	}
+
+	private String displayName(NamedEntity entity) {
+		if (entity == null)
+			return "";
+		return entity.getName();
+			
+	}
 	
+	private String displayStrength(StrengthEnum strength) {
+		if (strength == null)
+			return "";
+		return strength.toString();
+	}
+
 	//TODO Separate beer related processing with output itself
 	public File outputBeersPricesWithDetails(List<Beer> beers, String path, String baseFileName) throws Exception {
 		Map<String, List<Beer>> beersByType = beers.stream()
@@ -139,8 +205,8 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		result.add(bottledBeer.getId().toString());
 		result.add(bottledBeer.getExternalId());
 		result.add(bottledBeer.getName());
-		result.add(bottledBeer.getStyle() != null ? bottledBeer.getStyle().getName() : "");
-		result.add(bottledBeer.getColor() != null ? bottledBeer.getColor().getName() : "");
+		result.add(displayName(bottledBeer.getStyle()));
+		result.add(displayName(bottledBeer.getColor()));
 		result.add(formatForDisplay(bottledBeer.getAbv())); // [5] 
 		
 		BottledBeer bottle = bottledBeer.getBottle();

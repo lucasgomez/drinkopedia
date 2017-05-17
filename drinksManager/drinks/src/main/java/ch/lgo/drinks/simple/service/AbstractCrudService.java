@@ -1,11 +1,11 @@
 package ch.lgo.drinks.simple.service;
 
 import ch.lgo.drinks.simple.dao.ICrudRepository;
-import ch.lgo.drinks.simple.entity.IHasId;
+import ch.lgo.drinks.simple.entity.HasId;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 
-public abstract class AbstractCrudService<E extends IHasId> {
+public abstract class AbstractCrudService<E extends HasId> {
 
 	
 	protected abstract ICrudRepository<E> getCrudRepository();

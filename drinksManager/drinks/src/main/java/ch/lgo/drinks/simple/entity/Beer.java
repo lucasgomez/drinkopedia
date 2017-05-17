@@ -1,8 +1,5 @@
 package ch.lgo.drinks.simple.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,11 +7,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import ch.lgo.drinks.simple.dao.NamedEntity;
+
 @Entity
-public class Beer {
+public class Beer implements HasId, NamedEntity {
 
 	private Long id;
 	private String externalId; //Code Amstein
@@ -34,7 +32,6 @@ public class Beer {
 	private String comment;
 	private BottledBeer bottle;
 	private TapBeer tap;
-	private Set<Bar> bars = new HashSet<>();
 	
 	@Id
 	@GeneratedValue
@@ -189,15 +186,6 @@ public class Beer {
 	}
 	public Beer setTap(TapBeer tap) {
 		this.tap = tap;
-		return this;
-	}
-
-	@OneToMany(mappedBy="beers")
-	public Set<Bar> getBars() {
-		return bars;
-	}
-	public Beer setBars(Set<Bar> bars) {
-		this.bars = bars;
 		return this;
 	}
 

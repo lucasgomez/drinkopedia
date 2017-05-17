@@ -4,8 +4,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import ch.lgo.drinks.simple.dao.NamedEntity;
+
 @Entity
-public class Place implements IHasId {
+public class Place implements HasId, NamedEntity {
 
 	private Long id;
 	private String name;
@@ -16,21 +18,24 @@ public class Place implements IHasId {
 	public Long getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public Place setId(Long id) {
 		this.id = id;
+		return this;
 	}
 	
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public Place setName(String name) {
 		this.name = name;
+		return this;
 	}
 
 	public String getShortName() {
 		return shortName;
 	}
-	public void setShortName(String shortname) {
+	public Place setShortName(String shortname) {
 		this.shortName = shortname;
+		return this;
 	}
 }

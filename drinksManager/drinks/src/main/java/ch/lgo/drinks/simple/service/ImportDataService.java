@@ -4,15 +4,19 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -31,11 +35,13 @@ import org.xlsx4j.sml.Worksheet;
 import ch.lgo.drinks.simple.dao.BeerColorRepository;
 import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
+import ch.lgo.drinks.simple.dao.NamedEntity;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.BottledBeer;
+import ch.lgo.drinks.simple.entity.HasId;
 import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.entity.StrengthEnum;
 import ch.lgo.drinks.simple.entity.TapBeer;
@@ -91,8 +97,7 @@ public class ImportDataService {
 	//TODO Split into methods
 	public Set<Beer> readAndImportPricesAndServiceType(String pathAndFilename) throws Docx4JException, Xlsx4jException {
 		//Get all existing beer and map by ExternalId
-		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
-				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		Map<String, Beer> beersByExternalId = mapBeersByExternalId(beersRepository.findAll());
 		Predicate<List<String>> tapBeersFilter = beerDetails -> beerDetails.get(1).contains("L");
 		Map<String, List<String>> beersToComplete = new HashMap<>();
 
@@ -141,19 +146,23 @@ public class ImportDataService {
 	}
 
 	public Set<Beer> importSellingPrices(String pathAndFilename) throws Docx4JException, Xlsx4jException {
-		Map<Long, Beer> beersById = beersRepository.findAll().stream()
-				.collect(Collectors.toMap(beer -> beer.getId(), beer -> beer));
+		Map<Long, Beer> beersById = mapEntitiesById(beersRepository.findAll());
 		
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 		List<List<String>> tapContent = readContent2(workbook.getWorksheet(0), Arrays.asList(0, 7, 8));
 		List<List<String>> bottledContent = readContent2(workbook.getWorksheet(1), Arrays.asList(0, 8));
 		
+		//TODO Fix stoopid comma format in xls file
+		Function<List<String>, List<String>> commaTransformer = row -> row.stream()
+				.map(cell -> cell != null ? cell.replace(",", ".") : "") 
+				.collect(Collectors.toList());
+		
 		List<TapBeer> tapBeers = tapContent.stream()
-				//TODO Check if id is long, prices are doubles
 			.filter(row -> row.size() == 3
 						&& StringUtils.isNotBlank(row.get(0)) 
 						&& StringUtils.isNotBlank(row.get(1)) 
 						&& StringUtils.isNotBlank(row.get(2)))
+			.map(commaTransformer)
 			.filter(row -> {
 				try {
 					Long.valueOf(row.get(0));
@@ -179,6 +188,7 @@ public class ImportDataService {
 				.filter(row -> row.size() == 2 
 						&& StringUtils.isNotBlank(row.get(0)) 
 						&& StringUtils.isNotBlank(row.get(1)))
+				.map(commaTransformer)
 				.filter(row -> {
 					try {
 						Long.valueOf(row.get(0));
@@ -205,12 +215,9 @@ public class ImportDataService {
 
 		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(0, 2, 3, 4, 5, 6));
 		
-		Map<String, Beer> beersByExtCode = beersRepository.findAll().stream()
-				.collect(Collectors.toMap(beer -> beer.getExternalId(), beer -> beer));
-		Map<String, BeerColor> colorsByName = colorsRepository.findAll().stream()
-				.collect(Collectors.toMap(color -> color.getName(), color -> color));
-		Map<String, BeerStyle> stylesByName = stylesRepository.findAll().stream()
-				.collect(Collectors.toMap(style -> style.getName(), style -> style));
+		Map<String, Beer> beersByExtCode = mapBeersByExternalId(beersRepository.findAll());
+		Map<String, BeerColor> colorsByName = mapEntitiesByName(colorsRepository.findAll());
+		Map<String, BeerStyle> stylesByName = mapEntitiesByName(stylesRepository.findAll());
 		
 		return content.stream()
 				.filter(row -> {
@@ -437,10 +444,19 @@ public class ImportDataService {
 		
 		return data.getRow().stream()
 				.skip(skipTitleRow ? 1 : 0)
-				.map(row -> row.getC().stream()
+				.map(row -> {
+						String[] rowContent = new String[columns.size()];
+						row.getC().stream()
 							.filter(cell -> columnsToRead.contains(cell.getR().substring(0, 1)))
-							.map(cell -> formatter.formatCellValue(cell))
-							.collect(Collectors.toList()))
+							.forEach(cell -> rowContent[columnsToRead.indexOf(cell.getR().substring(0, 1))] = formatter.formatCellValue(cell));
+						return Arrays.asList(rowContent);
+						}
+					)
+//				.map(row -> row.getC().stream()
+//						.filter(cell -> columnsToRead.contains(cell.getR().substring(0, 1)))
+//						.map(cell -> formatter.formatCellValue(cell))
+//						.collect(Collectors.toList())
+//						)
 				.collect(Collectors.toList());
 	}
 	
@@ -496,8 +512,7 @@ public class ImportDataService {
 	 * @throws Docx4JException 
 	 */
 	public List<List<String>> extractRowsByExternalId(String pathAndFilename) throws Xlsx4jException, Docx4JException {
-		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
-				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		Map<String, Beer> beersByExternalId = mapBeersByExternalId(beersRepository.findAll());
 		
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 		return readContent2(workbook.getWorksheet(0), Arrays.asList(0, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13))
@@ -508,8 +523,7 @@ public class ImportDataService {
 	}
 
 	public Set<Beer> importDescriptions(String pathAndFilename) throws Xlsx4jException, Docx4JException {
-		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
-				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+		Map<String, Beer> beersByExternalId = mapBeersByExternalId(beersRepository.findAll());
 		
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(0, 1, 7, 8, 9, 10));
@@ -532,7 +546,8 @@ public class ImportDataService {
 	public Set<Producer> importBeerProviders(String pathAndFilename) throws Docx4JException, Xlsx4jException {
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 		return readContent(workbook.getWorksheet(0), 1).stream()
-			.map(Producer::new)
+			.collect(Collectors.toSet()).stream()
+			.map(name -> new Producer(name))
 			.map(producerRepository::save)
 			.collect(Collectors.toSet());
 	}
@@ -540,10 +555,8 @@ public class ImportDataService {
 	public Set<Beer> updateBeersWithProducers(String pathAndFilename) throws Docx4JException, Xlsx4jException {
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 
-		Map<String, Beer> beersByExternalId = beersRepository.findAll().stream()
-				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
-		Map<String, Producer> producersByName = producerRepository.findAll().stream()
-			.collect(Collectors.toMap(producer -> producer.getName(), producer -> producer));
+		Map<String, Beer> beersByExternalId = mapBeersByExternalId(beersRepository.findAll());
+		Map<String, Producer> producersByName = mapEntitiesByName(producerRepository.findAll());
 		
 		return readContent2(workbook.getWorksheet(0), Arrays.asList(0, 1, 2), true).stream()
 				.map(row -> beersByExternalId.get(row.get(0))
@@ -553,10 +566,64 @@ public class ImportDataService {
 				.map(beersRepository::save)
 				.collect(Collectors.toSet());				
 	}
+
+	private Map<String, Beer> mapBeersByExternalId(Collection<Beer> beers) {
+		return beers.stream()
+				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
+	}
+	
+	private <T extends NamedEntity> Map<String, T> mapEntitiesByName(Collection<T> entities) {
+		return entities.stream()
+				.collect(toMap(entity -> entity.getName(), entity -> entity));
+	}
+
+	private <T extends HasId> Map<Long, T> mapEntitiesById(Collection<T> entities) {
+		return entities.stream()
+				.collect(toMap(entity -> entity.getId(), entity -> entity));
+	}
 	
 	private StrengthEnum getStrengthFromWeirdNumber(String weirdNumber) {
 		String rank = weirdNumber.substring(0, 1);
 		return StrengthEnum.getStrengthByRank(Integer.valueOf(rank));
+	}
+	
+	private Set<String> extractUnreferencedEntities(List<List<String>> content, int columnId, Map<String, ? extends NamedEntity> entitiesByName) {
+		return content.stream()
+				.filter(row -> !row.isEmpty() && StringUtils.isNotBlank(row.get(0)))
+				.map(row -> row.get(columnId))
+				.filter(Objects::nonNull)
+				.filter(entityName -> entitiesByName.get(entityName) == null)
+				.collect(Collectors.toSet());
+	}
+
+	public Map<String, Set<String>> checkStandardImporterContent(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		List<Beer> beers = beersRepository.findAllWithServices();
+		Map<String, Beer> beersByName = mapEntitiesByName(beers);
+		Map<String, Producer> producersByName = mapEntitiesByName(producerRepository.findAll());
+		Map<String, BeerColor> colorsByName = mapEntitiesByName(colorsRepository.findAll());
+		Map<String, BeerStyle> stylesByName = mapEntitiesByName(stylesRepository.findAll());
+		
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		List<List<String>> content = readContent2(workbook.getWorksheet(0), IntStream.rangeClosed(0, 12).boxed().collect(Collectors.toList()), true);
+		// [0] Beer
+		// [1] Brewer
+		// [2] Color
+		// [3] Style
+		// [4] Comment
+		// [5] ABV
+		// [6] Hopping
+		// [7] Bitterness
+		// [8] Sourness
+		// [9] Sweetness
+		// [10] Buying price bottle
+		// [11] Bottle volume (cl)
+		// [12] Buying price / L
+
+		Map<String, Set<String>> unreferencedStuff = new HashMap<>();
+		unreferencedStuff.put("Producers", extractUnreferencedEntities(content, 1, producersByName));
+		unreferencedStuff.put("Styles", extractUnreferencedEntities(content, 3, stylesByName));
+		unreferencedStuff.put("Colors", extractUnreferencedEntities(content, 2, colorsByName));
+		return unreferencedStuff;
 	}
 
 }

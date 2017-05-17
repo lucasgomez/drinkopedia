@@ -1,6 +1,6 @@
 package ch.lgo.drinks.simple.entity;
 
-public interface IHasId {
+public interface HasId {
 	public Long getId();
-	public void setId(Long id);
+	public HasId setId(Long id);
 }
