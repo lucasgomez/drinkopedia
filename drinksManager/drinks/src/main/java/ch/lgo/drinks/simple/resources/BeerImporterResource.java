@@ -146,12 +146,26 @@ public class BeerImporterResource {
     @GET
     @Path("checkstandardimporter")
     public Response checkStandardImporterContent() throws Docx4JException, Xlsx4jException {
-    	Map<String, Set<String>> unreferencedContent = importDataService.checkStandardImporterContent(IMPORT_FOLDER+"standardImporter.xlsx");
+    	Map<String, Set<String>> unreferencedContent = importDataService.extractUnreferencedContentFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
     	//TODO Change to a response instead of console...
     	for (Entry<String,Set<String>> entry : unreferencedContent.entrySet()) {
 			System.out.println(" - Unreferenced "+entry.getKey());
 			entry.getValue().forEach(entity -> System.out.println("    - "+entity));
 		}
+    	return null;
+    }
+    
+    @GET
+    @Path("importfromstandardimporter")
+    public Response importStandardImporterContent() throws Docx4JException, Xlsx4jException {
+    	importDataService.importUnreferencedContentFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
+    	return null;
+    }
+    
+    @GET
+    @Path("importbeersfromstandardimporter")
+    public Response importStandardImporterBeers() throws Docx4JException, Xlsx4jException {
+    	importDataService.extractUnreferencedBeersFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
     	return null;
     }
 	
@@ -166,6 +180,7 @@ public class BeerImporterResource {
     	importDataService.importBeerProviders(IMPORT_FOLDER+"extractedBeersWithProducer.xlsx");
     	importDataService.updateBeersWithProducers(IMPORT_FOLDER+"extractedBeersWithProducer.xlsx");
 		importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
+//		importDataService.importUnreferencedContentFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
     	importDataService.importSellingPrices(IMPORT_FOLDER+"pricesCalculation.xlsx");
     	importDataService.importDescriptions(IMPORT_FOLDER+"completedDescriptions.xlsx");
 		

@@ -98,45 +98,54 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 								producer.getName(), 
 								displayName(producer.getOrigin())))
 						.collect(Collectors.toList()))
-				.appendSheet2("Beers", Arrays.asList("External Id", "Name", "Color", "Style", "Comment", 
-						"ABV", "Producer", "Hopping", "Bitterness", "Sourness", "Sweetness"),
+				.appendSheet2("Beers", Arrays.asList("External Id", "Name", "Producer", "Color", "Style", 
+						"ABV", "Hopping", "Bitterness", "Sourness", "Sweetness", "Comment"),
 						allBeers.stream()
 						.map(beer -> Arrays.asList(
 								beer.getExternalId(),
 								beer.getName(),
+								displayName(beer.getProducer()),
 								displayName(beer.getColor()),
 								displayName(beer.getStyle()),
-								beer.getComment(),
 								formatForDisplay(beer.getAbv()),
-								displayName(beer.getProducer()),
 								displayStrength(beer.getHopping()),
 								displayStrength(beer.getBitterness()),
 								displayStrength(beer.getSourness()),
-								displayStrength(beer.getSweetness())
+								displayStrength(beer.getSweetness()),
+								beer.getComment()
 							))
 						.collect(Collectors.toList()))
-				.appendSheet2("Tap", Arrays.asList("Buying price / L", "Price "+TapBeer.VOLUME_SMALL_CL, "Price "+TapBeer.VOLUME_BIG_CL),
+				.appendSheet2("Tap", Arrays.asList("Beer", "Buying price / L", "Price "+TapBeer.VOLUME_SMALL_CL, "Price "+TapBeer.VOLUME_BIG_CL),
 						allBeers.stream()
 						.map(beer -> beer.getTap())
 						.filter(Objects::nonNull)
 						.map(tap -> Arrays.asList(
+								tap.getBeer().getName(),
 								formatForDisplay(tap.getBuyingPricePerLiter()),
 								formatForDisplay(tap.getPriceSmall()),
 								formatForDisplay(tap.getPriceBig())
 							))
 						.collect(Collectors.toList()))
-				.appendSheet2("Bottle", Arrays.asList("Buying price", "Price", "Volume (cl)"),
+				.appendSheet2("Bottle", Arrays.asList("Beer", "Buying price", "Price", "Volume (cl)"),
 						allBeers.stream()
 						.map(beer -> beer.getBottle())
 						.filter(Objects::nonNull)
 						.map(bottle -> Arrays.asList(
+								bottle.getBeer().getName(),
 								formatForDisplay(bottle.getBuyingPrice()),
 								formatForDisplay(bottle.getSellingPrice()),
-								bottle.getVolumeInCl().toString()
+								displayNullableToString(bottle.getVolumeInCl())
 							))
 						.collect(Collectors.toList())
 						)
 				.save(buildFullName(path, baseFileName, EXTENSION));
+	}
+	
+	private String displayNullableToString(Object object) {
+		if (object != null)
+			return object.toString();
+		else
+			return "";
 	}
 
 	private String displayName(NamedEntity entity) {
@@ -154,21 +163,25 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 
 	//TODO Separate beer related processing with output itself
 	public File outputBeersPricesWithDetails(List<Beer> beers, String path, String baseFileName) throws Exception {
-		Map<String, List<Beer>> beersByType = beers.stream()
-				.filter(beer -> beer.getTap() != null || beer.getBottle() != null)
-				.collect(Collectors.groupingBy(beer -> beer.getTap() != null ? "tap" : "bottle"));
+		List<Beer> tapBeers = beers.stream()
+				.filter(beer -> beer.getTap() != null)
+				.collect(Collectors.toList());
+		List<Beer> bottledBeers = beers.stream()
+				.filter(beer -> beer.getBottle() != null)
+				.collect(Collectors.toList());
+		
 
 		//Start at 1 due to title line
-		List<List<String>> tapContent = IntStream.range(0, beersByType.get("tap").size())
-				.mapToObj(tapBeerId -> tapBeerToTupple(beersByType.get("tap").get(tapBeerId), tapBeerId+1))
+		List<List<String>> tapContent = IntStream.range(0, tapBeers.size())
+				.mapToObj(tapBeerId -> tapBeerToTupple(tapBeers.get(tapBeerId), tapBeerId+1))
 				.collect(Collectors.toList());
-		List<List<String>> bottleContent = IntStream.range(0, beersByType.get("bottle").size())
-				.mapToObj(bottledBeerId -> bottledBeerToTupple(beersByType.get("bottle").get(bottledBeerId), bottledBeerId+1))
+		List<List<String>> bottleContent = IntStream.range(0, bottledBeers.size())
+				.mapToObj(bottledBeerId -> bottledBeerToTupple(bottledBeers.get(bottledBeerId), bottledBeerId+1))
 				.collect(Collectors.toList());
 
 		List<String> tapTitles = Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","BuyingPricePerLiter","PriceBig","PriceSmall",
 				"Ideal selling price big", "Ideal selling price small", "Price per alc Cl big", "Price per alc Cl small");
-		 List<String> bottlesTitles = Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","Volume (cl)","Buying Price",
+		List<String> bottlesTitles = Arrays.asList("Id","ExternalId","Name","Style","Color","Abv","Volume (cl)","Buying Price",
 				"Selling price", "Ideal selling price", "Price per alc Cl");
 	
 		return new DocumentBuilder()

@@ -184,7 +184,6 @@ public class ImportDataService {
 			.collect(Collectors.toList());
 		
 		List<BottledBeer> bottledBeers = bottledContent.stream()
-				//TODO Check if id is long, prices are doubles
 				.filter(row -> row.size() == 2 
 						&& StringUtils.isNotBlank(row.get(0)) 
 						&& StringUtils.isNotBlank(row.get(1)))
@@ -230,14 +229,38 @@ public class ImportDataService {
 //					beer.setPlato(Long.valueOf(row.get(2)));
 					beer.setIbu(Long.valueOf(3));
 					beer.setStyle(stylesByName.get(row.get(4)));
-					try {
-						beer.setAbv(Double.valueOf(row.get(5)));
-					} catch (NumberFormatException ex) {}
+					beer.setAbv(safeDoubleValueOf(row.get(5)));
 					return beersRepository.save(beer);
 				})
 				.collect(Collectors.toSet());
 	}
 
+	private Double safeDoubleValueOf(String text) {
+		try {
+			return Double.valueOf(text);
+		} catch (NumberFormatException ex) {
+			return null;
+		}
+	}
+
+	private Long safeLongValueOf(String text) {
+		if (StringUtils.isBlank(text))
+			return null;
+		try {
+			return Long.valueOf(text);
+		} catch (NumberFormatException ex) {
+			return null;
+		}	
+	}
+	
+	private StrengthEnum safeStrengthValueOf(String text) {
+		if (StringUtils.isNotBlank(text))
+			return StrengthEnum.valueOf(text);
+		else
+			return null;
+			
+	}
+	
 	private TapBeer tapBeerFromEntry(List<String> entry, Beer beer) {
 		TapBeer tap = new TapBeer();
 		tap.setBeer(beer);
@@ -452,11 +475,6 @@ public class ImportDataService {
 						return Arrays.asList(rowContent);
 						}
 					)
-//				.map(row -> row.getC().stream()
-//						.filter(cell -> columnsToRead.contains(cell.getR().substring(0, 1)))
-//						.map(cell -> formatter.formatCellValue(cell))
-//						.collect(Collectors.toList())
-//						)
 				.collect(Collectors.toList());
 	}
 	
@@ -589,15 +607,15 @@ public class ImportDataService {
 	
 	private Set<String> extractUnreferencedEntities(List<List<String>> content, int columnId, Map<String, ? extends NamedEntity> entitiesByName) {
 		return content.stream()
-				.filter(row -> !row.isEmpty() && StringUtils.isNotBlank(row.get(0)))
+				.filter(row -> !row.isEmpty() && StringUtils.isNotBlank(row.get(columnId)))
 				.map(row -> row.get(columnId))
 				.filter(Objects::nonNull)
 				.filter(entityName -> entitiesByName.get(entityName) == null)
 				.collect(Collectors.toSet());
 	}
 
-	public Map<String, Set<String>> checkStandardImporterContent(String pathAndFilename) throws Docx4JException, Xlsx4jException {
-		List<Beer> beers = beersRepository.findAllWithServices();
+	public Set<Beer> extractUnreferencedBeersFromStandardImporter(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		Collection<Beer> beers = beersRepository.findAll();
 		Map<String, Beer> beersByName = mapEntitiesByName(beers);
 		Map<String, Producer> producersByName = mapEntitiesByName(producerRepository.findAll());
 		Map<String, BeerColor> colorsByName = mapEntitiesByName(colorsRepository.findAll());
@@ -605,6 +623,7 @@ public class ImportDataService {
 		
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 		List<List<String>> content = readContent2(workbook.getWorksheet(0), IntStream.rangeClosed(0, 12).boxed().collect(Collectors.toList()), true);
+		
 		// [0] Beer
 		// [1] Brewer
 		// [2] Color
@@ -618,12 +637,92 @@ public class ImportDataService {
 		// [10] Buying price bottle
 		// [11] Bottle volume (cl)
 		// [12] Buying price / L
+		Map<String, Beer> newBeersByName = content.stream()
+				.filter(row -> !row.isEmpty() && StringUtils.isNotBlank(row.get(0)))
+				.filter(row -> beersByName.get(row.get(0)) == null)
+				.map(row -> 
+						(new Beer())
+							.setName(row.get(0))
+							.setProducer(producersByName.get(row.get(1)))
+							.setColor(colorsByName.get(row.get(2)))
+							.setStyle(stylesByName.get(row.get(3)))
+							.setComment(row.get(4))
+							.setAbv(safeDoubleValueOf(row.get(5)))
+							.setHopping(safeStrengthValueOf(row.get(6)))
+							.setBitterness(safeStrengthValueOf(row.get(7)))
+							.setSourness(safeStrengthValueOf(row.get(8)))
+							.setSweetness(safeStrengthValueOf(row.get(9)))
+					)
+				.map(beersRepository::save)
+				.collect(Collectors.toMap(beer -> beer.getName(), beer -> beer));
+		
+		List<BottledBeer> newBottles = content.stream()
+				.filter(row -> !row.isEmpty() && StringUtils.isNotBlank(row.get(0)))
+				.filter(row -> newBeersByName.get(row.get(0)) != null)
+				.filter(row -> StringUtils.isNotBlank(row.get(10)))
+				.map(row -> (new BottledBeer())
+						.setBeer(newBeersByName.get(row.get(0)))
+						.setBuyingPrice(safeDoubleValueOf(row.get(10)))
+						.setVolumeInCl(safeLongValueOf(row.get(11)))
+					)
+				.map(beersRepository::save)
+				.collect(Collectors.toList());
+		
+		List<TapBeer> newTap = content.stream()
+				.filter(row -> !row.isEmpty() && StringUtils.isNotBlank(row.get(0)))
+				.filter(row -> newBeersByName.get(row.get(0)) != null)
+				.filter(row -> StringUtils.isNotBlank(row.get(12)))
+				.map(row -> (new TapBeer())
+						.setBeer(newBeersByName.get(row.get(0)))
+						.setBuyingPricePerLiter(safeDoubleValueOf(row.get(12)))
+					)
+				.map(beersRepository::save)
+				.collect(Collectors.toList());
+		
+		return new HashSet<>(newBeersByName.values());
+	}
+	
+	public Map<String, Set<String>> extractUnreferencedContentFromStandardImporter(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		Map<String, Producer> producersByName = mapEntitiesByName(producerRepository.findAll());
+		Map<String, BeerColor> colorsByName = mapEntitiesByName(colorsRepository.findAll());
+		Map<String, BeerStyle> stylesByName = mapEntitiesByName(stylesRepository.findAll());
+		
+		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+		List<List<String>> content = readContent2(workbook.getWorksheet(0), IntStream.rangeClosed(1, 3).boxed().collect(Collectors.toList()), true);
 
 		Map<String, Set<String>> unreferencedStuff = new HashMap<>();
-		unreferencedStuff.put("Producers", extractUnreferencedEntities(content, 1, producersByName));
-		unreferencedStuff.put("Styles", extractUnreferencedEntities(content, 3, stylesByName));
-		unreferencedStuff.put("Colors", extractUnreferencedEntities(content, 2, colorsByName));
+		unreferencedStuff.put(Producer.class.getName(), extractUnreferencedEntities(content, 0, producersByName));
+		unreferencedStuff.put(BeerColor.class.getName(), extractUnreferencedEntities(content, 1, colorsByName));
+		unreferencedStuff.put(BeerStyle.class.getName(), extractUnreferencedEntities(content, 2, stylesByName));
 		return unreferencedStuff;
+	}
+	
+	public Map<String, Set<String>> importUnreferencedContentFromStandardImporter(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+		Map<String, Set<String>> stuff = extractUnreferencedContentFromStandardImporter(pathAndFilename);
+		
+		Set<BeerColor> createdColors = stuff.get(BeerColor.class.getName()).stream()
+			.map(colorName -> colorsRepository.save(new BeerColor(colorName)))
+			.collect(Collectors.toSet());
+		
+		Set<BeerStyle> createdStyles = stuff.get(BeerStyle.class.getName()).stream()
+				.map(styleName -> stylesRepository.save(new BeerStyle(styleName)))
+				.collect(Collectors.toSet());
+		
+		Set<Producer> createdProducer = stuff.get(Producer.class.getName()).stream()
+				.map(producerName -> producerRepository.save(new Producer(producerName)))
+				.collect(Collectors.toSet());
+		
+		Map<String, Set<String>> result = new HashMap<>();
+		result.put(BeerColor.class.getName(), createdColors.stream()
+				.map(BeerColor::getName)
+				.collect(Collectors.toSet()));
+		result.put(BeerStyle.class.getName(), createdStyles.stream()
+				.map(BeerStyle::getName)
+				.collect(Collectors.toSet()));
+		result.put(Producer.class.getName(), createdProducer.stream()
+				.map(Producer::getName)
+				.collect(Collectors.toSet()));
+		return result;
 	}
 
 }
