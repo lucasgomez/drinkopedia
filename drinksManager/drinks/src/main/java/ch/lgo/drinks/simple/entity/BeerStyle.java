@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import ch.lgo.drinks.simple.dao.NamedEntity;
 
 @Entity
-public class BeerStyle implements NamedEntity {
+public class BeerStyle implements HasId, NamedEntity {
     
     @Id
     @GeneratedValue
@@ -17,15 +17,17 @@ public class BeerStyle implements NamedEntity {
 	public Long getId() {
         return id;
     }
-    public void setId(Long id) {
+    public BeerStyle setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
-    public void setName(String name) {
+    public BeerStyle setName(String name) {
         this.name = name;
+        return this;
     }
 
 	public BeerStyle() {

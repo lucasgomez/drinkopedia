@@ -4,27 +4,18 @@ import ch.lgo.drinks.simple.entity.FermentingEnum;
 
 public class BottledBeerDetailedDto {
 	
-	private Long id;
 	private String name;
 	private String producerName;
 	private String producerOriginName;
 	private String producerOriginShortName;
     private Double abv; //Alcool
-    private Long ibu; //Bitterness
-    private Long srm; //Color 
-    private Long plato;
 	private String styleName;
+	private String colorName;
     private FermentingEnum fermenting;
 	private String comment;
 	private Long bottleVolumeInCl;
-	private Double bottlePrice;
+	private Double bottleSellingPrice;
 	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
 	public String getName() {
 		return name;
 	}
@@ -55,29 +46,17 @@ public class BottledBeerDetailedDto {
 	public void setAbv(Double abv) {
 		this.abv = abv;
 	}
-	public Long getIbu() {
-		return ibu;
-	}
-	public void setIbu(Long ibu) {
-		this.ibu = ibu;
-	}
-	public Long getSrm() {
-		return srm;
-	}
-	public void setSrm(Long srm) {
-		this.srm = srm;
-	}
-	public Long getPlato() {
-		return plato;
-	}
-	public void setPlato(Long plato) {
-		this.plato = plato;
-	}
 	public String getStyleName() {
 		return styleName;
 	}
 	public void setStyleName(String styleName) {
 		this.styleName = styleName;
+	}
+	public String getColorName() {
+		return colorName;
+	}
+	public void setColorName(String colorName) {
+		this.colorName = colorName;
 	}
 	public FermentingEnum getFermenting() {
 		return fermenting;
@@ -97,10 +76,13 @@ public class BottledBeerDetailedDto {
 	public void setBottleVolumeInCl(Long bottleVolumeInCl) {
 		this.bottleVolumeInCl = bottleVolumeInCl;
 	}
-	public Double getBottlePrice() {
-		return bottlePrice;
+	public Double getBottleSellingPrice() {
+		return bottleSellingPrice;
 	}
-	public void setBottlePrice(Double bottlePrice) {
-		this.bottlePrice = bottlePrice;
+	public void setBottleSellingPrice(Double bottlePrice) {
+		this.bottleSellingPrice = bottlePrice;
 	}
+	
+	public BottledBeerDetailedDto() {}
+	
 }

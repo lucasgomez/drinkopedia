@@ -137,6 +137,13 @@ public class BeerImporterResource {
     }
     
     @GET
+    @Path("importbarsselection")
+    public Response importBarsSelection() throws Xlsx4jException, Docx4JException {
+    	importDataService.importBarsSelection(IMPORT_FOLDER+"barsSelection.xlsx");
+    	return null;
+    }
+    
+    @GET
     @Path("addproducers")
     public Response addProducersToBeer() throws Exception {
     	importDataService.updateBeersWithProducers(IMPORT_FOLDER+"extractedBeersWithProducer.xlsx");

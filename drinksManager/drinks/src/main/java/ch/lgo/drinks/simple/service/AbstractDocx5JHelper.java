@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +19,9 @@ import com.jumbletree.docx5j.xlsx.XLSXFile;
 import com.jumbletree.docx5j.xlsx.builders.CellBuilder;
 import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
+
+import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.entity.HasId;
 
 public abstract class AbstractDocx5JHelper {
 
@@ -145,6 +149,17 @@ public abstract class AbstractDocx5JHelper {
 			//Yes, I know...
 			throw new RuntimeException(e);
 		}
+	}
+	
+	protected String nullableToString(Object object) {
+		if (object == null)
+			return "";
+		else
+			return object.toString();
+	}
+	
+	protected <T extends HasId & NamedEntity> List<String> writeIdAndName(T entity) {
+		return Arrays.asList(nullableToString(entity.getId()), entity.getName());
 	}
 
 }

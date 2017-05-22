@@ -32,11 +32,13 @@ import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 import org.xlsx4j.sml.Worksheet;
 
+import ch.lgo.drinks.simple.dao.BarRepository;
 import ch.lgo.drinks.simple.dao.BeerColorRepository;
 import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
 import ch.lgo.drinks.simple.dao.NamedEntity;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
+import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
@@ -57,6 +59,8 @@ public class ImportDataService {
 	private BeerStylesRepository stylesRepository;
 	@Autowired
 	private ProducerRepository producerRepository;
+	@Autowired
+	private BarRepository barsRepository;
 
 	public Set<String> extractUnreferencedBeersColors(String pathAndFilename) throws Docx4JException, Xlsx4jException {
 		Set<String> colorsToCreate = new HashSet<>();
@@ -695,6 +699,54 @@ public class ImportDataService {
 		unreferencedStuff.put(BeerColor.class.getName(), extractUnreferencedEntities(content, 1, colorsByName));
 		unreferencedStuff.put(BeerStyle.class.getName(), extractUnreferencedEntities(content, 2, stylesByName));
 		return unreferencedStuff;
+	}
+
+	public void importBarsSelection(String pathAndFilename) throws Xlsx4jException, Docx4JException {
+		Bar bottleBar = barsRepository.loadBottledById(667L);
+		Set<BottledBeer> bottles = beersRepository.findAll().stream()
+			.filter(beer -> beer.getBottle() != null)
+			.map(Beer::getBottle)
+			.collect(Collectors.toSet());
+		
+		bottleBar.setBottledBeer(bottles);
+		barsRepository.save(bottleBar);
+		
+//		Map<String, Bar> barsByName = mapEntitiesByName(barsRepository.findAll());
+//		List<Beer> beers = beersRepository.findAllWithServices();
+//		
+//		Map<Long, TapBeer> tapById = beers.stream()
+//			.filter(beer -> beer.getTap() != null)
+//			.map(Beer::getTap)
+//			.collect(Collectors.toMap(TapBeer::getId, tap -> tap));
+//		Map<Long, BottledBeer> bottledById = beers.stream()
+//				.filter(beer -> beer.getBottle() != null)
+//				.map(Beer::getBottle)
+//				.collect(Collectors.toMap(BottledBeer::getId, bottle -> bottle));
+//		
+//		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+//		List<List<String>> tapContent = readContent2(workbook.getWorksheet(0), IntStream.rangeClosed(0, 7).boxed().collect(Collectors.toList()));
+//		List<List<String>> bottledContent = readContent2(workbook.getWorksheet(1), IntStream.rangeClosed(0, 7).boxed().collect(Collectors.toList()));
+//		
+//		List<String> tapTitles = tapContent.get(0).subList(3, tapContent.size()-1);
+//		tapContent.remove(0);
+//		List<String> bottledTitles = tapContent.get(0).subList(3, bottledContent.size()-1);
+//		bottledContent.remove(0);
+//		List<Bar> sortedBars = tapTitles.stream()
+//			.map(barName -> barsByName.get(barName))
+//			.collect(Collectors.toList());
+//		
+//		Map<TapBeer, List<String>> lineByTap = tapContent.stream()
+//			.filter(line -> tapById.get(Long.valueOf(line.get(0))) != null)
+//			.collect(Collectors.toMap(
+//						line -> tapById.get(Long.valueOf(line.get(0))), 
+//						line -> line.subList(3, line.size()-1))
+//					);
+		
+//		lineByTap.entrySet().stream()
+//			.forEach(entry -> );
+			
+		
+		//TODO Complete method, doing inserts manually for now
 	}
 	
 	public Map<String, Set<String>> importUnreferencedContentFromStandardImporter(String pathAndFilename) throws Docx4JException, Xlsx4jException {
