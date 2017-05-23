@@ -1,5 +1,8 @@
 package ch.lgo.drinks.simple.entity;
 
+import static java.util.Comparator.comparing;
+
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +22,8 @@ public class BottledBeer implements HasId {
 	private Double sellingPrice;
 	private Double buyingPrice;
 	private Set<Bar> bars = new HashSet<>();
+	private static Comparator<BottledBeer> byPrice = comparing(BottledBeer::getSellingPrice, Comparator.nullsLast(Comparator.naturalOrder()));
+	private static Comparator<BottledBeer> byName = comparing(bottle -> bottle.getBeer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
 	
 	@Override
 	@Id
@@ -73,5 +78,12 @@ public class BottledBeer implements HasId {
 		this.bars = bars;
 		return this;
 	}
-
+	
+	public static Comparator<BottledBeer> byPrice() {
+		return byPrice;
+	}
+	public static Comparator<BottledBeer> byName() {
+		return byName;
+	}
+	
 }

@@ -628,6 +628,8 @@ public class ImportDataService {
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 		List<List<String>> content = readContent2(workbook.getWorksheet(0), IntStream.rangeClosed(0, 12).boxed().collect(Collectors.toList()), true);
 		
+//		content.remove(0);
+
 		// [0] Beer
 		// [1] Brewer
 		// [2] Color

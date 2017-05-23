@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.modelmapper.ModelMapper;
@@ -31,7 +32,9 @@ import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
 import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dto.AbstractBeerDetailedDto;
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
+import ch.lgo.drinks.simple.dto.TapBeerDetailedDto;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
@@ -56,20 +59,17 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	private static final String INFOS_STYLE_NAME = "Infos";
 	private static final String BREWERY_STYLE_NAME = "Brewery";
 	private static final String VOLUME_STYLE_NAME = "Volume";
+	private static final String TAP_VOLUME_STYLE_NAME = "TapVolume";
 	private static final String DESCRIPTION_STYLE_NAME = "Description";
 	private static final String FONT_NAME = "Calibri";
 	private static final String EXTENSION = ".xlsx";
 	private static final double TAP_BEER_RATIO = 3.0;
 	private static final double BOTTLED_BEER_RATIO = 2.3;
+	private static final Double STOOPID_FACTOR = 4.8565;
 	private static final DecimalFormat PRICES_CALCULATION_FORMAT = new DecimalFormat("#0.000");
 	private static final DecimalFormat PRICES_DISPLAY_FORMAT = new DecimalFormat("#0.0");
 
 
-	public File outputTapBar(Bar tapBar, String path, String baseFileName) {
-//		Docx4J.
-		return null;
-	}
-	
 	public File outputBeerByBarsImporter(Collection<Beer> beers, Collection<Bar> bars, String path, String baseFileName) throws InvalidFormatException, IOException, Docx4JException, JAXBException, Exception {
 		Comparator<Beer> byProducer = Comparator.comparing(Beer::getProducer, Comparator.nullsLast(Comparator.naturalOrder()));
 
@@ -369,8 +369,10 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 				.save(buildFullName(path, baseFileName, EXTENSION));
 	}
 	
-	public File outputBottledPriceLists(Bar bottledBar, String path, String baseFileName) throws Exception {
+	public File outputBottledBarPricesLists(Bar bottledBar, String path, String baseFileName) throws Exception {
 		List<BottledBeerDetailedDto> list = bottledBar.getBottledBeer().stream()
+			.sorted(BottledBeer.byName())
+			.sorted(BottledBeer.byPrice())
 			.map(bottle -> bottle.getBeer())
 			.map(beer -> modelMapper.map(beer, BottledBeerDetailedDto.class))
 			.collect(Collectors.toList());
@@ -378,10 +380,29 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		XLSXFile file = new XLSXFile();
 		
 		createStyles(file);
-		insertSummarizedList(list, file.getWorkbookBuilder().getSheet(0));
-		insertDetailedList(list, file.getWorkbookBuilder().appendSheet());
+		insertBottledPricesList(list, file.getWorkbookBuilder().getSheet(0), false);
+		insertBottledPricesList(list, file.getWorkbookBuilder().appendSheet(), true);
 		
-		File out = new File(buildFullName(path, baseFileName, EXTENSION));
+		File out = new File(buildFullName(path, "bottle - "+baseFileName, EXTENSION));
+		file.save(out);
+		return out;
+	}
+	
+	public File outputTapBarPricesLists(Bar tapBar, String path, String baseFileName) throws Exception {
+		List<TapBeerDetailedDto> list = tapBar.getTapBeers().stream()
+				.sorted(TapBeer.byName())
+				.sorted(TapBeer.byPrice())
+				.map(tap -> tap.getBeer())
+				.map(beer -> modelMapper.map(beer, TapBeerDetailedDto.class))
+				.collect(Collectors.toList());
+		
+		XLSXFile file = new XLSXFile();
+		
+		createStyles(file);
+		insertTapPricesList(list, file.getWorkbookBuilder().getSheet(0), false);
+		insertTapPricesList(list, file.getWorkbookBuilder().appendSheet(), true);
+		
+		File out = new File(buildFullName(path, "tap - "+baseFileName, EXTENSION));
 		file.save(out);
 		return out;
 	}
@@ -393,32 +414,50 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		}
 	}
 	
-	public void insertSummarizedList(List<BottledBeerDetailedDto> list, WorksheetBuilder sheet) throws Exception {
-		sheet.setName("BigList");
+	public void insertBottledPricesList(List<BottledBeerDetailedDto> list, WorksheetBuilder sheet, boolean withComment) throws Exception {
+		if (withComment)
+			sheet.setName("DetailedList");
+		else
+			sheet.setName("BigList");
+			
 		
-		prepareColumnsWidth(sheet);
+		prepareBottlesColumnsWidth(sheet);
 		
 		for (BottledBeerDetailedDto beer : list) {
-			addBeerLines(sheet, beer);
+			addBottledBeerLines(sheet, beer);
+			if (withComment)
+				addBeerCommentLines(sheet, beer);
 		}
 	}
 	
-	public void insertDetailedList(List<BottledBeerDetailedDto> list, WorksheetBuilder sheet) throws Exception {
-		sheet.setName("DetailedList");
+	public void insertTapPricesList(List<TapBeerDetailedDto> list, WorksheetBuilder sheet, boolean withComment) throws Exception {
+		if (withComment)
+			sheet.setName("DetailedList");
+		else
+			sheet.setName("BigList");
 		
-		prepareColumnsWidth(sheet);
+		prepareTapColumnsWidth(sheet);
 		
-		for (BottledBeerDetailedDto beer : list) {
-			addDetailedBeerLines(sheet, beer);
+		for (TapBeerDetailedDto beer : list) {
+			addTapBeerLines(sheet, beer);
+			if (withComment)
+				addBeerCommentLines(sheet, beer);
 		}
 	}
 
-	private void prepareColumnsWidth(WorksheetBuilder sheet) throws Docx4JException {
-		List<Double> widths = Arrays.asList(0.47, 4.55, 5.57, 1.37, 1.37, 3.1);
-		Double factor = 4.8565;
+	private void prepareBottlesColumnsWidth(WorksheetBuilder sheet) throws Docx4JException {
+		List<Double> widths = Arrays.asList(0.5, 7.0, 4.0, 1.7, 1.4, 2.3);
 		
 		for (Double width : widths) {
-			sheet.addColumnDefinition(width*factor, false);
+			sheet.addColumnDefinition(width*STOOPID_FACTOR, false);
+		}
+	}
+	
+	private void prepareTapColumnsWidth(WorksheetBuilder sheet) throws Docx4JException {
+		List<Double> widths = Arrays.asList(0.5, 5.9, 4.5, 1.3, 2.3, 2.1);
+		
+		for (Double width : widths) {
+			sheet.addColumnDefinition(width*STOOPID_FACTOR, false);
 		}
 	}
 
@@ -427,6 +466,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		createStyle(INFOS_STYLE_NAME, file, 12, false);
 		createStyle(BREWERY_STYLE_NAME, file, 12, true);
 		createStyle(VOLUME_STYLE_NAME, file, 14, false, STHorizontalAlignment.RIGHT);
+		createStyle(TAP_VOLUME_STYLE_NAME, file, 11, false, STHorizontalAlignment.RIGHT);
 		createStyle(PRICE_STYLE_NAME, file, 20, true, STHorizontalAlignment.RIGHT);
 		createStyle(DESCRIPTION_STYLE_NAME, file, 12, false, STHorizontalAlignment.JUSTIFY);
 	}
@@ -443,7 +483,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		
 	}
 	
-	private void addBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {
+	private void addBottledBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {
 		
 		sheet.nextRow()
 				.sheet()
@@ -459,7 +499,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.row()
 				.nextCell()
 					.style(VOLUME_STYLE_NAME)
-					.value(displayVolume(beer))
+					.value(displayVolume(beer.getBottleVolumeInCl()))
 					.row()
 				.nextCell()
 					.style(VOLUME_STYLE_NAME)
@@ -467,7 +507,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.row()
 				.nextCell()
 					.style(PRICE_STYLE_NAME)
-					.value(displayPrice(beer))
+					.value(displayPrice(beer.getBottleSellingPrice()))
 					.row()
 				.sheet()
 			.nextRow()
@@ -480,45 +520,90 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.row()
 				.nextCell()
 					.style(INFOS_STYLE_NAME)
-					.value(String.format("%s - %s", beer.getStyleName(), beer.getColorName())); //TODO Replace placeholders
+					.value(String.format("%s - %s", beer.getStyleName(), beer.getColorName()));
 	}
 	
-	private void addDetailedBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {
-		addBeerLines(sheet, beer);
+	private void addTapBeerLines(WorksheetBuilder sheet, TapBeerDetailedDto beer) throws Docx4JException {
 		
+		sheet.nextRow()
+				.sheet()
+			 .nextRow()
+				.height(FIRST_ROW_HEIGHT, true)
+				.nextCell()
+					.row()
+				.nextCell()
+					.style(BEER_STYLE_NAME)
+					.value(beer.getName())
+					.row()
+				.nextCell()
+					.row()
+				.nextCell()
+					.style(VOLUME_STYLE_NAME)
+					.value(displayABV(beer))
+					.row()
+				.nextCell()
+					.style(PRICE_STYLE_NAME)
+					.value(displayPrice(beer.getTapPriceSmall()))
+					.row()
+				.nextCell()
+					.style(PRICE_STYLE_NAME)
+					.value(displayPrice(beer.getTapPriceBig()))
+					.row()
+				.sheet()
+			.nextRow()
+				.height(SECOND_ROW_HEIGHT, true)
+				.nextCell()
+					.row()
+				.nextCell()
+					.style(BREWERY_STYLE_NAME) //TODO Format & merge cells
+					.value(String.format("%s (%s)", beer.getProducerName(), beer.getProducerOriginName()))
+					.row()
+				.nextCell()
+					.style(INFOS_STYLE_NAME)
+					.value(String.format("%s - %s", beer.getStyleName(), beer.getColorName()))
+					.row()
+				.nextCell()
+					.row()
+				.nextCell()
+					.style(TAP_VOLUME_STYLE_NAME)
+					.value(displayVolume(TapBeer.VOLUME_SMALL_CL))
+					.row()
+				.nextCell()
+					.style(TAP_VOLUME_STYLE_NAME)
+					.value(displayVolume(TapBeer.VOLUME_BIG_CL));
+	}
+	
+	private void addBeerCommentLines(WorksheetBuilder sheet, AbstractBeerDetailedDto beer) throws Docx4JException {
 		//Add details
-		RowBuilder row = sheet.nextRow().height(SECOND_ROW_HEIGHT);
-		row.addExplicitSpan(0, 3).nextCell();
-		CellBuilder firstCell = row.addExplicitSpan(0, 3).nextCell().value("Mu");
-		CellBuilder lastCell = firstCell.row().nextCell().row().nextCell().row().nextCell();
-
-		//		XLSXRange range = new XLSXRange(sheet, firstCell, lastCell);
-//		firstCell.row()
-//			.nextCell()
-//				.style(DESCRIPTION_STYLE_NAME)
-//				.value(beer.getDrinkComment())
-//				.row()
-//			.addExplicitSpan(1, 4);
+		if (StringUtils.isNotBlank(beer.getComment())) {
+			RowBuilder row = sheet.nextRow().height(SECOND_ROW_HEIGHT);
+			CellBuilder firstCell = row
+					.nextCell().row()
+					.nextCell()
+					.style(DESCRIPTION_STYLE_NAME)
+					.value(beer.getComment());
+//			CellBuilder lastCell = firstCell.row().nextCell().row().nextCell().row().nextCell();
+		}
 		
 		//TODO Merge 4 cells
 		//TODO Autoheight
 	}
 	
-	private String displayPrice(BottledBeerDetailedDto beer) {
-		if (beer.getBottleSellingPrice() != null)
-			return PRICES_DISPLAY_FORMAT.format(beer.getBottleSellingPrice()) + " .-";
+	private String displayPrice(Double price) {
+		if (price != null)
+			return PRICES_DISPLAY_FORMAT.format(price) + ".-";
 		else
 			return "";
 	}
 
-	private String displayVolume(BottledBeerDetailedDto beer) {
-		if (beer.getBottleVolumeInCl() != null)
-			return String.format("%s cl", beer.getBottleVolumeInCl());
+	private String displayVolume(Long volume) {
+		if (volume != null)
+			return String.format("%scl", volume);
 		else
 			return "";
 	}
 
-	private String displayABV(BottledBeerDetailedDto beer) {
+	private String displayABV(AbstractBeerDetailedDto beer) {
 		if (beer.getAbv() != null)
 			return PRICES_DISPLAY_FORMAT.format(beer.getAbv())+"%";
 		else

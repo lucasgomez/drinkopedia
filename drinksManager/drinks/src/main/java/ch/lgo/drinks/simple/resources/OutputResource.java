@@ -46,18 +46,18 @@ public class OutputResource {
 		if (bottledBar == null)
 			throw new ResourceNotFoundException("No bar with id "+bottledBarId);
 		
-		outputService.outputBottledPriceLists(bottledBar, OUTPUT_FOLDER, bottledBarId+" - "+bottledBar.getName());
+		outputService.outputBottledBarPricesLists(bottledBar, OUTPUT_FOLDER, bottledBar.getName());
         return Response.created(null).build();
     }
 	
 	@GET
 	@Path("tapBar/{tap_bar_id}")
-	public Response outputTapBar(@PathParam("tap_bar_id") long tapBarId) throws ResourceNotFoundException {
+	public Response outputTapBar(@PathParam("tap_bar_id") long tapBarId) throws Exception {
 		Bar tapBar = barRepo.loadTapById(tapBarId);
 		if (tapBar == null)
 			throw new ResourceNotFoundException("No bar with id "+tapBarId);
 		
-		outputService.outputTapBar(tapBar, OUTPUT_FOLDER, tapBarId+" - "+tapBar.getName());
+		outputService.outputTapBarPricesLists(tapBar, OUTPUT_FOLDER, tapBar.getName());
 		return null;
 	}
 	
