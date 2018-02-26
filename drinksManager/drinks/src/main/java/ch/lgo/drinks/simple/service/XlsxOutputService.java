@@ -388,6 +388,76 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		return out;
 	}
 	
+	public File outputBottledDetailedMultiSortedAlphaPlusPlus(Bar bottledBar, String path, String baseFileName) throws Exception {
+		Map<String, List<BottledBeer>> beersByStyle = bottledBar.getBottledBeer().stream()
+				.sorted(BottledBeer.byName())
+				.sorted(BottledBeer.byPrice())
+				.sorted(BottledBeer.byStyle())
+				.collect(Collectors.groupingBy(bottle -> bottle.getBeer().getStyle().getName()));
+		
+		Map<String, List<BottledBeer>> beersByColor = bottledBar.getBottledBeer().stream()
+				.sorted(BottledBeer.byName())
+				.sorted(BottledBeer.byPrice())
+				.sorted(BottledBeer.byColor())
+				.collect(Collectors.groupingBy(bottle -> bottle.getBeer().getColor().getName()));
+		
+		Map<String, List<BottledBeer>> beersByProducer = bottledBar.getBottledBeer().stream()
+				.sorted(BottledBeer.byName())
+				.sorted(BottledBeer.byPrice())
+				.sorted(BottledBeer.byProducer())
+				.collect(Collectors.groupingBy(bottle -> bottle.getBeer().getProducer().getName()));
+			
+//		beersByStyle.entrySet().stream()
+//			.map(entry -> new Entry<String, List<List<String>>>(entry.getKey(),
+//						entry.getValue().stream()
+//							.map(bottle -> Arrays.asList(
+//									bottle.getBeer().getProducer().getName()
+//									+ " - " + bottle.getBeer().getName()
+//									+ " (" + bottle.getBeer().getProducer().getOrigin().getShortName() + ")",
+//									displayVolume(bottle.getVolumeInCl()) + " " + displayABV(bottle.getBeer().getAbv()),
+//									displayPrice(bottle.getSellingPrice())
+//									))
+//							.collect(Collectors.toList())
+//							)
+////			.collect(Collectors.toList())
+//			;
+		//TODO Restore list
+		
+		List<List<String>> byStyle = bottledBar.getBottledBeer().stream()
+			.sorted(BottledBeer.byName())
+			.sorted(BottledBeer.byPrice())
+			.sorted(BottledBeer.byStyle())
+			.map(bottle -> bottleToList(bottle))
+			.collect(Collectors.toList());
+		List<List<String>> byName = bottledBar.getBottledBeer().stream()
+				.sorted(BottledBeer.byName())
+				.map(bottle -> bottleToList(bottle))
+				.collect(Collectors.toList());
+		List<List<String>> byProducer = bottledBar.getBottledBeer().stream()
+				.sorted(BottledBeer.byName())
+				.sorted(BottledBeer.byProducer())
+				.map(bottle -> bottleToList(bottle))
+				.collect(Collectors.toList());
+		
+		List<String> titles = Arrays.asList("Brewer", "Beer", "Style / color", "Details", "Price");
+		return new DocumentBuilder()
+				.appendSheet2("By style", titles, byStyle)
+				.appendSheet2("By name", titles, byName)
+				.appendSheet2("By producer", titles, byProducer)
+				.save(buildFullName(path, baseFileName, EXTENSION));
+	}
+
+	private List<String> bottleToList(BottledBeer bottle) {
+		return Arrays.asList(
+				bottle.getBeer().getProducer().getName()
+				+ " (" + bottle.getBeer().getProducer().getOrigin().getShortName() + ")",
+				bottle.getBeer().getName(),
+				bottle.getBeer().getStyle().getName() + " / " + bottle.getBeer().getColor().getName(),
+				displayVolume(bottle.getVolumeInCl()) + " " + displayABV(bottle.getBeer().getAbv()),
+				displayPrice(bottle.getSellingPrice())
+				);
+	}
+	
 	public File outputTapBarPricesLists(Bar tapBar, String path, String baseFileName) throws Exception {
 		List<TapBeerDetailedDto> list = tapBar.getTapBeers().stream()
 				.sorted(TapBeer.byName())
@@ -606,6 +676,13 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	private String displayABV(AbstractBeerDetailedDto beer) {
 		if (beer.getAbv() != null)
 			return PRICES_DISPLAY_FORMAT.format(beer.getAbv())+"%";
+		else
+			return "";
+	}
+
+	private String displayABV(Double abv) {
+		if (abv != null)
+			return PRICES_DISPLAY_FORMAT.format(abv)+"%";
 		else
 			return "";
 	}

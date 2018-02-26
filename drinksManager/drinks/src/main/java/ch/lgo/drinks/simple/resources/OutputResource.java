@@ -62,6 +62,16 @@ public class OutputResource {
 	}
 	
 	@GET
+	@Path("listWithBottlesDetails/{bottled_bar_id}")
+	public Response listBottlesWithDetails(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
+		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
+		if (bottledBar == null)
+			throw new ResourceNotFoundException("No bar with id "+bottledBarId);
+		outputService.outputBottledDetailedMultiSortedAlphaPlusPlus(bottledBar, OUTPUT_FOLDER, "details");
+		return null;
+	}
+	
+	@GET
 	@Path("pricesdefinition")
 	public Response createBeersPriceDefinition() throws Exception {
 		List<Beer> beers = beersService.getAllWithService();

@@ -24,6 +24,9 @@ public class BottledBeer implements HasId {
 	private Set<Bar> bars = new HashSet<>();
 	private static Comparator<BottledBeer> byPrice = comparing(BottledBeer::getSellingPrice, Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<BottledBeer> byName = comparing(bottle -> bottle.getBeer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
+	private static Comparator<BottledBeer> byStyle = comparing(bottle -> bottle.getBeer().getStyle().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
+	private static Comparator<BottledBeer> byColor = comparing(bottle -> bottle.getBeer().getColor().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
+	private static Comparator<BottledBeer> byProducer = comparing(bottle -> bottle.getBeer().getProducer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
 	
 	@Override
 	@Id
@@ -84,6 +87,15 @@ public class BottledBeer implements HasId {
 	}
 	public static Comparator<BottledBeer> byName() {
 		return byName;
+	}
+	public static Comparator<BottledBeer> byStyle() {
+		return byStyle;
+	}
+	public static Comparator<BottledBeer> byColor() {
+		return byColor;
+	}
+	public static Comparator<BottledBeer> byProducer() {
+		return byProducer;
 	}
 	
 }
