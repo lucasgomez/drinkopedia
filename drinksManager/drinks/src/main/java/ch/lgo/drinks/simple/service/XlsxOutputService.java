@@ -32,7 +32,7 @@ import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
 import ch.lgo.drinks.simple.dao.NamedEntity;
-import ch.lgo.drinks.simple.dto.AbstractBeerDetailedDto;
+import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 import ch.lgo.drinks.simple.dto.TapBeerDetailedDto;
 import ch.lgo.drinks.simple.entity.Bar;
@@ -643,7 +643,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 					.value(displayVolume(TapBeer.VOLUME_BIG_CL));
 	}
 	
-	private void addBeerCommentLines(WorksheetBuilder sheet, AbstractBeerDetailedDto beer) throws Docx4JException {
+	private void addBeerCommentLines(WorksheetBuilder sheet, DetailedBeerDto beer) throws Docx4JException {
 		//Add details
 		if (StringUtils.isNotBlank(beer.getComment())) {
 			RowBuilder row = sheet.nextRow().height(SECOND_ROW_HEIGHT);
@@ -673,7 +673,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 			return "";
 	}
 
-	private String displayABV(AbstractBeerDetailedDto beer) {
+	private String displayABV(DetailedBeerDto beer) {
 		if (beer.getAbv() != null)
 			return PRICES_DISPLAY_FORMAT.format(beer.getAbv())+"%";
 		else

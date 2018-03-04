@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
@@ -110,7 +111,7 @@ public class BeersResource {
 
     private BeersDTOList convertToBeersListDTO(List<Beer> beers) {
         BeersDTOList beersDTOList = new BeersDTOList();
-        List<BeerDTO> beersList = beers.stream().map(beer -> convertToDto(beer))
+        List<BeerDTO> beersList = beers.stream().map(beer -> convertToUselessDto(beer))
                 .collect(Collectors.toList());
         beersDTOList.setBeers(beersList);
         return beersDTOList;
@@ -121,7 +122,12 @@ public class BeersResource {
         return beer;
     }
 
-    private BeerDTO convertToDto(Beer beer) {
+    private DetailedBeerDto convertToDto(Beer beer) {
+        DetailedBeerDto beerDTO = modelMapper.map(beer, DetailedBeerDto.class);
+        return beerDTO;
+    }
+    
+    private BeerDTO convertToUselessDto(Beer beer) {
         BeerDTO beerDTO = modelMapper.map(beer, BeerDTO.class);
         return beerDTO;
     }

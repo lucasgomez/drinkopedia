@@ -1,6 +1,6 @@
 package ch.lgo.drinks.simple.dto;
 
-public abstract class AbstractBeerDetailedDto {
+public class DetailedBeerDto {
 	
 	private String name;
 	private String producerName;

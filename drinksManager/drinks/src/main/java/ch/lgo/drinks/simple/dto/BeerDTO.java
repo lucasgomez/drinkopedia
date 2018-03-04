@@ -1,7 +1,10 @@
 package ch.lgo.drinks.simple.dto;
 
 public class BeerDTO {
-
+    
+    private String name;
+    private String producerName;
+    private String producerOriginShortName;
     private Double abv;
     private Long ibu;
     private Long srm; 
@@ -29,7 +32,27 @@ public class BeerDTO {
     public void setSrm(Long srm) {
         this.srm = srm;
     }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
     
+    public String getProducerName() {
+        return producerName;
+    }
+    public void setProducerName(String producerName) {
+        this.producerName = producerName;
+    }
+    
+    public String getProducerOriginShortName() {
+        return producerOriginShortName;
+    }
+    public void setProducerOriginShortName(String producerOriginShortName) {
+        this.producerOriginShortName = producerOriginShortName;
+    }
+
 //    public Set<BeerStyleDTO> getStyles() {
 //        return styles;
 //    }

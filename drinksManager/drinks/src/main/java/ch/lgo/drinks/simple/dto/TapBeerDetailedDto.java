@@ -1,6 +1,6 @@
 package ch.lgo.drinks.simple.dto;
 
-public class TapBeerDetailedDto extends AbstractBeerDetailedDto {
+public class TapBeerDetailedDto extends DetailedBeerDto {
 
 	private Double tapPriceSmall;
 	private Double tapPriceBig;
