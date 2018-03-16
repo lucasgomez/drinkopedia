@@ -19,10 +19,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.BeerDTO;
+import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
+import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
@@ -33,15 +35,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
+@CrossOrigin(origins={"http://localhost:3000"})
 @Path("/beers")
-@Api
 @Produces({MediaType.APPLICATION_JSON + "; charset=UTF8"})
 @Consumes({MediaType.APPLICATION_JSON + "; charset=UTF8"})
 public class BeersResource {
 
     @Autowired
     private BeersServiceImpl beersService;
-
+    
     @Context
     UriInfo uriInfo;
 
@@ -82,6 +84,44 @@ public class BeersResource {
 
         return Response.ok().entity(beersFound).build();
     }
+    
+    @GET
+    @Path("colors/list")
+    public Response getColors()
+            throws NoContentFoundException {
+        List<DescriptiveLabelDto> colors = beersService.findColorList();
+        
+        return Response.ok().entity(colors).build();
+    }
+    
+    @GET
+    @Path("styles/list")
+    public Response getStyles()
+            throws NoContentFoundException {
+        List<DescriptiveLabelDto> colors = beersService.findStyleList();
+        
+        return Response.ok().entity(colors).build();
+    }
+
+    
+    @GET
+    @Path("producers/list")
+    public Response getProducers()
+            throws NoContentFoundException {
+        List<DescriptiveLabelDto> producers = beersService.findProducerList();
+        
+        return Response.ok().entity(producers).build();
+    }
+    
+    @GET
+    @Path("places/list")
+    public Response getPlaces()
+            throws NoContentFoundException {
+        List<DescriptiveLabelDto> places = beersService.findPlaceList();
+        
+        return Response.ok().entity(places).build();
+    }
+    
 
     @POST
     public Response createBeer(BeerDTO newBeer) throws BadCreationRequestException {

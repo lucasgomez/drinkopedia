@@ -3,11 +3,19 @@ package ch.lgo.drinks.simple.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ch.lgo.drinks.simple.dao.BeerColorRepository;
+import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
+import ch.lgo.drinks.simple.dao.PlaceRepository;
+import ch.lgo.drinks.simple.dao.ProducerRepository;
+import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
@@ -20,6 +28,16 @@ public class BeersServiceImpl {
     //TODO Check if not worth adding a "Rest Service" wrapper to manage REST specific behaviour such as ResourceNotFoundException and DTO translation
     @Autowired
     BeersRepository beersRepository;
+    @Autowired
+    BeerColorRepository beerColorRepository;
+    @Autowired
+    BeerStylesRepository beerStylesRepository;
+    @Autowired
+    ProducerRepository producerRepository;
+    @Autowired
+    PlaceRepository placeRepository;
+    @Autowired
+    ModelMapper modelMapper;
 
     public Beer create(Beer newBeer) throws BadCreationRequestException {
         //TODO Add checks about beer consistency
@@ -93,4 +111,26 @@ public class BeersServiceImpl {
         }
     }
 
+    private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {
+        return labels.stream()
+            .sorted(DescriptiveLabel.byName)
+            .map(label -> modelMapper.map(label, DescriptiveLabelDto.class))
+            .collect(Collectors.toList());
+    }
+
+    public List<DescriptiveLabelDto> findColorList() throws NoContentFoundException {
+        return toSortedLabelList(beerColorRepository.findAll());
+    }
+    
+    public List<DescriptiveLabelDto> findStyleList() {
+        return toSortedLabelList(producerRepository.findAll());
+    }
+    
+    public List<DescriptiveLabelDto> findProducerList() {
+        return toSortedLabelList(placeRepository.findAll());
+    }
+    
+    public List<DescriptiveLabelDto> findPlaceList() {
+        return toSortedLabelList(placeRepository.findAll());
+    }
 }
