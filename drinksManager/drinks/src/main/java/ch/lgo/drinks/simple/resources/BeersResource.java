@@ -77,7 +77,7 @@ public class BeersResource {
         return Response.ok().entity(beersFound).build();
     }
     
-    @GetMapping("beers/colors/list")
+    @GetMapping("colors/list")
     public Response getColors()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> colors = beersService.findColorList();

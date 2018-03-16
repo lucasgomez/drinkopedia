@@ -35,6 +35,8 @@ public class BeersServiceImpl {
     @Autowired
     ProducerRepository producerRepository;
     @Autowired
+    BeerStylesRepository beerStyleRepository;
+    @Autowired
     PlaceRepository placeRepository;
     @Autowired
     ModelMapper modelMapper;
@@ -123,11 +125,11 @@ public class BeersServiceImpl {
     }
     
     public List<DescriptiveLabelDto> findStyleList() {
-        return toSortedLabelList(producerRepository.findAll());
+        return toSortedLabelList(beerStyleRepository.findAll());
     }
     
     public List<DescriptiveLabelDto> findProducerList() {
-        return toSortedLabelList(placeRepository.findAll());
+        return toSortedLabelList(producerRepository.findAll());
     }
     
     public List<DescriptiveLabelDto> findPlaceList() {
