@@ -4,22 +4,19 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.BeerDTO;
@@ -31,14 +28,12 @@ import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
+
 @CrossOrigin(origins={"http://localhost:3000"})
-@Path("/beers")
-@Produces({MediaType.APPLICATION_JSON + "; charset=UTF8"})
-@Consumes({MediaType.APPLICATION_JSON + "; charset=UTF8"})
+@RequestMapping
 public class BeersResource {
 
     @Autowired
@@ -50,23 +45,21 @@ public class BeersResource {
     @Autowired
     ModelMapper modelMapper;
 
-    @GET
+    @GetMapping
     @ApiOperation(value = "Find all beers")
     public Response getBeers() throws NoContentFoundException {
         List<Beer> beers = beersService.getAll();
         return Response.ok().entity(convertToBeersListDTO(beers)).build();
     }
 
-    @GET
-    @Path("{beer_id}")
+    @GetMapping("{beer_id}")
     public Response getBeer(@PathParam("beer_id") long beerId)
             throws ResourceNotFoundException {
         Beer beer = beersService.loadById(beerId);
         return Response.ok().entity(convertToDto(beer)).build();
     }
 
-    @GET
-    @Path("types/{beer_style_id}")
+    @GetMapping("types/{beer_style_id}")
     public Response findBeersByStyle(
             @PathParam("beer_style_id") long beerStyleId)
             throws NoContentFoundException {
@@ -75,8 +68,7 @@ public class BeersResource {
         return Response.ok().entity(beersFound).build();
     }
 
-    @GET
-    @Path("search/{beer_name}")
+    @GetMapping("search/{beer_name}")
     public Response findBeersByName(@PathParam("beer_name") String beerName)
             throws NoContentFoundException {
         BeersDTOList beersFound = convertToBeersListDTO(
@@ -85,8 +77,7 @@ public class BeersResource {
         return Response.ok().entity(beersFound).build();
     }
     
-    @GET
-    @Path("colors/list")
+    @GetMapping("beers/colors/list")
     public Response getColors()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> colors = beersService.findColorList();
@@ -94,8 +85,7 @@ public class BeersResource {
         return Response.ok().entity(colors).build();
     }
     
-    @GET
-    @Path("styles/list")
+    @GetMapping("styles/list")
     public Response getStyles()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> colors = beersService.findStyleList();
@@ -104,8 +94,7 @@ public class BeersResource {
     }
 
     
-    @GET
-    @Path("producers/list")
+    @GetMapping("producers/list")
     public Response getProducers()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> producers = beersService.findProducerList();
@@ -113,8 +102,7 @@ public class BeersResource {
         return Response.ok().entity(producers).build();
     }
     
-    @GET
-    @Path("places/list")
+    @GetMapping("places/list")
     public Response getPlaces()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> places = beersService.findPlaceList();
@@ -122,8 +110,7 @@ public class BeersResource {
         return Response.ok().entity(places).build();
     }
     
-
-    @POST
+    @PostMapping
     public Response createBeer(BeerDTO newBeer) throws BadCreationRequestException {
         Beer createdBeer = beersService.create(convertToEntity(newBeer));
         URI location = uriInfo.getAbsolutePathBuilder().path("{id}")
@@ -132,8 +119,7 @@ public class BeersResource {
         return Response.created(location).build();
     }
 
-    @PUT
-    @Path("{beer_id}")
+    @PutMapping("{beer_id}")
     public Response updateBeer(@PathParam("beer_id") long beerId,
             BeerDTO beerToUpdate) throws ResourceNotFoundException, BadCreationRequestException {
         return Response.ok().entity(
@@ -141,8 +127,7 @@ public class BeersResource {
                     .build();
     }
 
-    @DELETE
-    @Path("{beer_id}")
+    @DeleteMapping("{beer_id}")
     public Response deleteBeer(@PathParam("beer_id") long beerId)
             throws ResourceNotFoundException {
         beersService.delete(beerId);

@@ -46,7 +46,7 @@ class WelcomeTabs extends Component {
   
   componentDidMount() {
 	  let base64 = require('base-64');
-	  let url = 'http://localhost:8081/drinkopedia/api/beers/colors/list';
+	  let url = 'http://localhost:8081/drinkopedia/beers/colors/list';
 	  let username = 'belzeboss';
 	  let password = '666';
 	  var request = require('superagent');
@@ -74,25 +74,26 @@ class WelcomeTabs extends Component {
 //			  this.setState({colors: colorButtons});
 //		  });
       
-		let headers = new Headers();
-		headers.append('Authorization', 'Basic' + base64.encode(username + ":" + password));
+//		let headers = new Headers();
+//		headers.append('Authorization', 'Basic' + base64.encode(username + ":" + password));
 		
-		fetch(url, {
-			method:'GET',
-			headers: headers,
-         })
+		fetch(url, {mode: 'cors'})
+//			{
+//				method:'GET',
+//				headers: headers,
+//	         })
 		.then(response => response.json())
-		.then(json => console.log(json));
+//		.then(json => console.log(json));
 	    
 //  	   .then(results => results.json())
-//  	   .then(data => {
-//  		  let colorButtons = data.results.map((color) => {
-//  			  return (
-//  					  <MenuItem eventKey="1">{ color.name }</MenuItem>
-//  			  )
-//  		  })
-//  		  this.setState({colors: colorButtons});
-//  	  });
+  	   .then(data => {
+  		  let colorButtons = data.entity.map((color) => {
+  			  return (
+  					  <MenuItem eventKey="1">{ color.name }</MenuItem>
+  			  )
+  		  })
+  		  this.setState({colors: colorButtons});
+  	  });
 	    
   }
   

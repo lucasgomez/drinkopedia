@@ -32,8 +32,6 @@ spring:
         url: jdbc:postgresql://localhost:5432/drinkopedia
         username: postgres
         password: postgres
-    jersey:
-        application-path: /api
 security:
   user:
     name: belzeboss
