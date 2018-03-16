@@ -31,7 +31,7 @@ import com.jumbletree.docx5j.xlsx.builders.CellBuilder;
 import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
 import ch.lgo.drinks.simple.dto.TapBeerDetailedDto;
@@ -193,7 +193,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 			return "";
 	}
 
-	private String displayName(NamedEntity entity) {
+	private String displayName(DescriptiveLabel entity) {
 		if (entity == null)
 			return "";
 		return entity.getName();

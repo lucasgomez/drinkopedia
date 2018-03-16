@@ -9,14 +9,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 
 @Entity
-public class Producer implements HasId, NamedEntity, Comparable<Producer> {
+public class Producer implements HasId, DescriptiveLabel, Comparable<Producer> {
 
 	private Long id;
-	private String name;	
-	private Place origin;
+	private String name;
+	private String comment;
+    private Place origin;
 	private Comparator<Producer> comparing = comparing(Producer::getName, Comparator.nullsLast(Comparator.naturalOrder()));
 
 	@Id
@@ -45,6 +46,13 @@ public class Producer implements HasId, NamedEntity, Comparable<Producer> {
 		this.origin = origin;
 		return this;
 	}
+	
+    public String getComment() {
+        return comment;
+    }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 	
 	public Producer(String name) {
 		this.name = name;

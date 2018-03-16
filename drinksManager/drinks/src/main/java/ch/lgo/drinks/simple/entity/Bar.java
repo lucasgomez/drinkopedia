@@ -9,15 +9,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 
 @Entity
-public class Bar implements HasId, NamedEntity, Comparable<Bar> {
+public class Bar implements HasId, DescriptiveLabel, Comparable<Bar> {
 	//TODO Correct naming of bottledBeer and remove unused tables and columns from DB 
 	private Long id;
 	private String name;
 	private Set<TapBeer> tapBeers = new HashSet<>();
 	private Set<BottledBeer> bottledBeer = new HashSet<>();
+    private String comment;
 
 	@Id
 	@GeneratedValue
@@ -54,8 +55,15 @@ public class Bar implements HasId, NamedEntity, Comparable<Bar> {
 		return this;
 	}
 	
+	public String getComment() {
+	    return comment;
+	}
+	public void setComment(String comment) {
+	    this.comment = comment;
+	}
+	
 	@Override
 	public int compareTo(Bar o) {
-		return NamedEntity.byName.compare(this, o);
+		return DescriptiveLabel.byName.compare(this, o);
 	}
 }

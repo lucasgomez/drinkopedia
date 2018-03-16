@@ -20,7 +20,7 @@ import com.jumbletree.docx5j.xlsx.builders.CellBuilder;
 import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 import ch.lgo.drinks.simple.entity.HasId;
 
 public abstract class AbstractDocx5JHelper {
@@ -158,7 +158,7 @@ public abstract class AbstractDocx5JHelper {
 			return object.toString();
 	}
 	
-	protected <T extends HasId & NamedEntity> List<String> writeIdAndName(T entity) {
+	protected <T extends HasId & DescriptiveLabel> List<String> writeIdAndName(T entity) {
 		return Arrays.asList(nullableToString(entity.getId()), entity.getName());
 	}
 

@@ -4,15 +4,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 
 @Entity
-public class BeerColor implements HasId, NamedEntity {
+public class BeerColor implements HasId, DescriptiveLabel {
 	
     @Id
     @GeneratedValue
     private Long id;
     private String name;
+    private String comment;
     
 	public Long getId() {
         return id;
@@ -22,6 +23,7 @@ public class BeerColor implements HasId, NamedEntity {
         return this;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -29,11 +31,20 @@ public class BeerColor implements HasId, NamedEntity {
         this.name = name;
         return this;
     }
+
+    @Override
+    public String getComment() {
+        return comment;
+    }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
     
     public BeerColor(String name) {
-    	this.name = name;
+        this.name = name;
     }
     
     public BeerColor() {
     }
+    
 }

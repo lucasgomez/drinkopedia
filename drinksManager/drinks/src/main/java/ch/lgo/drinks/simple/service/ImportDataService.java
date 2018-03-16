@@ -36,7 +36,7 @@ import ch.lgo.drinks.simple.dao.BarRepository;
 import ch.lgo.drinks.simple.dao.BeerColorRepository;
 import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
@@ -594,7 +594,7 @@ public class ImportDataService {
 				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
 	}
 	
-	private <T extends NamedEntity> Map<String, T> mapEntitiesByName(Collection<T> entities) {
+	private <T extends DescriptiveLabel> Map<String, T> mapEntitiesByName(Collection<T> entities) {
 		return entities.stream()
 				.collect(toMap(entity -> entity.getName(), entity -> entity));
 	}
@@ -609,7 +609,7 @@ public class ImportDataService {
 		return StrengthEnum.getStrengthByRank(Integer.valueOf(rank));
 	}
 	
-	private Set<String> extractUnreferencedEntities(List<List<String>> content, int columnId, Map<String, ? extends NamedEntity> entitiesByName) {
+	private Set<String> extractUnreferencedEntities(List<List<String>> content, int columnId, Map<String, ? extends DescriptiveLabel> entitiesByName) {
 		return content.stream()
 				.filter(row -> !row.isEmpty() && StringUtils.isNotBlank(row.get(columnId)))
 				.map(row -> row.get(columnId))

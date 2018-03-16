@@ -4,14 +4,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 
 @Entity
-public class Place implements HasId, NamedEntity {
+public class Place implements HasId, DescriptiveLabel {
 
 	private Long id;
 	private String name;
-	private String shortName;
+	private String comment;
+    private String shortName;
 	
 	@Id
 	@GeneratedValue
@@ -38,4 +39,11 @@ public class Place implements HasId, NamedEntity {
 		this.shortName = shortname;
 		return this;
 	}
+	
+    public String getComment() {
+        return comment;
+    }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

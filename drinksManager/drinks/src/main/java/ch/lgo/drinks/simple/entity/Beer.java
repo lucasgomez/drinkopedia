@@ -9,10 +9,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
-import ch.lgo.drinks.simple.dao.NamedEntity;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 
 @Entity
-public class Beer implements HasId, NamedEntity {
+public class Beer implements HasId, DescriptiveLabel {
 
 	private Long id;
 	private String externalId; //Code Amstein
