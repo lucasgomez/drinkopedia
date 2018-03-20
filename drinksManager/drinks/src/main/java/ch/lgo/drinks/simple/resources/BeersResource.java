@@ -59,7 +59,7 @@ public class BeersResource {
         return Response.ok().entity(convertToDto(beer)).build();
     }
 
-    @GetMapping("types/{beer_style_id}")
+    @GetMapping("beers/styles/{beer_style_id}")
     public Response findBeersByStyle(
             @PathParam("beer_style_id") long beerStyleId)
             throws NoContentFoundException {
