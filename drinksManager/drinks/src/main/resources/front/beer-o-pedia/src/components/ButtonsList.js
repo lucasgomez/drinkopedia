@@ -44,10 +44,9 @@ class ButtonsList extends Component {
     if (isLoading) {
       return <p > Loading... < /p>;
     }
-    debugger;
+
     return (
-      //<DropdownButton title={title} id={'buttonsList-'+title} onSelect={(evt, evtKey) => console.log('id', evtKey)/*this.handleItemClick(evt, evtKey)*/}>
-      <DropdownButton title={title} id={'buttonsList-'+title} onSelect={(id) => this.handleItemClick(this.listName, id)}>
+      <DropdownButton title={title} id={'buttonsList-'+title} onSelect={(id) => this.handleItemClick(id)}>
         {items.map((item: any) =>
           <MenuItem key={'buttonItem-'+listName+'-'+item.id} eventKey={item.id}>
               {item.name}
@@ -58,10 +57,10 @@ class ButtonsList extends Component {
 
   }
 
-  handleItemClick = (listName) => (id) => {
+  handleItemClick(id) {
     debugger;
-    alert('id:'+id+' list:'+listName);
-    //this.props.handleItemClick(this.props.listName, evtKey);
+    if (this.props.handleItemClick != null)
+      this.props.handleItemClick(this.props.listName, id);
   }
 }
 

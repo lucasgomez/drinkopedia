@@ -23,9 +23,9 @@ class Welcome extends Component {
 					<Button>{ 'Par nom' }</Button>
 					<Button>{ 'Par bar' }</Button>
 					<ButtonsList listName="colors" title="Par couleur" handleItemClick={this.handleShowList}/>
-					<ButtonsList listName="styles" title="Par style"/>
-					<ButtonsList listName="producers" title="Par producteur"/>
-					<ButtonsList listName="places" title="Par origine"/>
+					<ButtonsList listName="styles" title="Par style" handleItemClick={this.handleShowList}/>
+					<ButtonsList listName="producers" title="Par producteur" handleItemClick={this.handleShowList}/>
+					<ButtonsList listName="places" title="Par origine" handleItemClick={this.handleShowList}/>
 				</ButtonGroup>
 			</Tab>
 		<Tab id="dataTab" eventKey="2" title={ 'En savoir plus' }>
@@ -41,8 +41,11 @@ class Welcome extends Component {
     });
   }
 
-  handleShowList = (listName) => (id) => {
-    alert("Mu");
+  //TODO [lg] Avoid creating a brand new callback instance on every render but use arrow init
+  // handleShowList = (listName) => (id) => {
+  handleShowList (listName, id) {
+    debugger;
+    alert('mu2 id:'+id+' list:'+listName);
     console.log('listName', listName);
     console.log('id', id);
   }
