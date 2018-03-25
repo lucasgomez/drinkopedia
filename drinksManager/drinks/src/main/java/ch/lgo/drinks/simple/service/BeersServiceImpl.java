@@ -17,7 +17,6 @@ import ch.lgo.drinks.simple.dao.PlaceRepository;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.entity.Beer;
-import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
@@ -60,14 +59,20 @@ public class BeersServiceImpl {
         }
     }
 
-    public List<Beer> findByStyles(Collection<BeerStyle> styles) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Beer> findByStyleId(long styleId) throws NoContentFoundException {
+        return beersRepository.findByStyle(styleId);
     }
 
-    public List<Beer> findByStyleId(long drinkTypeId) throws NoContentFoundException {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Beer> findByColorId(long colorId) {
+        return beersRepository.findByColor(colorId);
+    }
+
+    public List<Beer> findByProducereId(long producerId) {
+        return beersRepository.findByProducer(producerId);
+    }
+
+    public List<Beer> findByOriginId(long originId) {
+        return beersRepository.findByOrigin(originId);
     }
 
     public List<Beer> getAll() throws NoContentFoundException {

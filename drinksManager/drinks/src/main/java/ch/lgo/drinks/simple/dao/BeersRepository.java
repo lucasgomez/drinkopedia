@@ -15,7 +15,11 @@ import com.querydsl.jpa.impl.JPAQuery;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.QBeer;
+import ch.lgo.drinks.simple.entity.QBeerColor;
+import ch.lgo.drinks.simple.entity.QBeerStyle;
 import ch.lgo.drinks.simple.entity.QBottledBeer;
+import ch.lgo.drinks.simple.entity.QPlace;
+import ch.lgo.drinks.simple.entity.QProducer;
 import ch.lgo.drinks.simple.entity.QTapBeer;
 import ch.lgo.drinks.simple.entity.TapBeer;
 
@@ -54,7 +58,7 @@ public class BeersRepository {
         		.leftJoin(qBeer.bottle, bottledBeer)
         		.fetch();
 	}
-
+	
     public List<Beer> findByName(String beerName) {
         //TODO Something like the google search of NJ instead of exact match ignore case
         JPAQuery<Beer> query = new JPAQuery<>(em);
@@ -81,16 +85,6 @@ public class BeersRepository {
     	return query
     			.from(qBeer)
     			.innerJoin(qBeer.tap, qTapBeer)
-    			.fetch();
-    }
-    
-    public List<Beer> loadBottledBeers() {
-    	JPAQuery<Beer> query = new JPAQuery<>(em);
-    	QBeer qBeer = QBeer.beer;
-    	QBottledBeer qBottledBeer = QBottledBeer.bottledBeer;
-    	return query
-    			.from(qBeer)
-    			.innerJoin(qBottledBeer)
     			.fetch();
     }
 
@@ -144,5 +138,54 @@ public class BeersRepository {
 	public BottledBeer save(BottledBeer tap) {
 		return em.merge(tap);
 	}
+
+    public List<Beer> findByStyle(long styleId) {
+        JPAQuery<Beer> query = new JPAQuery<>(em);
+        QBeerStyle qBeerStyle = QBeerStyle.beerStyle;
+        QBeer qBeer = QBeer.beer;
+        return query
+                .from(qBeer)
+                .innerJoin(qBeer.style, qBeerStyle).fetchJoin()
+                .where(qBeerStyle.id.eq(styleId))
+                .fetch();
+    }
+
+    public List<Beer> findByColor(long colorId) {
+        JPAQuery<Beer> query = new JPAQuery<>(em);
+        QBeerColor qBeerColor = QBeerColor.beerColor;
+        QBeer qBeer = QBeer.beer;
+        return query
+                .from(qBeer)
+                .innerJoin(qBeer.color, qBeerColor).fetchJoin()
+                .where(qBeerColor.id.eq(colorId))
+                .fetch();
+
+    }
+
+    public List<Beer> findByProducer(long producerId) {
+        JPAQuery<Beer> query = new JPAQuery<>(em);
+        QProducer qProducer = QProducer.producer;
+        QBeer qBeer = QBeer.beer;
+        return query
+                .from(qBeer)
+                .innerJoin(qBeer.producer, qProducer).fetchJoin()
+                .where(qProducer.id.eq(producerId))
+                .fetch();
+
+    }
+
+    public List<Beer> findByOrigin(long originId) {
+        JPAQuery<Beer> query = new JPAQuery<>(em);
+        QProducer qProducer = QProducer.producer;
+        QPlace qPlace = QPlace.place;
+        QBeer qBeer = QBeer.beer;
+        return query
+                .from(qBeer)
+                .innerJoin(qBeer.producer, qProducer).fetchJoin()
+                .innerJoin(qProducer.origin, qPlace).fetchJoin()
+                .where(qPlace.id.eq(originId))
+                .fetch();
+
+    }
 
 }
