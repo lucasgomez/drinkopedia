@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
-  Bootstrap,
-  Well
+  Well,
+  Label
 } from 'react-bootstrap';
 
 class BeersId extends Component {
@@ -47,30 +47,23 @@ class BeersId extends Component {
       <div class="container">
         <h2>{this.props.title}</h2>
         <p>{this.props.description}</p>
-        <Table striped hover>
-          <thead>
+        <Well>
+          <Table>
             <tr>
-              <th>Nom</th>
-              <th>Brasserie</th>
-              <th>Origine</th>
-              <th>Alc.</th>
-              <th>IBU</th>
-              <th>SRM</th>
+              <td><Label>Alcool</Label></td>
+              <td><Label>Couleur</Label></td>
+            </tr><tr>
+              <td>{beer.abv}</td>
+              <td>{beer.colorName}</td>
+            </tr><tr>
+              <td><Label>Style</Label></td>
+              <td><Label>Fermentation</Label></td>
+            </tr><tr>
+              <td>{beer.styleName}</td>
+              <td>{beer.fermenting}</td>
             </tr>
-          </thead>
-          <tbody>
-            {items.map((item: any) =>
-              <tr>
-                  <td>{item.name}</td>
-                  <td>{item.producerName}</td>
-                  <td>{item.producerOriginShortName}</td>
-                  <td>{item.abv}</td>
-                  <td>{item.ibu}</td>
-                  <td>{item.srm}</td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+          </Table>
+        </Well>
       </div>
     );
 

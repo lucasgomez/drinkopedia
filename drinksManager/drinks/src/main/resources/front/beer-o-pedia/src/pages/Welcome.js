@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Bootstrap, ButtonGroup, Button, Tabs, Tab} from 'react-bootstrap';
+import {ButtonGroup, Button, Tabs, Tab} from 'react-bootstrap';
 import ButtonsList from './../components/ButtonsList';
 import BeersList from './../components/BeersList';
 

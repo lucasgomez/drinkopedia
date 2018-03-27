@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Bootstrap, Jumbotron} from 'react-bootstrap';
+import {Jumbotron} from 'react-bootstrap';
 import Welcome from './Welcome';
 
 
