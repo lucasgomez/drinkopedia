@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import {
   Table,
-  Popover,
-  OverlayTrigger,
-  Button
+  Tooltip,
+  OverlayTrigger
 } from 'react-bootstrap';
 
 class BeersList extends Component {
@@ -20,9 +19,10 @@ class BeersList extends Component {
     this.setState({
       isLoading: true
     });
+    debugger;
 
     let baseUrl = 'http://localhost:8081/drinkopedia/beers/' + this.props.listName + '/' + this.props.listId;
-    debugger;
+
     fetch(baseUrl)
       .then(response => response.json())
       .then(body => body.entity.beers)
@@ -43,7 +43,7 @@ class BeersList extends Component {
     if (isLoading) {
       return <p > Loading... < /p>;
     }
-    //TODO Better tooltip formating with bar names
+    //TODO Better tooltip formating with bar names or multiline prices + tooltip for bars
     return (
       <div class="container">
         <h2>{this.props.title}</h2>
@@ -84,26 +84,28 @@ class BeersList extends Component {
     let detailsList = [];
 
     if (beer.bottleVolumeInCl) {
-      pricesList.push(beer.bottleSellingPrice + ".-");
-      detailsList.push(beer.bottleVolumeInCl + "cl " + beer.bottleSellingPrice + ".-");
+      pricesList.push(Number(beer.bottleSellingPrice).toFixed(2) + ".-");
+      detailsList.push(beer.bottleVolumeInCl + "cl " + Number(beer.bottleSellingPrice).toFixed(2) + ".-");
     }
     if (beer.tapPriceSmall) {
-      pricesList.push(beer.tapPriceSmall + ".-");
-      pricesList.push(beer.tapPriceBig + ".-");
-      detailsList.push("30 cl " + beer.tapPriceSmall + ".-");
-      detailsList.push("50 cl " + beer.tapPriceBig + ".-");
+      let priceSmall = Number(beer.tapPriceSmall).toFixed(2);
+      let priceBig = Number(beer.tapPriceBig).toFixed(2);
+      pricesList.push(priceSmall + ".-");
+      pricesList.push(priceBig + ".-");
+      detailsList.push("30 cl " + priceSmall + ".-");
+      detailsList.push("50 cl " + priceBig + ".-");
     }
 
     const popover = (
-      <Popover id={"popover-"+beer.id+"-price"} title="Vente">
+      <Tooltip id={"tooltip-"+beer.id+"-price"}>
         <ul>
           {detailsList.map((price: any) => <li>{price}</li>)}
         </ul>
-      </Popover>
+      </Tooltip>
     );
 
     return (
-      <OverlayTrigger trigger="click" placement="left" overlay={popover}>
+      <OverlayTrigger placement="left" overlay={popover}>
         <div>{pricesList.join(" / ")}</div>
       </OverlayTrigger>
     );

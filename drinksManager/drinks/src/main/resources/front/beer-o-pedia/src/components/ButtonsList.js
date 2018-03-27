@@ -3,6 +3,9 @@ import {
   DropdownButton,
   MenuItem
 } from 'react-bootstrap';
+import {
+  Link
+} from 'react-router-dom';
 
 class ButtonsList extends Component {
   constructor(props: any) {
@@ -43,12 +46,14 @@ class ButtonsList extends Component {
     if (isLoading) {
       return <p > Loading... < /p>;
     }
-
+    //<DropdownButton title={title} id={'buttonsList-'+title} onSelect={(id) => this.handleItemClick(id)}>
     return (
-      <DropdownButton title={title} id={'buttonsList-'+title} onSelect={(id) => this.handleItemClick(id)}>
+      <DropdownButton title={title} id={'buttonsList-'+title}>
         {items.map((item: any) =>
-          <MenuItem key={'buttonItem-'+listName+'-'+item.id} eventKey={item.id}>
+          <MenuItem>
+            <Link to={'/list/'+listName+'/'+item.id}>
               {item.name}
+            </Link>
           </MenuItem>
         )}
       </DropdownButton>
@@ -57,7 +62,6 @@ class ButtonsList extends Component {
   }
 
   handleItemClick(id) {
-    debugger;
     if (this.props.handleItemClick != null)
       this.props.handleItemClick(this.props.listName, id);
   }

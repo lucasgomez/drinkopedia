@@ -24,10 +24,10 @@ class Welcome extends Component {
     				<ButtonGroup vertical>
     					<Button>{ 'Par nom' }</Button>
     					<Button>{ 'Par bar' }</Button>
-    					<ButtonsList listName="colors" title="Par couleur" handleItemClick={this.handleShowList}/>
-    					<ButtonsList listName="styles" title="Par style" handleItemClick={this.handleShowList}/>
-    					<ButtonsList listName="producers" title="Par producteur" handleItemClick={this.handleShowList}/>
-    					<ButtonsList listName="places" title="Par origine" handleItemClick={this.handleShowList}/>
+    					<ButtonsList listName="colors" title="Par couleur" handleItemClick={this.props.handleItemClick}/>
+    					<ButtonsList listName="styles" title="Par style" handleItemClick={this.props.handleItemClick}/>
+    					<ButtonsList listName="producers" title="Par producteur" handleItemClick={this.props.handleItemClick}/>
+    					<ButtonsList listName="places" title="Par origine" handleItemClick={this.props.handleItemClick}/>
     				</ButtonGroup>
     			</Tab>
       		<Tab id="dataTab" eventKey="2" title={ 'En savoir plus' }>
@@ -43,15 +43,6 @@ class Welcome extends Component {
     this.setState({
       activeTab: selectedTab
     });
-  }
-
-  //TODO [lg] Avoid creating a brand new callback instance on every render but use arrow init
-  // handleShowList = (listName) => (id) => {
-  handleShowList (listName, id) {
-    debugger;
-    alert('mu2 id:'+id+' list:'+listName);
-    console.log('listName', listName);
-    console.log('id', id);
   }
 }
 
