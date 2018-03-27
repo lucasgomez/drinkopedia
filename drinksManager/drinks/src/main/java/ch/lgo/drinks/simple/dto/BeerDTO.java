@@ -2,15 +2,24 @@ package ch.lgo.drinks.simple.dto;
 
 public class BeerDTO {
     
+    private Long id;
     private String name;
     private String producerName;
     private String producerOriginShortName;
     private Double abv;
-    private Long ibu;
-    private Long srm; 
-//    private Set<BeerStyleDTO> styles;
-//    private Set<FermentingEnum> fermentings;
-//    private Set<TagDto> tags;
+    private String colorName;
+    private String styleName;
+    private Long bottleVolumeInCl;
+    private Double bottleSellingPrice;
+    private Double tapPriceSmall;
+    private Double tapPriceBig;
+    
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
     
     public Double getAbv() {
         return abv;
@@ -19,19 +28,6 @@ public class BeerDTO {
         this.abv = abv;
     }
     
-    public Long getIbu() {
-        return ibu;
-    }
-    public void setIbu(Long ibu) {
-        this.ibu = ibu;
-    }
-    
-    public Long getSrm() {
-        return srm;
-    }
-    public void setSrm(Long srm) {
-        this.srm = srm;
-    }
     public String getName() {
         return name;
     }
@@ -52,25 +48,46 @@ public class BeerDTO {
     public void setProducerOriginShortName(String producerOriginShortName) {
         this.producerOriginShortName = producerOriginShortName;
     }
+    
+    public String getColorName() {
+        return colorName;
+    }
+    public void setColorName(String colorName) {
+        this.colorName = colorName;
+    }
+    
+    public String getStyleName() {
+        return styleName;
+    }
+    public void setStyleName(String styleName) {
+        this.styleName = styleName;
+    }
 
-//    public Set<BeerStyleDTO> getStyles() {
-//        return styles;
-//    }
-//    public void setStyles(Set<BeerStyleDTO> styles) {
-//        this.styles = styles;
-//    }
-//    
-//	public Set<FermentingEnum> getFermentings() {
-//		return fermentings;
-//	}
-//	public void setFermentings(Set<FermentingEnum> fermentings) {
-//		this.fermentings = fermentings;
-//	}
-//
-//	public Set<TagDto> getTags() {
-//		return tags;
-//	}
-//	public void setTags(Set<TagDto> tags) {
-//		this.tags = tags;
-//	}
+    public Long getBottleVolumeInCl() {
+        return bottleVolumeInCl;
+    }
+    public void setBottleVolumeInCl(Long bottleVolumeInCl) {
+        this.bottleVolumeInCl = bottleVolumeInCl;
+    }
+    
+    public Double getBottleSellingPrice() {
+        return bottleSellingPrice;
+    }
+    public void setBottleSellingPrice(Double bottleSellingPrice) {
+        this.bottleSellingPrice = bottleSellingPrice;
+    }
+    
+    public Double getTapPriceSmall() {
+        return tapPriceSmall;
+    }
+    public void setTapPriceSmall(Double tapPriceSmall) {
+        this.tapPriceSmall = tapPriceSmall;
+    }
+    
+    public Double getTapPriceBig() {
+        return tapPriceBig;
+    }
+    public void setTapPriceBig(Double tapPriceBig) {
+        this.tapPriceBig = tapPriceBig;
+    }
 }

@@ -16,7 +16,7 @@ import javax.persistence.OneToOne;
 @Entity
 public class TapBeer implements HasId {
 	
-	public static Long VOLUME_SMALL_CL= 33L;
+	public static Long VOLUME_SMALL_CL= 30L;
 	public static Long VOLUME_BIG_CL= 50L;
 
 	private Long id;
