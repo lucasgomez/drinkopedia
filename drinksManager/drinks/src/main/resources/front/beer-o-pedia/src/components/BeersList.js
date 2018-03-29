@@ -4,6 +4,9 @@ import {
   Tooltip,
   OverlayTrigger
 } from 'react-bootstrap';
+import {
+  Link
+} from 'react-router-dom';
 
 class BeersList extends Component {
   constructor(props: any) {
@@ -16,12 +19,26 @@ class BeersList extends Component {
   }
 
   componentDidMount() {
+    this.fetchData(this.props.listName, this.props.listId);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    debugger;
+    let oldListId = this.props.listId;
+    let newListId = nextProps.listId;
+    let oldListName = this.props.listName;
+    let newListName = nextProps.listName;
+    if(oldListId !== newListId || oldListName !== newListName) {
+         this.fetchData(newListName, newListId);
+    }
+  }
+
+  fetchData = (listName, listId) => {
     this.setState({
       isLoading: true
     });
-    debugger;
 
-    let baseUrl = 'http://localhost:8081/drinkopedia/beers/' + this.props.listName + '/' + this.props.listId;
+    let baseUrl = 'http://localhost:8081/drinkopedia/beers/' + listName + '/' + listId;
 
     fetch(baseUrl)
       .then(response => response.json())
@@ -63,13 +80,29 @@ class BeersList extends Component {
           <tbody>
             {items.map((item: any) =>
               <tr>
-                  <td>{item.name}</td>
-                  <td>{item.producerName}</td>
-                  <td>{item.producerOriginShortName}</td>
-                  <td>{item.abv}</td>
-                  <td>{item.styleName}</td>
-                  <td>{item.colorName}</td>
-                  <td>{this.formatPricesList(item)}</td>
+                  <td>
+                    {item.name}
+                  </td><td>
+                    <Link to={'/list/producers/'+item.producerId}>
+                      {item.producerName}
+                    </Link>
+                  </td><td>
+                    <Link to={'/list/origins/'+item.producerOriginId}>
+                      {item.producerOriginShortName}
+                    </Link>
+                  </td><td>
+                    {item.abv}
+                  </td><td>
+                    <Link to={'/list/styles/'+item.styleId}>
+                      {item.styleName}
+                    </Link>
+                  </td><td>
+                    <Link to={'/list/colors/'+item.colorId}>
+                      {item.colorName}
+                    </Link>
+                  </td><td>
+                    {this.formatPricesList(item)}
+                  </td>
               </tr>
             )}
           </tbody>

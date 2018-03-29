@@ -46,7 +46,7 @@ class ButtonsList extends Component {
     if (isLoading) {
       return <p > Loading... < /p>;
     }
-    //<DropdownButton title={title} id={'buttonsList-'+title} onSelect={(id) => this.handleItemClick(id)}>
+
     return (
       <DropdownButton title={title} id={'buttonsList-'+title}>
         {items.map((item: any) =>
@@ -58,12 +58,6 @@ class ButtonsList extends Component {
         )}
       </DropdownButton>
     );
-
-  }
-
-  handleItemClick(id) {
-    if (this.props.handleItemClick != null)
-      this.props.handleItemClick(this.props.listName, id);
   }
 }
 

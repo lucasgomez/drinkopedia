@@ -24,15 +24,14 @@ class Welcome extends Component {
     				<ButtonGroup vertical>
     					<Button>{ 'Par nom' }</Button>
     					<Button>{ 'Par bar' }</Button>
-    					<ButtonsList listName="colors" title="Par couleur" handleItemClick={this.props.handleItemClick}/>
-    					<ButtonsList listName="styles" title="Par style" handleItemClick={this.props.handleItemClick}/>
-    					<ButtonsList listName="producers" title="Par producteur" handleItemClick={this.props.handleItemClick}/>
-    					<ButtonsList listName="places" title="Par origine" handleItemClick={this.props.handleItemClick}/>
+    					<ButtonsList listName="colors" title="Par couleur"/>
+    					<ButtonsList listName="styles" title="Par style"/>
+    					<ButtonsList listName="producers" title="Par producteur"/>
+    					<ButtonsList listName="places" title="Par origine"/>
     				</ButtonGroup>
     			</Tab>
       		<Tab id="dataTab" eventKey="2" title={ 'En savoir plus' }>
       			<p>{ 'Qui n\'a jamais rêvé de tout savoir sur la Bière? Désormais, c\'est possible!' }</p>
-            <BeersList listName="styles" title="IPA" description="Les Indian Pale Ale (IPA), c'est bon. Si si! C'est bon" listId="14"/>
     			</Tab>
     		</Tabs>
       </div>
