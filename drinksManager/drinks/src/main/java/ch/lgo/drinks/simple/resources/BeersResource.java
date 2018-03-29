@@ -76,7 +76,7 @@ public class BeersResource {
         return Response.ok().entity(beersFound).build();
     }
     
-    @GetMapping("/beers/producer/{beer_producer_id}")
+    @GetMapping("/beers/producers/{beer_producer_id}")
     public Response findBeersByProducer(@PathVariable("beer_producer_id") long beerProducerId)
             throws NoContentFoundException {
         BeersDTOList beersFound = convertToBeersListDTO(
@@ -84,7 +84,7 @@ public class BeersResource {
         return Response.ok().entity(beersFound).build();
     }
     
-    @GetMapping("/beers/origin/{beer_origin_id}")
+    @GetMapping("/beers/origins/{beer_origin_id}")
     public Response findBeersByOrigin(@PathVariable("beer_origin_id") long beerOriginId)
             throws NoContentFoundException {
         BeersDTOList beersFound = convertToBeersListDTO(
@@ -125,8 +125,8 @@ public class BeersResource {
         return Response.ok().entity(producers).build();
     }
     
-    @GetMapping("/places/list")
-    public Response getPlaces()
+    @GetMapping("/origins/list")
+    public Response getOrigins()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> places = beersService.findPlaceList();
         

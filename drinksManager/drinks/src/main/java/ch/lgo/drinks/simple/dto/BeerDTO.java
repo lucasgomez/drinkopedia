@@ -4,16 +4,19 @@ public class BeerDTO {
     
     private Long id;
     private String name;
+    private Long producerId;
     private String producerName;
+    private Long producerOriginId;
     private String producerOriginShortName;
     private Double abv;
+    private Long colorId;
     private String colorName;
+    private Long styleId;
     private String styleName;
     private Long bottleVolumeInCl;
     private Double bottleSellingPrice;
     private Double tapPriceSmall;
     private Double tapPriceBig;
-    
     public Long getId() {
         return id;
     }
@@ -42,11 +45,25 @@ public class BeerDTO {
         this.producerName = producerName;
     }
     
+    public Long getProducerId() {
+        return producerId;
+    }
+    public void setProducerId(Long producerId) {
+        this.producerId = producerId;
+    }
+    
     public String getProducerOriginShortName() {
         return producerOriginShortName;
     }
     public void setProducerOriginShortName(String producerOriginShortName) {
         this.producerOriginShortName = producerOriginShortName;
+    }
+
+    public Long getProducerOriginId() {
+        return producerOriginId;
+    }
+    public void setProducerOriginId(Long producerOriginId) {
+        this.producerOriginId = producerOriginId;
     }
     
     public String getColorName() {
@@ -56,11 +73,25 @@ public class BeerDTO {
         this.colorName = colorName;
     }
     
+    public Long getColorId() {
+        return colorId;
+    }
+    public void setColorId(Long colorId) {
+        this.colorId = colorId;
+    }
+    
     public String getStyleName() {
         return styleName;
     }
     public void setStyleName(String styleName) {
         this.styleName = styleName;
+    }
+
+    public Long getStyleId() {
+        return styleId;
+    }
+    public void setStyleId(Long styleId) {
+        this.styleId = styleId;
     }
 
     public Long getBottleVolumeInCl() {
