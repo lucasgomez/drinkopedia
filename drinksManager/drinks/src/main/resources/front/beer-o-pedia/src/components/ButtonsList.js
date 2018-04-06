@@ -44,7 +44,13 @@ class ButtonsList extends Component {
     const title = this.props.title;
 
     if (isLoading) {
-      return <p > Loading... < /p>;
+      return (
+        <DropdownButton title={title} id={'buttonsList-'+title}>
+          <MenuItem>
+            Loading...
+          </MenuItem>
+        </DropdownButton>
+      );
     }
 
     return (

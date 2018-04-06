@@ -32,8 +32,8 @@ import com.jumbletree.docx5j.xlsx.builders.RowBuilder;
 import com.jumbletree.docx5j.xlsx.builders.WorksheetBuilder;
 
 import ch.lgo.drinks.simple.dao.DescriptiveLabel;
-import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.BottledBeerDetailedDto;
+import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.TapBeerDetailedDto;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
@@ -553,7 +553,7 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 		
 	}
 	
-	private void addBottledBeerLines(WorksheetBuilder sheet, BottledBeerDetailedDto beer) throws Docx4JException {
+	private void addBottledBeerLines(WorksheetBuilder sheet, DetailedBeerDto beer) throws Docx4JException {
 		
 		sheet.nextRow()
 				.sheet()

@@ -57,7 +57,7 @@ public class BeersResource {
     public Response getBeer(@PathVariable("beer_id") long beerId)
             throws ResourceNotFoundException {
         Beer beer = beersService.loadById(beerId);
-        return Response.ok().entity(convertToDto(beer)).build();
+        return Response.ok().entity(convertToDetailedDto(beer)).build();
     }
 
     @GetMapping("/beers/colors/{beer_color_id}")
@@ -159,7 +159,7 @@ public class BeersResource {
 
     private BeersDTOList convertToBeersListDTO(List<Beer> beers) {
         BeersDTOList beersDTOList = new BeersDTOList();
-        List<BeerDTO> beersList = beers.stream().map(beer -> convertToUselessDto(beer))
+        List<BeerDTO> beersList = beers.stream().map(beer -> convertToDto(beer))
                 .collect(Collectors.toList());
         beersDTOList.setBeers(beersList);
         return beersDTOList;
@@ -170,12 +170,12 @@ public class BeersResource {
         return beer;
     }
 
-    private DetailedBeerDto convertToDto(Beer beer) {
+    private DetailedBeerDto convertToDetailedDto(Beer beer) {
         DetailedBeerDto beerDTO = modelMapper.map(beer, DetailedBeerDto.class);
         return beerDTO;
     }
     
-    private BeerDTO convertToUselessDto(Beer beer) {
+    private BeerDTO convertToDto(Beer beer) {
         BeerDTO beerDTO = modelMapper.map(beer, BeerDTO.class);
         return beerDTO;
     }

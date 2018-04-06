@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import Manager from './pages/Manager';
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap/dist/css/bootstrap-theme.css';
+import Manager from './components/Manager';
 
 class App extends Component {
   render() {

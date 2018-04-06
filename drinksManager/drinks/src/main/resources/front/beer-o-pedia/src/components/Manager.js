@@ -5,17 +5,15 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-import BeersList from './../components/BeersList';
+import BeersList from './BeersList';
+import BeerId from './BeerId';
+import Menu from './Menu';
 import Welcome from './Welcome';
 
 class Manager extends Component {
 
   constructor(props) {
     super();
-    this.state = {
-      listName: "",
-      listId: ""
-    };
   }
 
 	render() {
@@ -27,28 +25,14 @@ class Manager extends Component {
 						<p>{ 'Tu boiras moins bête' }</p>
 					</Jumbotron>
 
-          <ul>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/welcome">Home</Link></li>
-            <li><Link to="/list">List</Link></li>
-          </ul>
-
-  				<Route path="/welcome" render={() =>
-            <Welcome handleItemClick={this.handleShowList.bind(this)}/>
-          }/>
+  				<Route path="/" component={Menu}/>
+          <Route exactPath="/" component={Welcome}/>
           <Route path="/list/:listName/:listId" component={ListRoute}/>
+          <Route path="/beerid/:beerId" component={BeerRoute}/>
 				</div>
 			</Router>
     );
 	}
-
-  handleShowList (listName, id) {
-    debugger;
-    this.setState({
-      listName: listName,
-      listId: id
-    });
-  }
 }
 
 const ListRoute = ({ match }) => (
@@ -58,6 +42,12 @@ const ListRoute = ({ match }) => (
       listName={match.params.listName}
       title="IPA"
       description="Les Indian Pale Ale (IPA), c'est bon. Si si! C'est bon"/>
+  </div>
+);
+
+const BeerRoute = ({ match }) => (
+  <div>
+    <BeerId beerId={match.params.beerId}/>
   </div>
 );
 

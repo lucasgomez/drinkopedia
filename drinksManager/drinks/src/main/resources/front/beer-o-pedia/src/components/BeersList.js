@@ -8,7 +8,9 @@ import {
   Link
 } from 'react-router-dom';
 
+
 class BeersList extends Component {
+
   constructor(props: any) {
     super(props);
 
@@ -33,13 +35,22 @@ class BeersList extends Component {
     }
   }
 
-  fetchData = (listName, listId) => {
+  fetchData = async (listName, listId) => {
     this.setState({
       isLoading: true
     });
 
     let baseUrl = 'http://localhost:8081/drinkopedia/beers/' + listName + '/' + listId;
 
+/*
+    const response = await fetch(baseUrl);
+    this.setState(
+      {
+        items: response.json().entity.beers,
+        isLoading: false
+      }
+    );
+    */
     fetch(baseUrl)
       .then(response => response.json())
       .then(body => body.entity.beers)
@@ -81,7 +92,9 @@ class BeersList extends Component {
             {items.map((item: any) =>
               <tr>
                   <td>
-                    {item.name}
+                    <Link to={'/beerid/'+item.id}>
+                      {item.name}
+                    </Link>
                   </td><td>
                     <Link to={'/list/producers/'+item.producerId}>
                       {item.producerName}

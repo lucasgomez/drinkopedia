@@ -17,6 +17,7 @@ public class BeerDTO {
     private Double bottleSellingPrice;
     private Double tapPriceSmall;
     private Double tapPriceBig;
+    
     public Long getId() {
         return id;
     }
