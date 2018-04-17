@@ -60,77 +60,118 @@ class BeerId extends Component {
       return <div class="container"><p> Loading... < /p></div>;
     }
 
-//TODO Make a MEGA GRID wrapping everithing as in mockup for BS and in column for SS
     return (
       <div class="container">
-        <h2>{beer.name}</h2>
-        <p>{beer.producerName + " (" + beer.producerOriginShortName + ")" }</p>
 
-        <BasicProperties beer={beer}/>
+        <Grid>
+          <Row>
+            <Col xs={12} md={6}>
+              <h2><a href='beerId' id='beerId'>{beer.name}</a></h2>
+              <p>{beer.producerName + " (" + beer.producerOriginName + ")" }</p>
+            </Col>
+            <Col xs={12} md={6}>
+            </Col>
+          </Row>
 
-        <BeerRadar beer={beer}/>
+          <Row>
+            <Col xs={12} md={6}>
+              <BasicProperties beer={beer}/>
+            </Col>
+            <Col xs={12} md={6}>
+              <BeerRadar beer={beer}/>
+            </Col>
+          </Row>
 
-        <Well>
-          <Grid>
-            <Row className="show-grid">
-              <Col>
-                {"Amertume"}
-              </Col>
-              <Col>
-                {beer.bitternessRank}
-              </Col>
-            </Row>
+          <Row>
+            <Col xs={12} md={12}>
+              <BeerDescription beer={beer}/>
+            </Col>
+          </Row>
 
-            <Row className="show-grid">
-              <Col xs={6} md={4}>
-                <code>&lt;{'Col xs={6} md={4}'} /">&gt;</code>
-              </Col>
-              <Col xs={6} md={4}>
-                <code>&lt;{'Col xs={6} md={4}'} /">&gt;</code>
-              </Col>
-              <Col xsHidden md={4}>
-                <code>&lt;{'Col xsHidden md={4}'} /">&gt;</code>
-              </Col>
-            </Row>
-
-            <Row className="show-grid">
-              <Col xs={6} xsOffset={6}>
-                <code>&lt;{'Col xs={6} xsOffset={6}'} /">&gt;</code>
-              </Col>
-            </Row>
-
-            <Row className="show-grid">
-              <Col md={6} mdPush={6}>
-                <code>&lt;{'Col md={6} mdPush={6}'} /">&gt;</code>
-              </Col>
-              <Col md={6} mdPull={6}>
-                <code>&lt;{'Col md={6} mdPull={6}'} /">&gt;</code>
-              </Col>
-            </Row>
-          </Grid>
-        </Well>
+          <Row>
+            <Col xs={3} md={3}>
+              <BarsService bars={beer.bottleBars} beer={beer}/>
+              <BarsService bars={beer.tapBars} beer={beer}/>
+            </Col>
+          </Row>
+        </Grid>
       </div>
     );
 
   }
 }
 
+const BarsService = (props) => {
+  debugger;
+  if (props.bars)
+    return (
+      <div>
+        {props.bars.map((bar: any) =>
+            <BottleBarService beer={props.beer} bar={bar}/>
+        )}
+      </div>
+    );
+  return <div/>;
+}
+
+const BottleBarService = (props) => (
+  <Well>
+    <h3>{props.bar.name}</h3>
+    <p>{props.bar.comment}</p>
+    <PriceDisplay beer={props.beer}/>
+  </Well>
+)
+
+const PriceDisplay = (props) => {
+  debugger;
+  if (props.beer.bottleVolumeInCl)
+    return <h4>{props.beer.bottleVolumeInCl+"cl "+props.beer.bottleSellingPrice+".-"}</h4>;
+  if (props.beer.tapPriceSmall != null)
+    return <h4><div>{"30cl "+props.beer.tapPriceSmall+".-"}</div><div>{"50cl "+props.beer.tapPriceSmall+".-"}</div></h4>;
+  debugger;
+}
+
 const BasicProperties = (props) => (
+  <Well>
+    <Table>
+      <Row>
+        <NamedLabel name="Alcool" value={props.beer.abv}/>
+        <NamedLabel name="Couleur" value={props.beer.colorName}/>
+      </Row><Row>
+        <NamedLabel name="Style" value={props.beer.styleName}/>
+        <NamedLabel name="Fermentation" value={props.beer.fermenting}/>
+      </Row>
+    </Table>
+  </Well>
 )
 
 const BeerRadar = (props) => (
   <Well>
-    <RatedLabel name="Amertume" strength={props.beer.bitternessRank}/>
-    <RatedLabel name="Acidité" strength={props.beer.sournessRank}/>
-    <RatedLabel name="Douceur" strength={props.beer.sweetnessRank}/>
-    <RatedLabel name="Houblonnage" strength={props.beer.hoppingRank}/>
+    <Table>
+      <RatedLabel name="Amertume" strength={props.beer.bitternessRank}/>
+      <RatedLabel name="Acidité" strength={props.beer.sournessRank}/>
+      <RatedLabel name="Douceur" strength={props.beer.sweetnessRank}/>
+      <RatedLabel name="Houblonnage" strength={props.beer.hoppingRank}/>
+    </Table>
+  </Well>
+)
+
+const BeerDescription = (props) => (
+  <Well>
+    <p>{props.beer.comment}</p>
   </Well>
 )
 
 const NamedLabel = (props) => (
   <div>
-    <Col md={6}>{props.name}</Col>
-    <Col md={6}>{props.value}</Col>
+    {
+      props.value ?
+        <div><Col md={6}><Label>{props.name}</Label></Col>
+        <Col md={6}>{props.value}</Col></div>
+      :
+        <div><Col md={6}></Col>
+        <Col md={6}></Col></div>
+    }
   </div>
 );
 

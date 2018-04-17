@@ -56,6 +56,7 @@ public class BeersResource {
     @GetMapping("/beers/{beer_id}")
     public Response getBeer(@PathVariable("beer_id") long beerId)
             throws ResourceNotFoundException {
+        
         Beer beer = beersService.loadById(beerId);
         return Response.ok().entity(convertToDetailedDto(beer)).build();
     }

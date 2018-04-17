@@ -35,7 +35,7 @@ class BeersList extends Component {
     }
   }
 
-  fetchData = async (listName, listId) => {
+  fetchData = async (listName, listId, wtf) => {
     this.setState({
       isLoading: true
     });

@@ -90,7 +90,7 @@ public class BeersServiceImpl {
 	}
 
     public Beer loadById(long drinkId) throws ResourceNotFoundException {
-        Beer beer = beersRepository.loadById(drinkId);
+        Beer beer = beersRepository.loadByIdWithServices(drinkId);
         if (beer != null) {
             return beer;
         } else {

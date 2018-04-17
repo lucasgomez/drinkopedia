@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  Row,
   Label
 } from 'react-bootstrap';
 //import FontAwesome from '../react-fontawesome';
@@ -11,8 +12,6 @@ class RatedLabel extends Component {
       name,
       strength
     } = this.props;
-    debugger;
-
     return (
       <div><Label>{name}</Label>{this.displayStars(strength)}</div>
     );
@@ -21,11 +20,11 @@ class RatedLabel extends Component {
 
   displayStars(strength) {
 
-    const emptyStar = (<span className="fa fa-beer" style="color:lightgrey"></span>);
+    const emptyStar = (<i className="fa fa-beer" style="color:lightgrey"></i>);
     const checkedStar = (<i className="fa fa-beer checked"></i>);
     const uncheckedStar = (<i className="fa fa-beer"></i>);
     //const uncheckedStar = (<FontAwesome name="fa fa-beer"></FontAwesome>);
-    debugger;
+
     let rating = [];
     let i = 0;
     if (strength === 0) {
@@ -43,14 +42,10 @@ class RatedLabel extends Component {
         // rating.push(uncheckedStar);
       }
     }
-    // debugger;
-    return (
-      <div>
-        {
-          rating.map((star: any) => <div>{star}</div>)
-        }
-      </div>
-    );
+    // return rating.map(
+    //         (star) =>
+    //           <div>{star}</div>
+    //       );
   }
 }
 

@@ -58,7 +58,7 @@ class ButtonsList extends Component {
         {items.map((item: any) =>
           <MenuItem>
             <Link to={'/list/'+listName+'/'+item.id}>
-              {item.name}
+              <span>{item.name}</span>
             </Link>
           </MenuItem>
         )}
