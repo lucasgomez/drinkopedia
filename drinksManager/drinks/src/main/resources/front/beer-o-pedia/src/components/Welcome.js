@@ -1,13 +1,4 @@
 import React, { Component } from 'react';
-import {
-  Table,
-  Tooltip,
-  OverlayTrigger
-} from 'react-bootstrap';
-import {
-  Link
-} from 'react-router-dom';
-
 
 class Welcome extends Component {
   render() {
@@ -20,9 +11,8 @@ class Welcome extends Component {
         ne mens pas, on dira que cétacé (z'avez compris?) pour l'usage qu'on en fera durant la Fête!</p>
 
         <p>Le menu ci-dessus vous guidera dans la difficile quête du breuvage parfait au moment adéquat.
-        Bon, pour le moment, tant que vous respectez les horaires de la Fête de la Bière [LIEN REQUIS].</p>
+        Bon, pour le moment, tant que vous respectez les <a href="http://www.fetedelabiere.ch/">horaires de la Fête de la Bière</a>.</p>
 
-        <p>Mu</p>
       </div>
     );
   }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import {ButtonGroup, Button, Tabs, Tab} from 'react-bootstrap';
+import {ButtonGroup, Button} from 'react-bootstrap';
 import ButtonsList from './ButtonsList';
-
 
 class Menu extends Component {
   render() {
@@ -9,7 +8,7 @@ class Menu extends Component {
       <div class="container">
 				<ButtonGroup>
 					<Button>{ 'Par nom' }</Button>
-					<Button>{ 'Par bar' }</Button>
+					<ButtonsList listName="bars" title="Par bar"/>
 					<ButtonsList listName="colors" title="Par couleur"/>
 					<ButtonsList listName="styles" title="Par style"/>
 					<ButtonsList listName="producers" title="Par producteur"/>

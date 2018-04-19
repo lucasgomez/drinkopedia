@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ch.lgo.drinks.simple.dao.BarRepository;
 import ch.lgo.drinks.simple.dao.BeerColorRepository;
 import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
@@ -37,6 +38,8 @@ public class BeersServiceImpl {
     BeerStylesRepository beerStyleRepository;
     @Autowired
     PlaceRepository placeRepository;
+    @Autowired
+    BarRepository barRepository;
     @Autowired
     ModelMapper modelMapper;
 
@@ -73,6 +76,10 @@ public class BeersServiceImpl {
 
     public List<Beer> findByOriginId(long originId) {
         return beersRepository.findByOrigin(originId);
+    }
+    
+    public List<Beer> findByBarId(long barId) {
+        return barRepository.findBeersByBar(barId);
     }
 
     public List<Beer> getAll() throws NoContentFoundException {
@@ -125,19 +132,23 @@ public class BeersServiceImpl {
             .collect(Collectors.toList());
     }
 
-    public List<DescriptiveLabelDto> findColorList() throws NoContentFoundException {
+    public List<DescriptiveLabelDto> findColorsList() throws NoContentFoundException {
         return toSortedLabelList(beerColorRepository.findAll());
     }
     
-    public List<DescriptiveLabelDto> findStyleList() {
+    public List<DescriptiveLabelDto> findStylesList() {
         return toSortedLabelList(beerStyleRepository.findAll());
     }
     
-    public List<DescriptiveLabelDto> findProducerList() {
+    public List<DescriptiveLabelDto> findProducersList() {
         return toSortedLabelList(producerRepository.findAll());
     }
     
-    public List<DescriptiveLabelDto> findPlaceList() {
+    public List<DescriptiveLabelDto> findPlacesList() {
         return toSortedLabelList(placeRepository.findAll());
+    }
+    
+    public List<DescriptiveLabelDto> findBarsList() {
+        return toSortedLabelList(barRepository.findAll());
     }
 }

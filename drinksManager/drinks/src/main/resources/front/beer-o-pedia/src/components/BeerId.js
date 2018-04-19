@@ -7,6 +7,9 @@ import {
   Row,
   Col
 } from 'react-bootstrap';
+import {
+  Link
+} from 'react-router-dom';
 import RatedLabel from './RatedLabel';
 
 class BeerId extends Component {
@@ -66,8 +69,11 @@ class BeerId extends Component {
         <Grid>
           <Row>
             <Col xs={12} md={6}>
-              <h2><a href='beerId' id='beerId'>{beer.name}</a></h2>
-              <p>{beer.producerName + " (" + beer.producerOriginName + ")" }</p>
+              <h2>{beer.name}</h2>
+              <p>
+                <Link to={'/list/producers/'+beer.producerId}>{beer.producerName}</Link>
+                <Link to={'/list/origins/'+beer.producerOriginId}>{beer.producerOriginName}</Link>
+              </p>
             </Col>
             <Col xs={12} md={6}>
             </Col>
@@ -90,8 +96,8 @@ class BeerId extends Component {
 
           <Row>
             <Col xs={3} md={3}>
-              <BarsService bars={beer.bottleBars} beer={beer}/>
-              <BarsService bars={beer.tapBars} beer={beer}/>
+              <BarsService bars={beer.bottleBars} beer={beer} type="bottle"/>
+              <BarsService bars={beer.tapBars} beer={beer} type="tap"/>
             </Col>
           </Row>
         </Grid>
@@ -107,7 +113,7 @@ const BarsService = (props) => {
     return (
       <div>
         {props.bars.map((bar: any) =>
-            <BottleBarService beer={props.beer} bar={bar}/>
+            <BottleBarService beer={props.beer} bar={bar} type={props.type}/>
         )}
       </div>
     );
@@ -118,16 +124,15 @@ const BottleBarService = (props) => (
   <Well>
     <h3>{props.bar.name}</h3>
     <p>{props.bar.comment}</p>
-    <PriceDisplay beer={props.beer}/>
+    <PriceDisplay beer={props.beer} type={props.type}/>
   </Well>
 )
 
 const PriceDisplay = (props) => {
-  debugger;
-  if (props.beer.bottleVolumeInCl)
+  if (props.type === "bottle")
     return <h4>{props.beer.bottleVolumeInCl+"cl "+props.beer.bottleSellingPrice+".-"}</h4>;
-  if (props.beer.tapPriceSmall != null)
-    return <h4><div>{"30cl "+props.beer.tapPriceSmall+".-"}</div><div>{"50cl "+props.beer.tapPriceSmall+".-"}</div></h4>;
+  if (props.type === "tap")
+    return <h4><div>{"30cl "+props.beer.tapPriceSmall+".-"}</div><div>{"50cl "+props.beer.tapPriceBig+".-"}</div></h4>;
   debugger;
 }
 

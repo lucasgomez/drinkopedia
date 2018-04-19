@@ -13,7 +13,7 @@ class RatedLabel extends Component {
       strength
     } = this.props;
     return (
-      <div><Label>{name}</Label>{this.displayStars(strength)}</div>
+      <Row><Label>{name}</Label><div>{this.displayStars(strength)}</div></Row>
     );
 
   }
@@ -44,8 +44,12 @@ class RatedLabel extends Component {
     }
     // return rating.map(
     //         (star) =>
-    //           <div>{star}</div>
+    //           {rating}
     //       );
+    if (strength > 0)
+      return strength+"/5";
+    else
+      return "N/A";
   }
 }
 

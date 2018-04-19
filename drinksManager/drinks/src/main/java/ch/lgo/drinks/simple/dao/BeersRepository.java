@@ -160,6 +160,7 @@ public class BeersRepository {
                 .from(qBeer)
                 .innerJoin(qBeer.style, qBeerStyle).fetchJoin()
                 .where(qBeerStyle.id.eq(styleId))
+                .orderBy(qBeer.name.asc())
                 .fetch();
     }
 
@@ -171,8 +172,8 @@ public class BeersRepository {
                 .from(qBeer)
                 .innerJoin(qBeer.color, qBeerColor).fetchJoin()
                 .where(qBeerColor.id.eq(colorId))
+                .orderBy(qBeer.name.asc())
                 .fetch();
-
     }
 
     public List<Beer> findByProducer(long producerId) {
@@ -183,8 +184,8 @@ public class BeersRepository {
                 .from(qBeer)
                 .innerJoin(qBeer.producer, qProducer).fetchJoin()
                 .where(qProducer.id.eq(producerId))
+                .orderBy(qBeer.name.asc())
                 .fetch();
-
     }
 
     public List<Beer> findByOrigin(long originId) {
@@ -197,6 +198,7 @@ public class BeersRepository {
                 .innerJoin(qBeer.producer, qProducer).fetchJoin()
                 .innerJoin(qProducer.origin, qPlace).fetchJoin()
                 .where(qPlace.id.eq(originId))
+                .orderBy(qBeer.name.asc())
                 .fetch();
 
     }

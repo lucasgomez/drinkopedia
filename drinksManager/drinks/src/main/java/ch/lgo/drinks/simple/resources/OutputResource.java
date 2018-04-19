@@ -41,7 +41,7 @@ public class OutputResource {
 	@GET
     @Path("bottledBar/{bottled_bar_id}")
     public Response outputBottledBar(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
-		Collection<Bar> findAll = barRepo.findAll();
+		Collection<Bar> findAll = barRepo.findAllWithBeers();
 		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
 		if (bottledBar == null)
 			throw new ResourceNotFoundException("No bar with id "+bottledBarId);
@@ -89,7 +89,7 @@ public class OutputResource {
 	@GET
 	@Path("getbarsimporter")
 	public Response getBarsImporter() throws Exception {
-		outputService.outputBeerByBarsImporter(beersService.getAllWithService(), barRepo.findAll(), OUTPUT_FOLDER, "barsSelection");
+		outputService.outputBeerByBarsImporter(beersService.getAllWithService(), barRepo.findAllWithBeers(), OUTPUT_FOLDER, "barsSelection");
 		return null;
 	}
 	
