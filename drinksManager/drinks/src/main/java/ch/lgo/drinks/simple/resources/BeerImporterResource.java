@@ -53,6 +53,59 @@ public class BeerImporterResource {
     ModelMapper modelMapper;
 
     @GET
+    @Path("clearservice/")
+    /**
+     * 0nd step : Clear TapBeer and BottleBeer
+     * @return
+     */
+    public Response clearService() {
+        //TODO Move to a suitable place...
+        importDataService.clearService();
+        return Response.ok().build();
+    }
+    
+    @GET
+    @Path("extractbeers/")
+    /**
+     * 1st step : Extract unreferenced beers from order file (commandeAmstein.xlsx) and output result in a new file (extractedBeers.xlsx)
+     * @return
+     * @throws Exception
+     */
+    public Response extractBeers() throws Exception {
+        Map<String, List<String>> unreferencedBeersAndCode = importDataService.extractUnreferencedBeersAndCode(IMPORT_FOLDER+"commandeAmstein.xlsx");
+        
+        File output = outputService.outputBeersAndCode(unreferencedBeersAndCode, OUTPUT_FOLDER, "extractedBeers");
+        
+        return null;
+    }
+    
+    @GET
+    @Path("importbeers/")
+    /**
+     * 2nd step : Retrieve unreferenced beers and persist them
+     * @return
+     * @throws Docx4JException
+     * @throws Xlsx4jException
+     */
+    public Response importBeers() throws Docx4JException, Xlsx4jException {
+        Set<Beer> importedBeerStyles = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
+        return Response.ok().build();
+    }
+    
+    @GET
+    @Path("importprices/")
+    /**
+     * 3rd step : Extract the prices and service type to import them as TapBeer and BottleBeer
+     * @return
+     * @throws Exception
+     */
+    public Response extractPricesAndServiceType() throws Exception {
+        Set<Beer> unreferencedBeersAndCode = importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
+        
+        return null;
+    }
+
+    @GET
     @Path("extractdata/")
     public Response extractData() throws Exception {
 		Set<String> unreferencedStyles = importDataService.extractUnreferencedBeersStyles(IMPORT_FOLDER+"beersdetails.xlsx");
@@ -66,27 +119,10 @@ public class BeerImporterResource {
     }
     
     @GET
-    @Path("extractbeers/")
-    public Response extractBeers() throws Exception {
-    	Map<String, List<String>> unreferencedBeersAndCode = importDataService.extractUnreferencedBeersAndCode(IMPORT_FOLDER+"commandeAmstein.xlsx");
-    	
-    	File output = outputService.outputBeersAndCode(unreferencedBeersAndCode, OUTPUT_FOLDER, "extractedBeers");
-    	
-    	return null;
-    }
-    
-    @GET
     @Path("importcolorandstyles/")
     public Response importColorsAndStyles() throws Docx4JException, Xlsx4jException {
     	Set<BeerStyle> importedBeerStyles = importDataService.importBeerStyles(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 0);
     	Set<BeerColor> importedBeerColors = importDataService.importBeerColors(IMPORT_FOLDER+"extractedBeerDetails.xlsx", 1);
-    	return Response.ok().build();
-    }
-    
-    @GET
-    @Path("importbeers/")
-    public Response importBeers() throws Docx4JException, Xlsx4jException {
-    	Set<Beer> importedBeerStyles = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
     	return Response.ok().build();
     }
     
@@ -97,14 +133,6 @@ public class BeerImporterResource {
     	
     	return null;
     }
-	
-    @GET
-	@Path("importprices/")
-	public Response extractPricesAndServiceType() throws Exception {
-		Set<Beer> unreferencedBeersAndCode = importDataService.readAndImportPricesAndServiceType(IMPORT_FOLDER+"commandeAmstein.xlsx");
-		
-		return null;
-	}
     
     @GET
     @Path("importsellingprices")
@@ -194,11 +222,4 @@ public class BeerImporterResource {
 		return null;
 	}
     
-    @GET
-    @Path("clearservice/")
-    public Response clearService() {
-    	//TODO Move to a suitable place...
-    	importDataService.clearService();
-    	return Response.ok().build();
-    }
 }

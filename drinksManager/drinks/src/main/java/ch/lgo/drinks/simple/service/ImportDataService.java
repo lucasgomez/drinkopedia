@@ -103,13 +103,12 @@ public class ImportDataService {
 		//Get all existing beer and map by ExternalId
 		Map<String, Beer> beersByExternalId = mapBeersByExternalId(beersRepository.findAll());
 		Predicate<List<String>> tapBeersFilter = beerDetails -> beerDetails.get(1).contains("L");
-		Map<String, List<String>> beersToComplete = new HashMap<>();
 
 		//Read content of file and filters out non existing beers
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
 		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(1, 10, 14))
 				.stream()
-				.filter(record -> beersByExternalId.get(record.get(0)) != null)
+				.filter(record -> beersByExternalId.get(record.get(0)) != null) //Keep for known beers only
 				.collect(Collectors.toList());
 		
 		//From content create tap and bottle objects
