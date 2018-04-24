@@ -41,7 +41,6 @@ public class PlaceRepository implements ICrudRepository<Place> {
 		 JPAQuery<Place> query = new JPAQuery<>(em);
 	        QPlace qPlace = QPlace.place;
 	        return query.from(qPlace).where(qPlace.name.likeIgnoreCase("%"+placeName+"%")).fetch();
-
 	}
 
 	@Override

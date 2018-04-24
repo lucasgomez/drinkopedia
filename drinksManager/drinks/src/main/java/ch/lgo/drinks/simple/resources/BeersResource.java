@@ -24,10 +24,12 @@ import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
+import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
+import ch.lgo.drinks.simple.service.BarService;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
 import io.swagger.annotations.ApiOperation;
 
@@ -39,6 +41,8 @@ public class BeersResource {
 
     @Autowired
     private BeersServiceImpl beersService;
+    @Autowired
+    private BarService barService;
     
     @Context
     UriInfo uriInfo;
@@ -62,16 +66,17 @@ public class BeersResource {
     }
 
     @GetMapping("/beers/bars/{bar_id}")
-    public Response findBeersByBar(@PathVariable("bar_id") long barId) throws NoContentFoundException {
-        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByBarId(barId));
+    public Response findBeersByBar(@PathVariable("bar_id") long barId) throws NoContentFoundException, ResourceNotFoundException {
+        Bar bar = barService.loadById(barId);
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByBarId(barId), bar.getName(), bar.getComment());
         return Response.ok().entity(beersFound).build();
     }
     
     @GetMapping("/beers/colors/{beer_color_id}")
     public Response findBeersByColor(@PathVariable("beer_color_id") long beerColorId)
             throws NoContentFoundException {
-        BeersDTOList beersFound = convertToBeersListDTO(
-                beersService.findByColorId(beerColorId));
+        
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByColorId(beerColorId));
         return Response.ok().entity(beersFound).build();
     }
     
@@ -171,10 +176,17 @@ public class BeersResource {
     }
 
     private BeersDTOList convertToBeersListDTO(List<Beer> beers) {
+        //TODO replace placeholder
+        return convertToBeersListDTO(beers, "Bier über alles", "Ce commentaire ne devrait pas apparaitre, mais au pire, peu m'en chaut.");
+    }
+    
+    private BeersDTOList convertToBeersListDTO(List<Beer> beers, String name, String description) {
         BeersDTOList beersDTOList = new BeersDTOList();
         List<BeerDTO> beersList = beers.stream().map(beer -> convertToDto(beer))
                 .collect(Collectors.toList());
         beersDTOList.setBeers(beersList);
+        beersDTOList.setName(name);
+        beersDTOList.setDescription(description);
         return beersDTOList;
     }
 

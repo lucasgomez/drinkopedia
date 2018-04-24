@@ -20,7 +20,7 @@ class Manager extends Component {
 			<Router>
     		<div>
   				<Jumbotron>
-						<h1>{ 'Beer-O-Pedia' }</h1>
+						<h1>{ 'Zytopedia' }</h1>
 						<p>{ 'Tu boiras moins bête' }</p>
 					</Jumbotron>
 
@@ -38,9 +38,7 @@ const ListRoute = ({ match }) => (
   <div>
     <BeersList
       listId={match.params.listId}
-      listName={match.params.listName}
-      title="IPA"
-      description="Les Indian Pale Ale (IPA), c'est bon. Si si! C'est bon"/>
+      listName={match.params.listName}/>
   </div>
 );
 

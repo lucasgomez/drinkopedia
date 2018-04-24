@@ -10,8 +10,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.Bar;
@@ -24,8 +26,9 @@ import ch.lgo.drinks.simple.entity.QTapBeer;
 import ch.lgo.drinks.simple.entity.TapBeer;
 
 @Repository
+@Component
 @Transactional
-public class BarRepository {
+public class BarRepository implements ICrudRepository<Bar> {
 
     @PersistenceContext
     private EntityManager em;
@@ -110,4 +113,29 @@ public class BarRepository {
 	public Bar save(Bar bottleBar) {
 		return em.merge(bottleBar);
 	}
+
+    @Override
+    public Bar loadById(long id) {
+        return loadById(id, false, false);
+    }
+
+    @Override
+    public List<Bar> findByName(String entityName) {
+        JPAQuery<Bar> query = new JPAQuery<>(em);
+        QBar qBar = QBar.bar;
+        return query.from(qBar).where(qBar.name.likeIgnoreCase("%"+entityName+"%")).fetch();
+    }
+
+    @Override
+    public void delete(long entityId) {
+        QBar qBar = QBar.bar;
+        new JPADeleteClause(em, qBar).where(qBar.id.eq(entityId)).execute();
+    }
+
+    @Override
+    public void deleteAll() {
+        QBar qBar = QBar.bar;
+        new JPADeleteClause(em, qBar).execute();
+        
+    }
 }

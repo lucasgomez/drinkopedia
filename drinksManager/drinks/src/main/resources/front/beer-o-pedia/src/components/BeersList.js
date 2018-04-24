@@ -16,6 +16,8 @@ class BeersList extends Component {
 
     this.state = {
       items: [],
+      title: "",
+      description: "",
       isLoading: false
     };
   }
@@ -30,7 +32,7 @@ class BeersList extends Component {
     let newListId = nextProps.listId;
     let oldListName = this.props.listName;
     let newListName = nextProps.listName;
-    if(oldListId !== newListId || oldListName !== newListName) {
+    if (oldListId !== newListId || oldListName !== newListName) {
          this.fetchData(newListName, newListId);
     }
   }
@@ -40,7 +42,8 @@ class BeersList extends Component {
       isLoading: true
     });
 
-    let baseUrl = 'http://localhost:8081/drinkopedia/beers/' + listName + '/' + listId;
+    const baseUrl = 'http://localhost:8081/drinkopedia/beers/';
+    let listUrl = baseUrl + listName + '/' + listId;
 
 /*
     const response = await fetch(baseUrl);
@@ -51,12 +54,15 @@ class BeersList extends Component {
       }
     );
     */
-    fetch(baseUrl)
+
+    fetch(listUrl)
       .then(response => response.json())
-      .then(body => body.entity.beers)
-      .then(items =>
+      .then(body => body.entity)
+      .then(list =>
         this.setState({
-          items: items,
+          items: list.beers,
+          title: list.name,
+          description: list.description,
           isLoading: false
         })
       );
@@ -65,6 +71,8 @@ class BeersList extends Component {
   render() {
     const {
       items,
+      title,
+      description,
       isLoading
     } = this.state;
 
@@ -74,8 +82,8 @@ class BeersList extends Component {
     //TODO Better tooltip formating with bar names or multiline prices + tooltip for bars
     return (
       <div class="container">
-        <h2>{this.props.title}</h2>
-        <p>{this.props.description}</p>
+        <h2>{title}</h2>
+        <p>{description}</p>
         <Table striped hover>
           <thead>
             <tr>
