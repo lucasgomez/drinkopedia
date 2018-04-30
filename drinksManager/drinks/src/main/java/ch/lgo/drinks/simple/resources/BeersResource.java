@@ -34,7 +34,6 @@ import ch.lgo.drinks.simple.service.BeersServiceImpl;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-
 @CrossOrigin(origins={"http://localhost:3000"})
 @RequestMapping
 public class BeersResource {
@@ -58,8 +57,7 @@ public class BeersResource {
     }
 
     @GetMapping("/beers/{beer_id}")
-    public Response getBeer(@PathVariable("beer_id") long beerId)
-            throws ResourceNotFoundException {
+    public Response getBeer(@PathVariable("beer_id") long beerId) throws ResourceNotFoundException {
         
         Beer beer = beersService.loadById(beerId);
         return Response.ok().entity(convertToDetailedDto(beer)).build();
@@ -73,9 +71,7 @@ public class BeersResource {
     }
     
     @GetMapping("/beers/colors/{beer_color_id}")
-    public Response findBeersByColor(@PathVariable("beer_color_id") long beerColorId)
-            throws NoContentFoundException {
-        
+    public Response findBeersByColor(@PathVariable("beer_color_id") long beerColorId) throws NoContentFoundException {
         BeersDTOList beersFound = convertToBeersListDTO(beersService.findByColorId(beerColorId));
         return Response.ok().entity(beersFound).build();
     }

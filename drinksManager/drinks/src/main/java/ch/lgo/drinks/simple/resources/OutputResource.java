@@ -4,15 +4,12 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dao.BarRepository;
@@ -21,13 +18,9 @@ import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
 import ch.lgo.drinks.simple.service.XlsxOutputService;
-import io.swagger.annotations.Api;
 
 @RestController
-@Path("/output")
-@Api
-@Produces({MediaType.APPLICATION_JSON + "; charset=UTF8"})
-@Consumes({MediaType.APPLICATION_JSON + "; charset=UTF8"})
+@RequestMapping
 public class OutputResource {
 	//TODO Correct service VS dao usage
 	private static final String OUTPUT_FOLDER = "src/main/resources/output/";
@@ -38,8 +31,7 @@ public class OutputResource {
 	@Autowired
 	private BarRepository barRepo;
 	
-	@GET
-    @Path("bottledBar/{bottled_bar_id}")
+	@GetMapping("output/bottledBar/{bottled_bar_id}")
     public Response outputBottledBar(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
 		Collection<Bar> findAll = barRepo.findAllWithBeers();
 		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
@@ -50,8 +42,7 @@ public class OutputResource {
         return Response.created(null).build();
     }
 	
-	@GET
-	@Path("tapBar/{tap_bar_id}")
+	@GetMapping("output/tapBar/{tap_bar_id}")
 	public Response outputTapBar(@PathParam("tap_bar_id") long tapBarId) throws Exception {
 		Bar tapBar = barRepo.loadTapById(tapBarId);
 		if (tapBar == null)
@@ -61,8 +52,7 @@ public class OutputResource {
 		return null;
 	}
 	
-	@GET
-	@Path("listWithBottlesDetails/{bottled_bar_id}")
+	@GetMapping("output/listWithBottlesDetails/{bottled_bar_id}")
 	public Response listBottlesWithDetails(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
 		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
 		if (bottledBar == null)
@@ -71,26 +61,32 @@ public class OutputResource {
 		return null;
 	}
 	
-	@GET
-	@Path("pricesdefinition")
+	/**
+	 * @return a list of all beers with buying price and excel formulas for price calculation and later import
+	 * @throws Exception
+	 */
+	@GetMapping("output/pricesdefinition")
 	public Response createBeersPriceDefinition() throws Exception {
 		List<Beer> beers = beersService.getAllWithService();
 		File file = outputService.outputBeersPricesWithDetails(beers, OUTPUT_FOLDER, "pricesCalculation");
 		return null;
 	}
 	
-	@GET
-	@Path("fullmonty")
+	/**
+	 * To output all data. As a backup or for dataModifier {@code BeerImporterResource#importDataModifier()}
+	 * @return
+	 * @throws Exception
+	 */
+	@GetMapping("output/fullmonty")
 	public Response fullMonty() throws Exception {
+	    //TODO Change behaviour to export all and not only stuff related to beer (an unreferenced producer will be ignored)
 		outputService.theFullMonty(beersService.getAllWithService(), OUTPUT_FOLDER, "fullMonty");
 		return null;
 	}
 	
-	@GET
-	@Path("getbarsimporter")
+	@GetMapping("output/getbarsimporter")
 	public Response getBarsImporter() throws Exception {
 		outputService.outputBeerByBarsImporter(beersService.getAllWithService(), barRepo.findAllWithBeers(), OUTPUT_FOLDER, "barsSelection");
 		return null;
 	}
-	
 }
