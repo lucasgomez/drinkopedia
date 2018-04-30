@@ -37,6 +37,7 @@ import ch.lgo.drinks.simple.dao.BeerColorRepository;
 import ch.lgo.drinks.simple.dao.BeerStylesRepository;
 import ch.lgo.drinks.simple.dao.BeersRepository;
 import ch.lgo.drinks.simple.dao.DescriptiveLabel;
+import ch.lgo.drinks.simple.dao.PlaceRepository;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
@@ -44,6 +45,7 @@ import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.HasId;
+import ch.lgo.drinks.simple.entity.Place;
 import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.entity.StrengthEnum;
 import ch.lgo.drinks.simple.entity.TapBeer;
@@ -61,6 +63,8 @@ public class ImportDataService {
 	private ProducerRepository producerRepository;
 	@Autowired
 	private BarRepository barsRepository;
+	@Autowired
+	private PlaceRepository placeRepository;
 
 	public Set<String> extractUnreferencedBeersColors(String pathAndFilename) throws Docx4JException, Xlsx4jException {
 		Set<String> colorsToCreate = new HashSet<>();
@@ -239,11 +243,15 @@ public class ImportDataService {
 	}
 
 	private Double safeDoubleValueOf(String text) {
+	    return safeDoubleValueOf(text, null);
+	}
+	
+	private Double safeDoubleValueOf(String text, Double defaultValue) {
 		try {
-			return Double.valueOf(text);
-		} catch (NumberFormatException ex) {
-			return null;
-		}
+		    if (StringUtils.isNotBlank(text))
+		        return Double.valueOf(text.replace(",", "."));
+		} catch (NumberFormatException ex) {}
+		return defaultValue;
 	}
 
 	private Long safeLongValueOf(String text) {
@@ -590,6 +598,7 @@ public class ImportDataService {
 
 	private Map<String, Beer> mapBeersByExternalId(Collection<Beer> beers) {
 		return beers.stream()
+		        .filter(beer -> StringUtils.isNotBlank(beer.getExternalId()))
 				.collect(toMap(beer -> beer.getExternalId(), beer -> beer));
 	}
 	
@@ -777,5 +786,119 @@ public class ImportDataService {
 				.collect(Collectors.toSet()));
 		return result;
 	}
+
+	private Set<String> updateProducers(List<List<String>> producersContent) {
+        Collection<Place> places = placeRepository.findAll();
+        Map<Long, Place> placesById = mapEntitiesById(places);
+        Map<String, Place> placesByName = mapEntitiesByName(places);
+        Set<String> placesNotFound = new HashSet<>();
+        
+	    for (List<String> producerEntry : producersContent) {
+            String id = producerEntry.get(0);
+            String name = producerEntry.get(1);
+            if (StringUtils.isNotBlank(id)) {
+                boolean hasChange = false;
+                //Update producer
+                Producer producer = producerRepository.loadById(Long.valueOf(id));
+                if (!producer.getName().equals(name)) {
+                    producer.setName(name);
+                    hasChange = true;
+                }
+                //TODO Complete with producer origin
+                if (hasChange)
+                    producerRepository.save(producer);
+            } else if (StringUtils.isNotBlank(name)) {
+                //New producer
+                Producer newProducer = new Producer();
+                newProducer.setName(name);
+                newProducer.setOrigin(getReferedValue(producerEntry, 2, placesById, 3, placesByName, nameNotFound -> placesNotFound.add(nameNotFound)));
+                producerRepository.save(newProducer);
+            }
+        }
+
+        return placesNotFound;
+	}
+	
+    public void updateDataFromFullMonty(String pathAndFilename) throws Docx4JException, Xlsx4jException {
+        
+        WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
+        List<List<String>> producersContent = readContent2(workbook.getWorksheet(3), IntStream.rangeClosed(0, 3).boxed().collect(Collectors.toList()), true);
+        List<List<String>> beersContent = readContent2(workbook.getWorksheet(4), IntStream.rangeClosed(0, 14).boxed().collect(Collectors.toList()), true);
+        
+        Set<String> placesNotFound = updateProducers(producersContent);
+
+        Set<String> producersNotFound = new HashSet<>();
+        Set<String> colorsNotFound = new HashSet<>();
+        Set<String> stylesNotFound = new HashSet<>();
+        
+        Collection<Producer> producers = producerRepository.findAll();
+        Collection<BeerColor> colors = colorsRepository.findAll();
+        Collection<BeerStyle> styles = stylesRepository.findAll();
+        
+        Map<Long, Producer> producersById = mapEntitiesById(producers);
+        Map<String, Producer> producersByName = mapEntitiesByName(producers);
+        Map<Long, BeerColor> colorsById = mapEntitiesById(colors);
+        Map<String, BeerColor> colorsByName = mapEntitiesByName(colors);
+        Map<Long, BeerStyle> stylesById = mapEntitiesById(styles);
+        Map<String, BeerStyle> stylesByName = mapEntitiesByName(styles);
+        
+        for (List<String> beerEntry : beersContent) {
+            String id = beerEntry.get(0);
+            if (StringUtils.isNotBlank(id)) {
+                Beer beer = beersRepository.loadById(Long.valueOf(id));
+                // [2] Name
+                beer.setName(beerEntry.get(2));
+                // [3,4] ProducerId
+                beer.setProducer(getReferedValue(beerEntry, 3, producersById, 4, producersByName, nameNotFound -> producersNotFound.add(nameNotFound)));
+                // [5,6] ColorId  
+                beer.setColor(getReferedValue(beerEntry, 5, colorsById, 6, colorsByName, nameNotFound -> colorsNotFound.add(nameNotFound)));
+                // [7,8] StyleId  
+                beer.setStyle(getReferedValue(beerEntry, 7, stylesById, 8, stylesByName, nameNotFound -> stylesNotFound.add(nameNotFound)));
+                // [9] ABV  
+                beer.setAbv(safeDoubleValueOf(beerEntry.get(9), beer.getAbv()));
+                // [10] Hopping 
+                beer.setHopping(safeStrengthValueOf(beerEntry.get(10)));
+                // [11] Bitterness
+                beer.setBitterness(safeStrengthValueOf(beerEntry.get(11)));
+                // [12] Sourness    
+                beer.setSourness(safeStrengthValueOf(beerEntry.get(12)));
+                // [13] Sweetness   
+                beer.setSweetness(safeStrengthValueOf(beerEntry.get(13)));
+                // [14] Comment
+                beer.setComment(beerEntry.get(14));
+                beersRepository.save(beer);
+            }
+        }
+        System.out.println(" - Producers not found : \n" + producersNotFound.stream().collect(Collectors.joining(", ")));
+        System.out.println(" - Places not found : \n" + placesNotFound.stream().collect(Collectors.joining(", ")));
+        System.out.println(" - Colors not found : \n" + colorsNotFound.stream().collect(Collectors.joining(", ")));
+        System.out.println(" - Styles not found : \n" + stylesNotFound.stream().collect(Collectors.joining(", ")));
+    }
+
+    //TODO Turn the sysout for entries not found into a parameter collection or even creation 
+    private <T> T getReferedValue(List<String> entry, 
+            int idPosition, Map<Long, T> byId, 
+            int namePosition, Map<String, T> byName,
+            Function<String, Boolean> actionForNotFound) {
+        //Look by id first
+        if (StringUtils.isNotBlank(entry.get(idPosition))) {
+            //When IDs are interpreted as numbers, they get trailing ".0" 
+            Long value = Long.valueOf(entry.get(idPosition).split("\\.")[0]);
+            if (byId.get(value) != null)
+                return byId.get(value);
+            else
+                actionForNotFound.apply("ID : "+value);
+        } 
+        //Look by name else
+        String name = entry.get(namePosition);
+        if (StringUtils.isNotBlank(name)) {
+            if (byName.get(name) != null)
+                return byName.get(name);
+            else
+                actionForNotFound.apply(name);
+        }
+        //Empty or nothing found
+        return null;
+    }
 
 }

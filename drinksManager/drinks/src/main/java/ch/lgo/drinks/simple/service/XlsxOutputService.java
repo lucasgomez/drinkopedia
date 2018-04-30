@@ -40,6 +40,7 @@ import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.BottledBeer;
+import ch.lgo.drinks.simple.entity.HasId;
 import ch.lgo.drinks.simple.entity.Place;
 import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.entity.StrengthEnum;
@@ -143,14 +144,19 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 								displayNullableToString(producer.getId()),
 								displayName(producer.getOrigin())))
 						.collect(Collectors.toList()))
-				.appendSheet2("Beers", Arrays.asList("External Id", "Name", "Producer", "Color", "Style", 
+				.appendSheet2("Beers", Arrays.asList("Id", "External Id", "Name",
+				        "ProducerId", "Producer", "ColorId", "Color", "StyleId", "Style", 
 						"ABV", "Hopping", "Bitterness", "Sourness", "Sweetness", "Comment"),
 						allBeers.stream()
 						.map(beer -> Arrays.asList(
-								beer.getExternalId(),
+								displayId(beer),
+						        beer.getExternalId(),
 								beer.getName(),
+								displayId(beer.getProducer()),
 								displayName(beer.getProducer()),
+								displayId(beer.getColor()),
 								displayName(beer.getColor()),
+								displayId(beer.getStyle()),
 								displayName(beer.getStyle()),
 								formatForDisplay(beer.getAbv()),
 								displayStrength(beer.getHopping()),
@@ -191,6 +197,13 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 			return object.toString();
 		else
 			return "";
+	}
+	
+	private String displayId(HasId entity) {
+	    if (entity != null && entity.getId() != null)
+	        return entity.getId().toString();
+	    else
+	        return "";
 	}
 
 	private String displayName(DescriptiveLabel entity) {
