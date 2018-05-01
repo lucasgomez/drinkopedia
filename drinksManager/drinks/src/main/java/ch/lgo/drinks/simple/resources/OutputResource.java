@@ -1,7 +1,6 @@
 package ch.lgo.drinks.simple.resources;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.PathParam;
@@ -33,7 +32,6 @@ public class OutputResource {
 	
 	@GetMapping("output/bottledBar/{bottled_bar_id}")
     public Response outputBottledBar(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
-		Collection<Bar> findAll = barRepo.findAllWithBeers();
 		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
 		if (bottledBar == null)
 			throw new ResourceNotFoundException("No bar with id "+bottledBarId);
@@ -84,9 +82,14 @@ public class OutputResource {
 		return null;
 	}
 	
+	/**
+	 * Output the importer file for bars selection with all beers and bars. Later used by /importer/importbarsselection
+	 * @return
+	 * @throws Exception
+	 */
 	@GetMapping("output/getbarsimporter")
 	public Response getBarsImporter() throws Exception {
-		outputService.outputBeerByBarsImporter(beersService.getAllWithService(), barRepo.findAllWithBeers(), OUTPUT_FOLDER, "barsSelection");
+		outputService.outputBeerByBarsImporter(beersService.getAllWithService(), barRepo.findAll(), OUTPUT_FOLDER, "barsSelection");
 		return null;
 	}
 }

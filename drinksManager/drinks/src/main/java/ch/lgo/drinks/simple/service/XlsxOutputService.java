@@ -74,8 +74,8 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 	public File outputBeerByBarsImporter(Collection<Beer> beers, Collection<Bar> bars, String path, String baseFileName) throws InvalidFormatException, IOException, Docx4JException, JAXBException, Exception {
 		Comparator<Beer> byProducer = Comparator.comparing(Beer::getProducer, Comparator.nullsLast(Comparator.naturalOrder()));
 
-		List<String> titles = Arrays.asList("id", "Producer", "Name");
-		List<String> barsNames = bars.stream().map(bar -> bar.getName()).collect(Collectors.toList());
+		List<String> titles = Arrays.asList("id", "Producer", "Name", "Tap", "Bottle");
+		List<String> barsNames = bars.stream().map(Bar::getName).collect(Collectors.toList());
 		barsNames.addAll(0, titles);
 
 		return new DocumentBuilder()
@@ -86,8 +86,10 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 						.map(beer -> Arrays.asList(
 								nullableToString(beer.getTap().getId()),
 								displayName(beer.getProducer()),
-								beer.getName()
-								))
+								beer.getName(),
+								beer.getTap() != null ? "X" : "",
+						        beer.getBottle() != null ? "X" : ""
+							))
 						.collect(Collectors.toList()))
 				.appendSheet2("Bottle", barsNames,
 						beers.stream()
@@ -96,8 +98,10 @@ public class XlsxOutputService extends AbstractDocx5JHelper {
 						.map(beer -> Arrays.asList(
 								nullableToString(beer.getBottle().getId()),
 								displayName(beer.getProducer()),
-								beer.getName()
-								))
+								beer.getName(),
+								beer.getTap() != null ? "X" : "",
+						        beer.getBottle() != null ? "X" : ""
+							))
 						.collect(Collectors.toList()))
 				.save(buildFullName(path, baseFileName, EXTENSION));
 	}

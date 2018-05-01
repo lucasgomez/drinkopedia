@@ -157,6 +157,12 @@ public class BeerImporterResource {
     	return null;
     }
     
+    /**
+     * Check for unreferenced stuff (producer, styles and colors) from standardimporter
+     * @return
+     * @throws Docx4JException
+     * @throws Xlsx4jException
+     */
     @GetMapping("/importer/checkstandardimporter")
     public Response checkStandardImporterContent() throws Docx4JException, Xlsx4jException {
     	Map<String, Set<String>> unreferencedContent = importDataService.extractUnreferencedContentFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
@@ -168,6 +174,12 @@ public class BeerImporterResource {
     	return null;
     }
     
+    /**
+     * Import unreferenced stuff (producer, styles and colors) from standardimporter
+     * @return
+     * @throws Docx4JException
+     * @throws Xlsx4jException
+     */
     @GetMapping("/importer/importfromstandardimporter")
     public Response importStandardImporterContent() throws Docx4JException, Xlsx4jException {
     	importDataService.importUnreferencedContentFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
@@ -175,19 +187,25 @@ public class BeerImporterResource {
     }
     
     /**
-     * Import data to update from the fullMonty export, but only the Beer tab
+     * Import beers from standardimporter
+     * @return
+     * @throws Docx4JException
+     * @throws Xlsx4jException
+     */
+    @GetMapping("/importer/importbeersfromstandardimporter")
+    public Response importStandardImporterBeers() throws Docx4JException, Xlsx4jException {
+        importDataService.extractUnreferencedBeersFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
+        return null;
+    }
+    
+    /**
+     * Import data to update from the fullMonty export, but only the Beer and producers tabs
      * @return
      */
     @GetMapping("/importer/importdatamodifier")
     public Response importDataModifier() throws Docx4JException, Xlsx4jException {
         importDataService.updateDataFromFullMonty(IMPORT_FOLDER+"fullMontyImporter.xlsx");
         return null;
-    }
-    
-    @GetMapping("/importer/importbeersfromstandardimporter")
-    public Response importStandardImporterBeers() throws Docx4JException, Xlsx4jException {
-    	importDataService.extractUnreferencedBeersFromStandardImporter(IMPORT_FOLDER+"standardImporter.xlsx");
-    	return null;
     }
 	
     //TODO temp method
