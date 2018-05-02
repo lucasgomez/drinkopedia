@@ -24,8 +24,8 @@ class Manager extends Component {
 						<p>{ 'Tu boiras moins bête' }</p>
 					</Jumbotron>
 
-  				<Route path="/" component={Menu}/>
-          <Route exactPath="/" component={Welcome}/>
+  				<Menu/>
+          <Route path="/" exact={true} component={Welcome}/>
           <Route path="/list/:listName/:listId" component={ListRoute}/>
           <Route path="/beerid/:beerId" component={BeerRoute}/>
 				</div>

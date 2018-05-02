@@ -27,7 +27,6 @@ class BeerId extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    debugger;
     let newBeerId = nextProps.beerId;
     let oldBeerId = this.props.beerId;
     if(newBeerId !== oldBeerId) {
@@ -44,7 +43,6 @@ class BeerId extends Component {
 
     fetch(baseUrl)
       .then(response => response.json())
-      .then(body => body.entity)
       .then(item =>
         this.setState({
           beer: item,
@@ -72,6 +70,7 @@ class BeerId extends Component {
               <h2>{beer.name}</h2>
               <p>
                 <Link to={'/list/producers/'+beer.producerId}>{beer.producerName}</Link>
+                {' - '}
                 <Link to={'/list/origins/'+beer.producerOriginId}>{beer.producerOriginName}</Link>
               </p>
             </Col>
@@ -108,7 +107,6 @@ class BeerId extends Component {
 }
 
 const BarsService = (props) => {
-  debugger;
   if (props.bars)
     return (
       <div>
@@ -142,7 +140,8 @@ const BasicProperties = (props) => (
       <Row>
         <NamedLabel name="Alcool" value={props.beer.abv}/>
         <NamedLabel name="Couleur" value={props.beer.colorName}/>
-      </Row><Row>
+      </Row>
+      <Row>
         <NamedLabel name="Style" value={props.beer.styleName}/>
         <NamedLabel name="Fermentation" value={props.beer.fermenting}/>
       </Row>

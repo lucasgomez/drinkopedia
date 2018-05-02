@@ -1,7 +1,6 @@
 # Server settings (ServerProperties)
 server:
   port: 8081
-  address: 127.0.0.1
   sessionTimeout: 30
   servletPath: /
   contextPath: /drinkopedia
@@ -16,7 +15,7 @@ server:
 
 spring:
     jpa:
-      show-sql: true
+      show-sql: false
       database-platform: org.hibernate.dialect.PostgreSQLDialect
       generate-ddl: true
       properties:

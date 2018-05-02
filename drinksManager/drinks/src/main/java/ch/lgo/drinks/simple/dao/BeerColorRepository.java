@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.BeerColor;
@@ -16,7 +17,7 @@ import ch.lgo.drinks.simple.entity.QBeerColor;
 
 @Repository
 @Transactional
-public class BeerColorRepository {
+public class BeerColorRepository implements ICrudRepository<BeerColor> {
 
     @PersistenceContext
     private EntityManager em;
@@ -41,5 +42,17 @@ public class BeerColorRepository {
 
     public BeerColor save(BeerColor color) {
         return em.merge(color);
+    }
+
+    @Override
+    public void delete(long entityId) {
+        QBeerColor qColor = QBeerColor.beerColor;
+        new JPADeleteClause(em, qColor).where(qColor.id.eq(entityId)).execute();
+    }
+
+    @Override
+    public void deleteAll() {
+        QBeerColor qColor = QBeerColor.beerColor;
+        new JPADeleteClause(em, qColor).execute();
     }
 }

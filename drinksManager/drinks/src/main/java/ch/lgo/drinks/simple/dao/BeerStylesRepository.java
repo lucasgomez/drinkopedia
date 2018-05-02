@@ -16,7 +16,7 @@ import ch.lgo.drinks.simple.entity.QBeerStyle;
 
 @Repository
 @Transactional
-public class BeerStylesRepository {
+public class BeerStylesRepository implements ICrudRepository<BeerStyle>  {
 
     @PersistenceContext
     private EntityManager em;
@@ -41,5 +41,17 @@ public class BeerStylesRepository {
 
     public BeerStyle save(BeerStyle color) {
         return em.merge(color);
+    }
+
+    @Override
+    public void delete(long entityId) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deleteAll() {
+        // TODO Auto-generated method stub
+        
     }
 }

@@ -13,43 +13,32 @@ class RatedLabel extends Component {
       strength
     } = this.props;
     return (
-      <Row><Label>{name}</Label><div>{this.displayStars(strength)}</div></Row>
+      <Row><Label>{name}</Label><div style={{inline:'block'}}>{this.displayStars(strength)}</div></Row>
     );
 
   }
 
   displayStars(strength) {
 
-    const emptyStar = (<i className="fa fa-beer" style="color:lightgrey"></i>);
-    const checkedStar = (<i className="fa fa-beer checked"></i>);
-    const uncheckedStar = (<i className="fa fa-beer"></i>);
-    //const uncheckedStar = (<FontAwesome name="fa fa-beer"></FontAwesome>);
+    const emptyStar = (<i className="fa fa-beer" style={{color:'lightgrey'}}></i>);
+    const checkedStar = (<i className="fa fa-beer checked" style={{color:'green'}}></i>);
+    const uncheckedStar = (<i className="fa fa-beer" style={{color:'black'}}></i>);
 
     let rating = [];
     let i = 0;
-    if (strength === 0) {
-      for (i = 0; i < 5; i++) {
-        rating.push("-");
-        // rating.push(emptyStar);
+    if (strength == null || strength === "0") {
+      for (i = 0; i < 3; i++) {
+        rating.push(emptyStar);
       }
     } else {
       for (i = 0; i < strength; i++) {
-        rating.push("X");
-        // rating.push(checkedStar);
+        rating.push(checkedStar);
       }
-      for (i = 0; i < 5-strength; i++) {
-        rating.push("O");
-        // rating.push(uncheckedStar);
+      for (i = 0; i < 3-strength; i++) {
+        rating.push(uncheckedStar);
       }
     }
-    // return rating.map(
-    //         (star) =>
-    //           {rating}
-    //       );
-    if (strength > 0)
-      return strength+"/5";
-    else
-      return "N/A";
+    return rating;
   }
 }
 

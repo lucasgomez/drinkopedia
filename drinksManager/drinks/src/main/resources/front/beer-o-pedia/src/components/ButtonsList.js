@@ -26,7 +26,6 @@ class ButtonsList extends Component {
 
     fetch(baseUrl)
       .then(response => response.json())
-      .then(body => body.entity)
       .then(items =>
         this.setState({
           items: items,

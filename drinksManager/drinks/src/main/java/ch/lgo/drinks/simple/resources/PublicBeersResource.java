@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.modelmapper.ModelMapper;
@@ -15,20 +14,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.lgo.drinks.simple.dao.BeerColorService;
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.BeerColor;
+import ch.lgo.drinks.simple.entity.BeerStyle;
+import ch.lgo.drinks.simple.entity.Place;
+import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BarService;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
+import ch.lgo.drinks.simple.service.PlaceService;
+import ch.lgo.drinks.simple.service.ProducerService;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@CrossOrigin(origins={"http://localhost:3000"})
+@CrossOrigin(origins={"*"})
 @RequestMapping
 public class PublicBeersResource {
 
@@ -36,6 +42,15 @@ public class PublicBeersResource {
     private BeersServiceImpl beersService;
     @Autowired
     private BarService barService;
+    @Autowired
+    private BeerColorService colorService;
+    @Autowired
+    private BeerStyleService styleService;
+    @Autowired
+    private ProducerService producerService;
+    @Autowired
+    private PlaceService placeService;
+    
     
     @Context
     UriInfo uriInfo;
@@ -43,102 +58,97 @@ public class PublicBeersResource {
     @Autowired
     ModelMapper modelMapper;
 
+    //TODO Replace Response by DTO
     @GetMapping("/beers")
     @ApiOperation(value = "Find all beers")
-    public Response getBeers() throws NoContentFoundException {
+    public BeersDTOList getBeers() throws NoContentFoundException {
         List<Beer> beers = beersService.getAll();
-        return Response.ok().entity(convertToBeersListDTO(beers)).build();
+        return convertToBeersListDTO(beers);
     }
 
     @GetMapping("/beers/{beer_id}")
-    public Response getBeer(@PathVariable("beer_id") long beerId) throws ResourceNotFoundException {
-        
+    public DetailedBeerDto getBeer(@PathVariable("beer_id") long beerId) throws ResourceNotFoundException {
         Beer beer = beersService.loadById(beerId);
-        return Response.ok().entity(convertToDetailedDto(beer)).build();
+        return convertToDetailedDto(beer);
     }
 
     @GetMapping("/beers/bars/{bar_id}")
-    public Response findBeersByBar(@PathVariable("bar_id") long barId) throws NoContentFoundException, ResourceNotFoundException {
+    public BeersDTOList findBeersByBar(@PathVariable("bar_id") long barId) throws NoContentFoundException, ResourceNotFoundException {
         Bar bar = barService.loadById(barId);
         BeersDTOList beersFound = convertToBeersListDTO(beersService.findByBarId(barId), bar.getName(), bar.getComment());
-        return Response.ok().entity(beersFound).build();
+        return beersFound;
     }
     
     @GetMapping("/beers/colors/{beer_color_id}")
-    public Response findBeersByColor(@PathVariable("beer_color_id") long beerColorId) throws NoContentFoundException {
-        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByColorId(beerColorId));
-        return Response.ok().entity(beersFound).build();
+    public BeersDTOList findBeersByColor(@PathVariable("beer_color_id") long beerColorId) throws NoContentFoundException, ResourceNotFoundException {
+        BeerColor color = colorService.loadById(beerColorId);
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByColorId(beerColorId), color.getName(), color.getComment());
+        return beersFound;
     }
     
     @GetMapping("/beers/styles/{beer_style_id}")
-    public Response findBeersByStyle(@PathVariable("beer_style_id") long beerStyleId)
-            throws NoContentFoundException {
-        BeersDTOList beersFound = convertToBeersListDTO(
-                beersService.findByStyleId(beerStyleId));
-        return Response.ok().entity(beersFound).build();
+    public BeersDTOList findBeersByStyle(@PathVariable("beer_style_id") long beerStyleId) throws NoContentFoundException, ResourceNotFoundException {
+        BeerStyle style = styleService.loadById(beerStyleId);
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByStyleId(beerStyleId), style.getName(), style.getComment());
+        return beersFound;
     }
     
     @GetMapping("/beers/producers/{beer_producer_id}")
-    public Response findBeersByProducer(@PathVariable("beer_producer_id") long beerProducerId)
-            throws NoContentFoundException {
+    public BeersDTOList findBeersByProducer(@PathVariable("beer_producer_id") long beerProducerId)
+            throws NoContentFoundException, ResourceNotFoundException {
+        Producer producer = producerService.loadById(beerProducerId);
         BeersDTOList beersFound = convertToBeersListDTO(
-                beersService.findByProducereId(beerProducerId));
-        return Response.ok().entity(beersFound).build();
+                beersService.findByProducereId(beerProducerId), producer.getName(), producer.getComment());
+        return beersFound;
     }
     
     @GetMapping("/beers/origins/{beer_origin_id}")
-    public Response findBeersByOrigin(@PathVariable("beer_origin_id") long beerOriginId)
-            throws NoContentFoundException {
-        BeersDTOList beersFound = convertToBeersListDTO(
-                beersService.findByOriginId(beerOriginId));
-        return Response.ok().entity(beersFound).build();
+    public BeersDTOList findBeersByOrigin(@PathVariable("beer_origin_id") long beerOriginId) throws NoContentFoundException, ResourceNotFoundException {
+        Place place = placeService.loadById(beerOriginId);
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByOriginId(beerOriginId), place.getName(), place.getComment());
+        return beersFound;
     }
 
     @GetMapping("/beers/search/{beer_name}")
-    public Response findBeersByName(@PathVariable("beer_name") String beerName)
+    public BeersDTOList findBeersByName(@PathVariable("beer_name") String beerName)
             throws NoContentFoundException {
         BeersDTOList beersFound = convertToBeersListDTO(
                 beersService.findByName(beerName));
-
-        return Response.ok().entity(beersFound).build();
+        return beersFound;
     }
     
     @GetMapping("/bars/list")
-    public Response getBars() throws NoContentFoundException {
+    public List<DescriptiveLabelDto> getBars() throws NoContentFoundException {
         List<DescriptiveLabelDto> colors = beersService.findBarsList();
-        return Response.ok().entity(colors).build();
+        return colors;
     }
     
     @GetMapping("/colors/list")
-    public Response getColors()
+    public List<DescriptiveLabelDto> getColors()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> colors = beersService.findColorsList();
-        
-        return Response.ok().entity(colors).build();
+        return colors;
     }
     
     @GetMapping("/styles/list")
-    public Response getStyles()
+    public List<DescriptiveLabelDto> getStyles()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> colors = beersService.findStylesList();
-        
-        return Response.ok().entity(colors).build();
+        return colors;
     }
 
     @GetMapping("/producers/list")
-    public Response getProducers()
+    public List<DescriptiveLabelDto> getProducers()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> producers = beersService.findProducersList();
-        
-        return Response.ok().entity(producers).build();
+        return producers;
     }
     
     @GetMapping("/origins/list")
-    public Response getOrigins()
+    public List<DescriptiveLabelDto> getOrigins()
             throws NoContentFoundException {
         List<DescriptiveLabelDto> places = beersService.findPlacesList();
-        
-        return Response.ok().entity(places).build();
+        return places;
     }
 
     private BeersDTOList convertToBeersListDTO(List<Beer> beers) {

@@ -27,7 +27,6 @@ class BeersList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    debugger;
     let oldListId = this.props.listId;
     let newListId = nextProps.listId;
     let oldListName = this.props.listName;
@@ -37,13 +36,10 @@ class BeersList extends Component {
     }
   }
 
-  fetchData = async (listName, listId, wtf) => {
+  fetchData = async (listName, listId) => {
     this.setState({
       isLoading: true
     });
-
-    const baseUrl = 'http://localhost:8081/drinkopedia/beers/';
-    let listUrl = baseUrl + listName + '/' + listId;
 
 /*
     const response = await fetch(baseUrl);
@@ -55,9 +51,11 @@ class BeersList extends Component {
     );
     */
 
+    const baseUrl = 'http://localhost:8081/drinkopedia/beers/';
+    let listUrl = baseUrl + listName + '/' + listId;
+
     fetch(listUrl)
       .then(response => response.json())
-      .then(body => body.entity)
       .then(list =>
         this.setState({
           items: list.beers,
