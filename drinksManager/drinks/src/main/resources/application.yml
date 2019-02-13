@@ -2,8 +2,8 @@
 server:
   port: 8081
   sessionTimeout: 30
-  servletPath: /
-  contextPath: /drinkopedia
+  servlet:
+    contextPath: /drinkopedia
 
   # Tomcat specifics
   tomcat:
@@ -14,25 +14,33 @@ server:
 #debug: true
 
 spring:
-    jpa:
-      show-sql: false
-      database-platform: org.hibernate.dialect.PostgreSQLDialect
-      generate-ddl: true
-      properties:
-        javax:
-          persistence:
-            schema-generation:
-              create-source: metadata
-              scripts:
-                action: create
-                create-target: create.sql
-    datasource:
-        initialize: true
-        url: jdbc:postgresql://localhost:5432/drinkopedia
-        username: postgres
-        password: postgres
-security:
-  user:
-    name: belzeboss
-    password: 666
+  mvc:
+    servlet:
+      path: /
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+      javax:
+        persistence:
+          schema-generation:
+            create-source: metadata
+            scripts:
+              action: create
+              create-target: create.sql
+  datasource:
+      url: jdbc:postgresql://localhost:5432/drinkopedia
+      username: postgres
+      password: postgres
+  security:
+    user:
+      name: belzeboss
+      password: 666
     

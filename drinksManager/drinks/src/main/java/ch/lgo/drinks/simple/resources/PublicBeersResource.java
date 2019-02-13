@@ -31,7 +31,6 @@ import ch.lgo.drinks.simple.service.BarService;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
 import ch.lgo.drinks.simple.service.PlaceService;
 import ch.lgo.drinks.simple.service.ProducerService;
-import io.swagger.annotations.ApiOperation;
 
 @RestController
 @CrossOrigin(origins={"*"})
@@ -60,7 +59,6 @@ public class PublicBeersResource {
 
     //TODO Replace Response by DTO
     @GetMapping("/beers")
-    @ApiOperation(value = "Find all beers")
     public BeersDTOList getBeers() throws NoContentFoundException {
         return convertToBeersListDTO(beersService.getAll(), null);
     }
