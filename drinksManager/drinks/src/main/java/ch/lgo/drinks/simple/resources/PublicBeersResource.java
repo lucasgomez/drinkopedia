@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dao.BeerColorService;
+import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
@@ -26,7 +27,6 @@ import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.Place;
 import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
-import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BarService;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
 import ch.lgo.drinks.simple.service.PlaceService;
@@ -62,84 +62,77 @@ public class PublicBeersResource {
     @GetMapping("/beers")
     @ApiOperation(value = "Find all beers")
     public BeersDTOList getBeers() throws NoContentFoundException {
-        List<Beer> beers = beersService.getAll();
-        return convertToBeersListDTO(beers);
+        return convertToBeersListDTO(beersService.getAll(), null);
     }
 
     @GetMapping("/beers/{beer_id}")
-    public DetailedBeerDto getBeer(@PathVariable("beer_id") long beerId) throws ResourceNotFoundException {
+    public DetailedBeerDto getBeer(@PathVariable("beer_id") long beerId) {
         Beer beer = beersService.loadById(beerId);
         return convertToDetailedDto(beer);
     }
 
     @GetMapping("/beers/bars/{bar_id}")
-    public BeersDTOList findBeersByBar(@PathVariable("bar_id") long barId) throws NoContentFoundException, ResourceNotFoundException {
+    public BeersDTOList findBeersByBar(@PathVariable("bar_id") long barId) {
         Bar bar = barService.loadById(barId);
-        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByBarId(barId), bar.getName(), bar.getComment());
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByBarId(barId), bar);
         return beersFound;
     }
     
     @GetMapping("/beers/colors/{beer_color_id}")
-    public BeersDTOList findBeersByColor(@PathVariable("beer_color_id") long beerColorId) throws NoContentFoundException, ResourceNotFoundException {
+    public BeersDTOList findBeersByColor(@PathVariable("beer_color_id") long beerColorId) {
         BeerColor color = colorService.loadById(beerColorId);
-        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByColorId(beerColorId), color.getName(), color.getComment());
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByColorId(beerColorId), color);
         return beersFound;
     }
     
     @GetMapping("/beers/styles/{beer_style_id}")
-    public BeersDTOList findBeersByStyle(@PathVariable("beer_style_id") long beerStyleId) throws NoContentFoundException, ResourceNotFoundException {
+    public BeersDTOList findBeersByStyle(@PathVariable("beer_style_id") long beerStyleId) {
         BeerStyle style = styleService.loadById(beerStyleId);
-        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByStyleId(beerStyleId), style.getName(), style.getComment());
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByStyleId(beerStyleId), style);
         return beersFound;
     }
     
     @GetMapping("/beers/producers/{beer_producer_id}")
-    public BeersDTOList findBeersByProducer(@PathVariable("beer_producer_id") long beerProducerId)
-            throws NoContentFoundException, ResourceNotFoundException {
+    public BeersDTOList findBeersByProducer(@PathVariable("beer_producer_id") long beerProducerId)  {
         Producer producer = producerService.loadById(beerProducerId);
         BeersDTOList beersFound = convertToBeersListDTO(
-                beersService.findByProducereId(beerProducerId), producer.getName(), producer.getComment());
+                beersService.findByProducereId(beerProducerId), producer);
         return beersFound;
     }
     
     @GetMapping("/beers/origins/{beer_origin_id}")
-    public BeersDTOList findBeersByOrigin(@PathVariable("beer_origin_id") long beerOriginId) throws NoContentFoundException, ResourceNotFoundException {
+    public BeersDTOList findBeersByOrigin(@PathVariable("beer_origin_id") long beerOriginId) {
         Place place = placeService.loadById(beerOriginId);
-        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByOriginId(beerOriginId), place.getName(), place.getComment());
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByOriginId(beerOriginId), place);
         return beersFound;
     }
 
     @GetMapping("/beers/search/{beer_name}")
-    public BeersDTOList findBeersByName(@PathVariable("beer_name") String beerName)
-            throws NoContentFoundException {
-        BeersDTOList beersFound = convertToBeersListDTO(
-                beersService.findByName(beerName));
+    public BeersDTOList findBeersByName(@PathVariable("beer_name") String beerName) {
+        BeersDTOList beersFound = convertToBeersListDTO(beersService.findByName(beerName), null);
         return beersFound;
     }
     
     @GetMapping("/bars/list")
-    public List<DescriptiveLabelDto> getBars() throws NoContentFoundException {
+    public List<DescriptiveLabelDto> getBars() {
         List<DescriptiveLabelDto> colors = beersService.findBarsList();
         return colors;
     }
     
     @GetMapping("/colors/list")
-    public List<DescriptiveLabelDto> getColors()
-            throws NoContentFoundException {
+    public List<DescriptiveLabelDto> getColors() {
         List<DescriptiveLabelDto> colors = beersService.findColorsList();
         return colors;
     }
     
     @GetMapping("/styles/list")
-    public List<DescriptiveLabelDto> getStyles()
-            throws NoContentFoundException {
+    public List<DescriptiveLabelDto> getStyles() {
         List<DescriptiveLabelDto> colors = beersService.findStylesList();
         return colors;
     }
 
     @GetMapping("/producers/list")
-    public List<DescriptiveLabelDto> getProducers()
-            throws NoContentFoundException {
+    public List<DescriptiveLabelDto> getProducers() {
         List<DescriptiveLabelDto> producers = beersService.findProducersList();
         return producers;
     }
@@ -150,19 +143,16 @@ public class PublicBeersResource {
         List<DescriptiveLabelDto> places = beersService.findPlacesList();
         return places;
     }
-
-    private BeersDTOList convertToBeersListDTO(List<Beer> beers) {
-        //TODO replace placeholder
-        return convertToBeersListDTO(beers, "Bier über alles", "Ce commentaire ne devrait pas apparaitre, mais au pire, peu m'en chaut.");
-    }
     
-    private BeersDTOList convertToBeersListDTO(List<Beer> beers, String name, String description) {
+    private BeersDTOList convertToBeersListDTO(List<Beer> beers, DescriptiveLabel listDescription) {
         BeersDTOList beersDTOList = new BeersDTOList();
         List<BeerDTO> beersList = beers.stream().map(beer -> convertToDto(beer))
                 .collect(Collectors.toList());
         beersDTOList.setBeers(beersList);
-        beersDTOList.setName(name);
-        beersDTOList.setDescription(description);
+        if (listDescription != null) {
+            beersDTOList.setName(listDescription.getName());
+            beersDTOList.setDescription(listDescription.getComment());
+        }
         return beersDTOList;
     }
 

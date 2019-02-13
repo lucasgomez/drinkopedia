@@ -41,6 +41,20 @@ public class BarRepository implements ICrudRepository<Bar> {
                 .fetch();
     }
     
+    public Collection<Bar> findAllHavingService() {
+        JPAQuery<Bar> query = new JPAQuery<>(em);
+        QBar bar = QBar.bar;
+        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+        QTapBeer tapBeer = QTapBeer.tapBeer;
+        
+        return query
+                .from(bar).distinct()
+                .leftJoin(bar.bottledBeer, bottledBeer)
+                .leftJoin(bar.tapBeers, tapBeer)
+                .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
+                .fetch();
+    }
+    
     public Collection<Bar> findAllWithBeers() {
     	JPAQuery<Bar> query = new JPAQuery<>(em);
     	QBar bar = QBar.bar;

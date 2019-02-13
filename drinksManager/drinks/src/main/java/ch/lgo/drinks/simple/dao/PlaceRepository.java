@@ -35,6 +35,25 @@ public class PlaceRepository implements ICrudRepository<Place> {
 		QPlace qPlace = QPlace.place;
 		return query.from(qPlace).fetch();
 	}
+    
+    public Collection<Place> findAllHavingService() {
+        return findAll();
+        //TODO Method ajoutée à la rache pour que ca compile, pas versionnée? A tester
+//        JPAQuery<Place> query = new JPAQuery<>(em);
+//        QPlace place = QPlace.place;
+//        QProducer producer = QProducer.producer;
+//        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+//        QTapBeer tapBeer = QTapBeer.tapBeer;
+//        QBeer beer = QBeer.beer;
+//        return query
+//                .from(beer)
+//                .innerJoin(beer.producer, producer)
+//                .innerJoin(producer.origin, place).fetchJoin()
+//                .leftJoin(beer.tap, tapBeer)
+//                .leftJoin(beer.bottle, bottledBeer)
+//                .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
+//                .fetch();
+    }
 
 	@Override
 	public List<Place> findByName(String placeName) {
@@ -59,5 +78,4 @@ public class PlaceRepository implements ICrudRepository<Place> {
         QPlace qPlace = QPlace.place;
         new JPADeleteClause(em, qPlace).execute();
 	}
-
 }

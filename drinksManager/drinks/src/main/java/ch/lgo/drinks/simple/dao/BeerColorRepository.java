@@ -13,7 +13,10 @@ import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.BeerColor;
+import ch.lgo.drinks.simple.entity.QBeer;
 import ch.lgo.drinks.simple.entity.QBeerColor;
+import ch.lgo.drinks.simple.entity.QBottledBeer;
+import ch.lgo.drinks.simple.entity.QTapBeer;
 
 @Repository
 @Transactional
@@ -54,5 +57,20 @@ public class BeerColorRepository implements ICrudRepository<BeerColor> {
     public void deleteAll() {
         QBeerColor qColor = QBeerColor.beerColor;
         new JPADeleteClause(em, qColor).execute();
+    }
+
+    public Collection<BeerColor> findAllHavingService() {
+        JPAQuery<BeerColor> query = new JPAQuery<>(em);
+        QBeerColor qColor = QBeerColor.beerColor;
+        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+        QTapBeer tapBeer = QTapBeer.tapBeer;
+        QBeer beer = QBeer.beer;
+        return query
+                .from(beer)
+                .innerJoin(beer.color, qColor).fetchJoin()
+                .leftJoin(beer.tap, tapBeer)
+                .leftJoin(beer.bottle, bottledBeer)
+                .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
+                .fetch();
     }
 }

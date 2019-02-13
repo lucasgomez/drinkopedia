@@ -23,13 +23,8 @@ public abstract class AbstractCrudService<E extends HasId> {
 		}
 	}
 
-	public E loadById(long producerId) throws ResourceNotFoundException {
-		E producer = getCrudRepository().loadById(producerId);
-		if (producer != null) {
-			return producer;
-		} else {
-			throw new ResourceNotFoundException("E of id " + producerId + " does not exists");
-		}
+	public E loadById(long producerId) {
+		return getCrudRepository().loadById(producerId);
 	}
 
 	public void delete(long producerId) throws ResourceNotFoundException {

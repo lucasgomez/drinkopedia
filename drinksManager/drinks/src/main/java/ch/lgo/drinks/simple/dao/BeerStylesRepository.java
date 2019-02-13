@@ -12,7 +12,10 @@ import org.springframework.stereotype.Repository;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.BeerStyle;
+import ch.lgo.drinks.simple.entity.QBeer;
 import ch.lgo.drinks.simple.entity.QBeerStyle;
+import ch.lgo.drinks.simple.entity.QBottledBeer;
+import ch.lgo.drinks.simple.entity.QTapBeer;
 
 @Repository
 @Transactional
@@ -53,5 +56,20 @@ public class BeerStylesRepository implements ICrudRepository<BeerStyle>  {
     public void deleteAll() {
         // TODO Auto-generated method stub
         
+    }
+
+    public Collection<BeerStyle> findAllHavingService() {
+        JPAQuery<BeerStyle> query = new JPAQuery<>(em);
+        QBeerStyle style = QBeerStyle.beerStyle;
+        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+        QTapBeer tapBeer = QTapBeer.tapBeer;
+        QBeer beer = QBeer.beer;
+        return query
+                .from(beer)
+                .innerJoin(beer.style, style).fetchJoin()
+                .leftJoin(beer.tap, tapBeer)
+                .leftJoin(beer.bottle, bottledBeer)
+                .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
+                .fetch();
     }
 }

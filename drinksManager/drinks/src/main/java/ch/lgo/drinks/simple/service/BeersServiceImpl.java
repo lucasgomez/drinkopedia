@@ -19,7 +19,6 @@ import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
-import ch.lgo.drinks.simple.exceptions.NoContentFoundException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 
 @Service
@@ -62,7 +61,7 @@ public class BeersServiceImpl {
         }
     }
 
-    public List<Beer> findByStyleId(long styleId) throws NoContentFoundException {
+    public List<Beer> findByStyleId(long styleId) {
         return beersRepository.findByStyle(styleId);
     }
 
@@ -82,28 +81,16 @@ public class BeersServiceImpl {
         return barRepository.findBeersByBar(barId);
     }
 
-    public List<Beer> getAll() throws NoContentFoundException {
-        List<Beer> beersFound = new ArrayList<>(beersRepository.findAll());
-        
-        if (!beersFound.isEmpty()) {
-            return beersFound;
-        } else {
-            throw new NoContentFoundException();
-        }
+    public List<Beer> getAll() {
+        return new ArrayList<>(beersRepository.findAll());
     }
 
 	public List<Beer> getAllWithService() {
 		return beersRepository.findAllWithServices();
 	}
 
-    public Beer loadById(long drinkId) throws ResourceNotFoundException {
-        Beer beer = beersRepository.loadByIdWithServices(drinkId);
-        if (beer != null) {
-            return beer;
-        } else {
-            throw new ResourceNotFoundException(
-                    "Drink of id " + drinkId + " does not exists");
-        }
+    public Beer loadById(long drinkId) {
+        return beersRepository.loadByIdWithServices(drinkId);
     }
 
     public void delete(long beerId) throws ResourceNotFoundException {
@@ -115,14 +102,8 @@ public class BeersServiceImpl {
         }
     }
 
-    public List<Beer> findByName(String beerName) throws NoContentFoundException {
-        List<Beer> beersFound = new ArrayList<>(beersRepository.findByName(beerName));
-
-        if (!beersFound.isEmpty()) {
-            return beersFound;
-        } else {
-            throw new NoContentFoundException();
-        }
+    public List<Beer> findByName(String beerName) {
+        return beersRepository.findByName(beerName);
     }
 
     private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {
@@ -132,23 +113,23 @@ public class BeersServiceImpl {
             .collect(Collectors.toList());
     }
 
-    public List<DescriptiveLabelDto> findColorsList() throws NoContentFoundException {
-        return toSortedLabelList(beerColorRepository.findAll());
+    public List<DescriptiveLabelDto> findColorsList() {
+        return toSortedLabelList(beerColorRepository.findAllHavingService());
     }
     
     public List<DescriptiveLabelDto> findStylesList() {
-        return toSortedLabelList(beerStyleRepository.findAll());
+        return toSortedLabelList(beerStyleRepository.findAllHavingService());
     }
     
     public List<DescriptiveLabelDto> findProducersList() {
-        return toSortedLabelList(producerRepository.findAll());
+        return toSortedLabelList(producerRepository.findAllHavingService());
     }
     
     public List<DescriptiveLabelDto> findPlacesList() {
-        return toSortedLabelList(placeRepository.findAll());
+        return toSortedLabelList(placeRepository.findAllHavingService());
     }
     
     public List<DescriptiveLabelDto> findBarsList() {
-        return toSortedLabelList(barRepository.findAll());
+        return toSortedLabelList(barRepository.findAllHavingService());
     }
 }

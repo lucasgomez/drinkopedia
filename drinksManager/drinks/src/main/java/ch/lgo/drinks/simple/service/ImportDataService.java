@@ -720,7 +720,6 @@ public class ImportDataService {
 				.filter(beer -> beer.getBottle() != null)
 				.map(Beer::getBottle)
 				.collect(Collectors.toMap(bottle -> bottle.getBeer().getId(), bottle -> bottle));
-//		
 	    
 	    Map<String, Bar> barsByName = mapEntitiesByName(barsRepository.findAll());
 	    int numberOfColumns = 5 + barsByName.size();

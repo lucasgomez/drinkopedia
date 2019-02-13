@@ -13,7 +13,10 @@ import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.Producer;
+import ch.lgo.drinks.simple.entity.QBeer;
+import ch.lgo.drinks.simple.entity.QBottledBeer;
 import ch.lgo.drinks.simple.entity.QProducer;
+import ch.lgo.drinks.simple.entity.QTapBeer;
 
 @Repository
 @Transactional
@@ -32,6 +35,21 @@ public class ProducerRepository implements ICrudRepository<Producer> {
         JPAQuery<Producer> query = new JPAQuery<>(em);
         QProducer qProducer = QProducer.producer;
         return query.from(qProducer).fetch();
+    }
+
+    public Collection<Producer> findAllHavingService() {
+        JPAQuery<Producer> query = new JPAQuery<>(em);
+        QProducer qProducer = QProducer.producer;
+        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+        QTapBeer tapBeer = QTapBeer.tapBeer;
+        QBeer beer = QBeer.beer;
+        return query
+                .from(beer)
+                .innerJoin(beer.producer, qProducer).fetchJoin()
+                .leftJoin(beer.tap, tapBeer)
+                .leftJoin(beer.bottle, bottledBeer)
+                .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
+                .fetch();
     }
 
     public List<Producer> findByName(String producerName) {
