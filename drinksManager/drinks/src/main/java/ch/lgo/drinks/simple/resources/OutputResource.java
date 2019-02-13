@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +32,7 @@ public class OutputResource {
 	private BarRepository barRepo;
 	
 	@GetMapping("output/bottledBar/{bottled_bar_id}")
-    public Response outputBottledBar(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
+    public Response outputBottledBar(@PathVariable(value="bottled_bar_id") long bottledBarId) throws Exception {
 		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
 		if (bottledBar == null)
 			throw new ResourceNotFoundException("No bar with id "+bottledBarId);
@@ -41,7 +42,7 @@ public class OutputResource {
     }
 	
 	@GetMapping("output/tapBar/{tap_bar_id}")
-	public Response outputTapBar(@PathParam("tap_bar_id") long tapBarId) throws Exception {
+	public Response outputTapBar(@PathVariable(value="tap_bar_id") long tapBarId) throws Exception {
 		Bar tapBar = barRepo.loadTapById(tapBarId);
 		if (tapBar == null)
 			throw new ResourceNotFoundException("No bar with id "+tapBarId);
