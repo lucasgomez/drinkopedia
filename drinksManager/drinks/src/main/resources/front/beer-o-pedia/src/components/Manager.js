@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
-import {Jumbotron} from 'react-bootstrap';
+import {
+  Jumbotron,
+  Grid,
+  Row,
+  Col
+} from 'react-bootstrap';
 import {
   BrowserRouter as Router,
-  Route
+  Route,
+  Switch
 } from 'react-router-dom';
 import BeersList from './BeersList';
 import BeerId from './BeerId';
@@ -18,16 +24,29 @@ class Manager extends Component {
 	render() {
 		return (
 			<Router>
-    		<div>
+    		<div class="container">
   				<Jumbotron>
-						<h1>{ 'Zytopedia' }</h1>
-						<p>{ 'Tu boiras moins bête' }</p>
+            <Grid>
+              <Row>
+                <Col xs={12} md={4}>
+      						<h1>{ 'Zythopedia' }</h1>
+      						<p>{ 'Tu boiras moins bête' }</p>
+                </Col>
+                <Col xs={12} md={4}/>
+                <Col xs={12} md={4}>
+      						<img alt='logo sumo fetedelabiere' src={ require('./images/sumo300.png')}/>
+                </Col>
+              </Row>
+            </Grid>
 					</Jumbotron>
+          <Menu/>
 
-  				<Menu/>
-          <Route path="/" exact={true} component={Welcome}/>
-          <Route path="/list/:listName/:listId" component={ListRoute}/>
-          <Route path="/beerid/:beerId" component={BeerRoute}/>
+          <Switch>
+            <Route path="/list/:listName/:listId" component={ListRoute}/>
+            <Route path="/list" component={ListRoute}/>
+            <Route path="/beerid/:beerId" component={BeerRoute}/>
+            <Route component={Welcome}/>
+          </Switch>
 				</div>
 			</Router>
     );

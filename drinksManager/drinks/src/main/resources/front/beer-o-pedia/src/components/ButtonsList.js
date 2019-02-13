@@ -3,9 +3,8 @@ import {
   DropdownButton,
   MenuItem
 } from 'react-bootstrap';
-import {
-  Link
-} from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { API_ROOT } from '../data/apiConfig';
 
 class ButtonsList extends Component {
   constructor(props: any) {
@@ -21,9 +20,7 @@ class ButtonsList extends Component {
     this.setState({
       isLoading: true
     });
-
-    let baseUrl = 'http://localhost:8081/drinkopedia/' + this.props.listName + '/list';
-
+    let baseUrl = `${API_ROOT}/` + this.props.listName + '/list';
     fetch(baseUrl)
       .then(response => response.json())
       .then(items =>

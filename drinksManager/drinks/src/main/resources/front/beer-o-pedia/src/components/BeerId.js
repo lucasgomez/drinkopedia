@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import {
   Well,
-  Label,
   Grid,
   Table,
   Row,
   Col
 } from 'react-bootstrap';
-import {
-  Link
-} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import RatedLabel from './RatedLabel';
+import { API_ROOT } from '../data/apiConfig';
 
 class BeerId extends Component {
   constructor(props: any) {
@@ -39,9 +37,9 @@ class BeerId extends Component {
       isLoading: true
     });
 
-    let baseUrl = 'http://localhost:8081/drinkopedia/beers/' + beerId;
+    let beerUrl = `${API_ROOT}/beers/` + beerId;
 
-    fetch(baseUrl)
+    fetch(beerUrl)
       .then(response => response.json())
       .then(item =>
         this.setState({
@@ -63,41 +61,33 @@ class BeerId extends Component {
 
     return (
       <div class="container">
-
         <Grid>
           <Row>
-            <Col xs={12} md={6}>
+            <Col xs={6} md={6}>
               <h2>{beer.name}</h2>
-              <p>
-                <Link to={'/list/producers/'+beer.producerId}>{beer.producerName}</Link>
-                {' - '}
-                <Link to={'/list/origins/'+beer.producerOriginId}>{beer.producerOriginName}</Link>
-              </p>
-            </Col>
-            <Col xs={12} md={6}>
+              <h4>
+              <Link to={'/list/producers/'+beer.producerId}>{beer.producerName}</Link>
+              {' - '}
+              <Link to={'/list/origins/'+beer.producerOriginId}>{beer.producerOriginName}</Link>
+              </h4>
             </Col>
           </Row>
 
           <Row>
-            <Col xs={12} md={6}>
+            <Col xs={12} md={4}>
+              <BeerDescription beer={beer}/>
+            </Col>
+            <Col xs={12} md={4}>
               <BasicProperties beer={beer}/>
             </Col>
-            <Col xs={12} md={6}>
+            <Col xs={12} md={4}>
               <BeerRadar beer={beer}/>
             </Col>
           </Row>
 
           <Row>
-            <Col xs={12} md={12}>
-              <BeerDescription beer={beer}/>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col xs={3} md={3}>
-              <BarsService bars={beer.bottleBars} beer={beer} type="bottle"/>
-              <BarsService bars={beer.tapBars} beer={beer} type="tap"/>
-            </Col>
+            <BarsService bars={beer.bottleBars} beer={beer} type="bottle"/>
+            <BarsService bars={beer.tapBars} beer={beer} type="tap"/>
           </Row>
         </Grid>
       </div>
@@ -111,16 +101,18 @@ const BarsService = (props) => {
     return (
       <div>
         {props.bars.map((bar: any) =>
-            <BottleBarService beer={props.beer} bar={bar} type={props.type}/>
+          <Col xs={6} md={4}>
+            <BarServiceDetails beer={props.beer} bar={bar} type={props.type}/>
+          </Col>
         )}
       </div>
     );
   return <div/>;
 }
 
-const BottleBarService = (props) => (
+const BarServiceDetails = (props) => (
   <Well>
-    <h3>{props.bar.name}</h3>
+    <h4>{<Link to={'/list/bars/'+props.bar.id}>{props.bar.name}</Link>}</h4>
     <p>{props.bar.comment}</p>
     <PriceDisplay beer={props.beer} type={props.type}/>
   </Well>
@@ -128,26 +120,55 @@ const BottleBarService = (props) => (
 
 const PriceDisplay = (props) => {
   if (props.type === "bottle")
-    return <h4>{props.beer.bottleVolumeInCl+"cl "+props.beer.bottleSellingPrice+".-"}</h4>;
+    return (
+      <Table striped>
+        <Row>
+          <Col xs={6}><h5>{props.beer.bottleVolumeInCl+"cl"}</h5></Col>
+          <Col xs={6}><h5>{props.beer.bottleSellingPrice+".-"}</h5></Col>
+        </Row>
+      </Table>);
   if (props.type === "tap")
-    return <h4><div>{"30cl "+props.beer.tapPriceSmall+".-"}</div><div>{"50cl "+props.beer.tapPriceBig+".-"}</div></h4>;
-  debugger;
+    return (
+      <Table striped>
+        <Row>
+          <Col xs={6}><h5>{"30cl"}</h5></Col>
+          <Col xs={6}><h5>{props.beer.tapPriceSmall+".-"}</h5></Col>
+        </Row>
+        <Row>
+          <Col xs={6}><h5>{"50cl"}</h5></Col>
+          <Col xs={6}><h5>{props.beer.tapPriceBig+".-"}</h5></Col>
+        </Row>
+      </Table>);
+  return <div/>;
 }
 
 const BasicProperties = (props) => (
   <Well>
     <Table>
-      <Row>
-        <NamedLabel name="Alcool" value={props.beer.abv}/>
-        <NamedLabel name="Couleur" value={props.beer.colorName}/>
-      </Row>
-      <Row>
-        <NamedLabel name="Style" value={props.beer.styleName}/>
-        <NamedLabel name="Fermentation" value={props.beer.fermenting}/>
-      </Row>
+      <NamedLabel name="Alcool" value={props.beer.abv+' %'}/>
+      <NamedLabel name="Couleur" value={<Link to={'/list/colors/'+props.beer.colorId}>{props.beer.colorName}</Link>}/>
+      <NamedLabel name="Style" value={<Link to={'/list/styles/'+props.beer.styleId}>{props.beer.styleName}</Link>}/>
+      <NamedLabel name="Fermentation" value={props.beer.fermenting}/>
     </Table>
   </Well>
 )
+
+const NamedLabel = (props) => (
+  <div>
+    {
+      props.value ?
+        <Row>
+          <Col md={6} xs={6}><b>{props.name}</b></Col>
+          <Col md={6} xs={6}>{props.value}</Col>
+        </Row>
+      :
+        <Row>
+          <Col md={6} xs={6}></Col>
+          <Col md={6} xs={6}></Col>
+        </Row>
+    }
+  </div>
+);
 
 const BeerRadar = (props) => (
   <Well>
@@ -162,21 +183,9 @@ const BeerRadar = (props) => (
 
 const BeerDescription = (props) => (
   <Well>
+    <h4>Description</h4>
     <p>{props.beer.comment}</p>
   </Well>
 )
-
-const NamedLabel = (props) => (
-  <div>
-    {
-      props.value ?
-        <div><Col md={6}><Label>{props.name}</Label></Col>
-        <Col md={6}>{props.value}</Col></div>
-      :
-        <div><Col md={6}></Col>
-        <Col md={6}></Col></div>
-    }
-  </div>
-);
 
 export default BeerId;

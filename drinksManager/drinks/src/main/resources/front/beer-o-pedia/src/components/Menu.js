@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
 import {ButtonGroup, Button} from 'react-bootstrap';
 import ButtonsList from './ButtonsList';
+import { Link } from 'react-router-dom';
 
 class Menu extends Component {
   render() {
     return (
       <div class="container">
 				<ButtonGroup>
-					<Button>{ 'Par nom' }</Button>
+					<Button>
+            <Link to={'/list/'}>
+              {'Toutes les Bières'}
+            </Link>
+          </Button>
 					<ButtonsList listName="bars" title="Par bar"/>
 					<ButtonsList listName="colors" title="Par couleur"/>
 					<ButtonsList listName="styles" title="Par style"/>

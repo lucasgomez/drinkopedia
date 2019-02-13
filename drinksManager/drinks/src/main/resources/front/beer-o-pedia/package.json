@@ -1,5 +1,5 @@
 {
-  "name": "beer-o-pedia",
+  "name": "zythopedia",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -21,5 +21,6 @@
   "devDependencies": {
     "bootstrap": "^3.3.7",
     "react-bootstrap": "^0.32.1"
-  }
+  },
+  "homepage": "http://soif.fetedelabiere.ch/"
 }

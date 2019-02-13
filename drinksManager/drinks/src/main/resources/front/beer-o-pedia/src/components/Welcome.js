@@ -1,17 +1,30 @@
 import React, { Component } from 'react';
+import {
+  Link
+} from 'react-router-dom';
 
 class Welcome extends Component {
   render() {
     return (
       <div class="container">
-        <h2>Tout, tout, tout, vous saurez tout sur la bibine</h2>
+        <h2>Zythopedia, <i>nom propre</i>, du grec <i>zythos-</i> bière, <i>-pedos</i> éducation</h2>
 
-        <p>Bon, pour être honnête, pas exactement tout, mais ce qui s'en approche le plus au format
-        <i>Page Oueb à la Rache</i>. S'il fallait être honnête, ce que je ne suis qu'aux heures où je
-        ne mens pas, on dira que cétacé (z'avez compris?) pour l'usage qu'on en fera durant la Fête!</p>
+        <p>Bienvenue dans la taverne de la Connaissance sur la Bière! Vous trouverez ici toutes les informations
+        pour choisier vos boissons à la <strong>Fête de la Bière.</strong></p>
 
-        <p>Le menu ci-dessus vous guidera dans la difficile quête du breuvage parfait au moment adéquat.
-        Bon, pour le moment, tant que vous respectez les <a href="http://www.fetedelabiere.ch/">horaires de la Fête de la Bière</a>.</p>
+        <p>Le menu ci-dessus vous aidera à trouver les bières :
+          <ul>
+            <li>
+              Par bar, par exemple le <Link to={'/list/bars/666'}>bar pressions</Link> ou les <Link to={'/list/bars/670'}>bouteilles des brasseries invitées</Link>
+            </li>
+            <li>
+              Par couleur, par exemple les <Link to={'/list/colors/32'}>bières brunes</Link> ou les <Link to={'/list/colors/1664'}>bières blanches</Link>
+            </li>
+            <li>
+              Par style, par exemple les <Link to={'/list/styles/14'}>IPA</Link> ou les <Link to={'/list/styles/27'}>Sans alcool</Link>
+            </li>
+          </ul>
+        </p>
 
       </div>
     );

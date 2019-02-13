@@ -4,9 +4,8 @@ import {
   Tooltip,
   OverlayTrigger
 } from 'react-bootstrap';
-import {
-  Link
-} from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { API_ROOT } from '../data/apiConfig';
 
 
 class BeersList extends Component {
@@ -41,18 +40,9 @@ class BeersList extends Component {
       isLoading: true
     });
 
-/*
-    const response = await fetch(baseUrl);
-    this.setState(
-      {
-        items: response.json().entity.beers,
-        isLoading: false
-      }
-    );
-    */
-
-    const baseUrl = 'http://localhost:8081/drinkopedia/beers/';
-    let listUrl = baseUrl + listName + '/' + listId;
+    let listUrl = `${API_ROOT}/beers/`;
+    if (listName && listId)
+      listUrl += listName + '/' + listId;
 
     fetch(listUrl)
       .then(response => response.json())

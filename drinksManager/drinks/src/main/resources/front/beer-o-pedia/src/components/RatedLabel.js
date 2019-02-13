@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import {
   Row,
-  Label
+  Col
 } from 'react-bootstrap';
-//import FontAwesome from '../react-fontawesome';
 
 class RatedLabel extends Component {
 
@@ -13,7 +12,10 @@ class RatedLabel extends Component {
       strength
     } = this.props;
     return (
-      <Row><Label>{name}</Label><div style={{inline:'block'}}>{this.displayStars(strength)}</div></Row>
+      <Row>
+        <Col md={6} xs={6}><strong>{name}</strong></Col>
+        <Col md={6} xs={6}><b>{this.displayStars(strength)}</b></Col>
+      </Row>
     );
 
   }
