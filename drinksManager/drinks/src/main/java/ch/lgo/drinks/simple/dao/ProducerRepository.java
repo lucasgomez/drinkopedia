@@ -39,13 +39,14 @@ public class ProducerRepository implements ICrudRepository<Producer> {
 
     public Collection<Producer> findAllHavingService() {
         JPAQuery<Producer> query = new JPAQuery<>(em);
-        QProducer qProducer = QProducer.producer;
+        QProducer producer = QProducer.producer;
         QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
         QTapBeer tapBeer = QTapBeer.tapBeer;
         QBeer beer = QBeer.beer;
         return query
-                .from(beer)
-                .innerJoin(beer.producer, qProducer).fetchJoin()
+                .distinct()
+                .from(producer)
+                .innerJoin(beer).on(beer.producer.id.eq(producer.id))
                 .leftJoin(beer.tap, tapBeer)
                 .leftJoin(beer.bottle, bottledBeer)
                 .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))

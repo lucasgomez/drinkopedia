@@ -65,8 +65,9 @@ public class BeerStylesRepository implements ICrudRepository<BeerStyle>  {
         QTapBeer tapBeer = QTapBeer.tapBeer;
         QBeer beer = QBeer.beer;
         return query
-                .from(beer)
-                .innerJoin(beer.style, style).fetchJoin()
+                .distinct()
+                .from(style)
+                .innerJoin(beer).on(beer.style.id.eq(style.id))
                 .leftJoin(beer.tap, tapBeer)
                 .leftJoin(beer.bottle, bottledBeer)
                 .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))

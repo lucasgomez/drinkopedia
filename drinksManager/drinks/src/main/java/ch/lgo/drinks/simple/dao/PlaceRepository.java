@@ -13,7 +13,11 @@ import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.Place;
+import ch.lgo.drinks.simple.entity.QBeer;
+import ch.lgo.drinks.simple.entity.QBottledBeer;
 import ch.lgo.drinks.simple.entity.QPlace;
+import ch.lgo.drinks.simple.entity.QProducer;
+import ch.lgo.drinks.simple.entity.QTapBeer;
 
 @Repository
 @Transactional
@@ -37,22 +41,21 @@ public class PlaceRepository implements ICrudRepository<Place> {
 	}
     
     public Collection<Place> findAllHavingService() {
-        return findAll();
-        //TODO Method ajoutée à la rache pour que ca compile, pas versionnée? A tester
-//        JPAQuery<Place> query = new JPAQuery<>(em);
-//        QPlace place = QPlace.place;
-//        QProducer producer = QProducer.producer;
-//        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
-//        QTapBeer tapBeer = QTapBeer.tapBeer;
-//        QBeer beer = QBeer.beer;
-//        return query
-//                .from(beer)
-//                .innerJoin(beer.producer, producer)
-//                .innerJoin(producer.origin, place).fetchJoin()
-//                .leftJoin(beer.tap, tapBeer)
-//                .leftJoin(beer.bottle, bottledBeer)
-//                .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
-//                .fetch();
+        JPAQuery<Place> query = new JPAQuery<>(em);
+        QPlace place = QPlace.place;
+        QProducer producer = QProducer.producer;
+        QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
+        QTapBeer tapBeer = QTapBeer.tapBeer;
+        QBeer beer = QBeer.beer;
+        return query
+                .distinct()
+                .from(place)
+                .innerJoin(producer).on(producer.origin.id.eq(place.id))
+                .innerJoin(beer).on(beer.producer.id.eq(producer.id))
+                .leftJoin(beer.tap, tapBeer)
+                .leftJoin(beer.bottle, bottledBeer)
+                .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
+                .fetch();
     }
 
 	@Override

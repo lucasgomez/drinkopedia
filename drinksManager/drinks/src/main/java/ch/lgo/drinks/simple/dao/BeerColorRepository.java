@@ -61,13 +61,14 @@ public class BeerColorRepository implements ICrudRepository<BeerColor> {
 
     public Collection<BeerColor> findAllHavingService() {
         JPAQuery<BeerColor> query = new JPAQuery<>(em);
-        QBeerColor qColor = QBeerColor.beerColor;
+        QBeerColor color = QBeerColor.beerColor;
         QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
         QTapBeer tapBeer = QTapBeer.tapBeer;
         QBeer beer = QBeer.beer;
         return query
-                .from(beer)
-                .innerJoin(beer.color, qColor).fetchJoin()
+                .distinct()
+                .from(color)
+                .innerJoin(beer).on(beer.color.id.eq(color.id))
                 .leftJoin(beer.tap, tapBeer)
                 .leftJoin(beer.bottle, bottledBeer)
                 .where(bottledBeer.isNotNull().or(tapBeer.isNotNull()))
