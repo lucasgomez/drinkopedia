@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
-  Well,
-  Grid,
+  Card,
+  Container,
   Table,
   Row,
   Col
@@ -61,7 +61,7 @@ class BeerId extends Component {
 
     return (
       <div class="container">
-        <Grid>
+        <Container>
           <Row>
             <Col xs={6} md={6}>
               <h2>{beer.name}</h2>
@@ -89,7 +89,7 @@ class BeerId extends Component {
             <BarsService bars={beer.bottleBars} beer={beer} type="bottle"/>
             <BarsService bars={beer.tapBars} beer={beer} type="tap"/>
           </Row>
-        </Grid>
+        </Container>
       </div>
     );
 
@@ -111,11 +111,11 @@ const BarsService = (props) => {
 }
 
 const BarServiceDetails = (props) => (
-  <Well>
+  <Card body>
     <h4>{<Link to={'/list/bars/'+props.bar.id}>{props.bar.name}</Link>}</h4>
     <p>{props.bar.comment}</p>
     <PriceDisplay beer={props.beer} type={props.type}/>
-  </Well>
+  </Card>
 )
 
 const PriceDisplay = (props) => {
@@ -143,14 +143,14 @@ const PriceDisplay = (props) => {
 }
 
 const BasicProperties = (props) => (
-  <Well>
+  <Card body>
     <Table>
       <NamedLabel name="Alcool" value={props.beer.abv+' %'}/>
       <NamedLabel name="Couleur" value={<Link to={'/list/colors/'+props.beer.colorId}>{props.beer.colorName}</Link>}/>
       <NamedLabel name="Style" value={<Link to={'/list/styles/'+props.beer.styleId}>{props.beer.styleName}</Link>}/>
       <NamedLabel name="Fermentation" value={props.beer.fermenting}/>
     </Table>
-  </Well>
+  </Card>
 )
 
 const NamedLabel = (props) => (
@@ -171,21 +171,21 @@ const NamedLabel = (props) => (
 );
 
 const BeerRadar = (props) => (
-  <Well>
+  <Card body>
     <Table>
       <RatedLabel name="Amertume" strength={props.beer.bitternessRank}/>
       <RatedLabel name="Acidité" strength={props.beer.sournessRank}/>
       <RatedLabel name="Douceur" strength={props.beer.sweetnessRank}/>
       <RatedLabel name="Houblonnage" strength={props.beer.hoppingRank}/>
     </Table>
-  </Well>
+  </Card>
 )
 
 const BeerDescription = (props) => (
-  <Well>
+  <Card body>
     <h4>Description</h4>
     <p>{props.beer.comment}</p>
-  </Well>
+  </Card>
 )
 
 export default BeerId;

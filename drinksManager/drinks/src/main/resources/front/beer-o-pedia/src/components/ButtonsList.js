@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import {
-  DropdownButton,
-  MenuItem
-} from 'react-bootstrap';
+import { DropdownButton, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { API_ROOT } from '../data/apiConfig';
 
@@ -42,9 +39,9 @@ class ButtonsList extends Component {
     if (isLoading) {
       return (
         <DropdownButton title={title} id={'buttonsList-'+title}>
-          <MenuItem>
+          <Dropdown.Item>
             Loading...
-          </MenuItem>
+          </Dropdown.Item>
         </DropdownButton>
       );
     }
@@ -52,11 +49,11 @@ class ButtonsList extends Component {
     return (
       <DropdownButton title={title} id={'buttonsList-'+title}>
         {items.map((item: any) =>
-          <MenuItem>
+          <Dropdown.Item>
             <Link to={'/list/'+listName+'/'+item.id}>
               <span>{item.name}</span>
             </Link>
-          </MenuItem>
+          </Dropdown.Item>
         )}
       </DropdownButton>
     );

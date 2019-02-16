@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
   Jumbotron,
-  Grid,
+  Container,
   Row,
   Col
 } from 'react-bootstrap';
@@ -26,7 +26,7 @@ class Manager extends Component {
 			<Router>
     		<div class="container">
   				<Jumbotron>
-            <Grid>
+            <Container>
               <Row>
                 <Col xs={12} md={4}>
       						<h1>{ 'Zythopedia' }</h1>
@@ -37,7 +37,7 @@ class Manager extends Component {
       						<img alt='logo sumo fetedelabiere' src={ require('./images/sumo300.png')}/>
                 </Col>
               </Row>
-            </Grid>
+            </Container>
 					</Jumbotron>
           <Menu/>
 
