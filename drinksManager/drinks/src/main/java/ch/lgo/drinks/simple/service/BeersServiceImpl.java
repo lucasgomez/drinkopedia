@@ -1,8 +1,9 @@
 package ch.lgo.drinks.simple.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -16,7 +17,10 @@ import ch.lgo.drinks.simple.dao.BeersRepository;
 import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 import ch.lgo.drinks.simple.dao.PlaceRepository;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
+import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
+import ch.lgo.drinks.simple.dto.DetailedBeerDto;
+import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
@@ -24,7 +28,6 @@ import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 @Service
 public class BeersServiceImpl {
 
-    //TODO Check if not worth adding a "Rest Service" wrapper to manage REST specific behaviour such as ResourceNotFoundException and DTO translation
     @Autowired
     BeersRepository beersRepository;
     @Autowired
@@ -40,6 +43,8 @@ public class BeersServiceImpl {
     @Autowired
     BarRepository barRepository;
     @Autowired
+    ColorService colorService;
+    @Autowired
     ModelMapper modelMapper;
 
     public Beer create(Beer newBeer) throws BadCreationRequestException {
@@ -47,6 +52,7 @@ public class BeersServiceImpl {
         return beersRepository.save(newBeer);
     }
 
+    //TODO Check if worth keeping empty custom exceptions
     public Beer update(long beerId, Beer updatedBeer)
             throws ResourceNotFoundException, BadCreationRequestException {
         Beer beerToUpdate = beersRepository.loadById(beerId);
@@ -61,36 +67,36 @@ public class BeersServiceImpl {
         }
     }
 
-    public List<Beer> findByStyleId(long styleId) {
-        return beersRepository.findByStyle(styleId);
+    public Optional<BeersDTOList> loadBeersByStyleId(long styleId) {
+        return findByEntityId(styleId, beerStyleRepository::loadById, beersRepository::findByStyle);
     }
 
-    public List<Beer> findByColorId(long colorId) {
-        return beersRepository.findByColor(colorId);
+    public Optional<BeersDTOList> loadBeersByColorId(long colorId) {
+        return findByEntityId(colorId, colorService::loadById, beersRepository::findByColor);
     }
 
-    public List<Beer> findByProducereId(long producerId) {
-        return beersRepository.findByProducer(producerId);
+    public Optional<BeersDTOList> loadBeersByProducereId(long producerId) {
+        return findByEntityId(producerId, producerRepository::loadById, beersRepository::findByProducer);
     }
 
-    public List<Beer> findByOriginId(long originId) {
-        return beersRepository.findByOrigin(originId);
+    public Optional<BeersDTOList> loadBeersByOriginId(long originId) {
+        return findByEntityId(originId, placeRepository::loadById, beersRepository::findByOrigin);
     }
     
-    public List<Beer> findByBarId(long barId) {
-        return barRepository.findBeersByBar(barId);
+    public Optional<BeersDTOList> loadBeersByBarId(long barId) {
+        return findByEntityId(barId, barRepository::loadById, barRepository::findBeersByBar);
     }
 
-    public List<Beer> getAll() {
-        return new ArrayList<>(beersRepository.findAll());
+    public BeersDTOList getAll() {
+        return convertToBeersListDTO(beersRepository.findAll());
     }
 
 	public List<Beer> getAllWithService() {
 		return beersRepository.findAllWithServices();
 	}
 
-    public Beer loadById(long drinkId) {
-        return beersRepository.loadByIdWithServices(drinkId);
+    public Optional<DetailedBeerDto> loadById(long drinkId) {
+        return Optional.of(toDetailedDto(beersRepository.loadByIdWithServices(drinkId)));
     }
 
     public void delete(long beerId) throws ResourceNotFoundException {
@@ -102,15 +108,8 @@ public class BeersServiceImpl {
         }
     }
 
-    public List<Beer> findByName(String beerName) {
-        return beersRepository.findByName(beerName);
-    }
-
-    private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {
-        return labels.stream()
-            .sorted(DescriptiveLabel.byName)
-            .map(label -> modelMapper.map(label, DescriptiveLabelDto.class))
-            .collect(Collectors.toList());
+    public BeersDTOList findByName(String beerName) {
+        return convertToBeersListDTO(beersRepository.findByName(beerName));
     }
 
     public List<DescriptiveLabelDto> findColorsList() {
@@ -131,5 +130,49 @@ public class BeersServiceImpl {
     
     public List<DescriptiveLabelDto> findBarsList() {
         return toSortedLabelList(barRepository.findAllHavingService());
+    }
+    
+    private Optional<BeersDTOList> findByEntityId(long entityId, Function<Long, DescriptiveLabel> entityLoader, Function<Long, List<Beer>> beersLoader) {
+        DescriptiveLabel entityLabel = entityLoader.apply(entityId);
+        if (entityLabel != null) {
+            return Optional.of(convertToBeersListDTO(beersLoader.apply(entityId), entityLabel));
+        } else {
+            return Optional.empty();
+        }
+    }
+    
+    private DetailedBeerDto toDetailedDto(Beer beer) {
+        if (beer != null)
+            return modelMapper.map(beer, DetailedBeerDto.class);
+        else
+            return null;
+    }
+
+    private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {
+        return labels.stream()
+            .sorted(DescriptiveLabel.byName)
+            .map(label -> modelMapper.map(label, DescriptiveLabelDto.class))
+            .collect(Collectors.toList());
+    }
+
+    private BeersDTOList convertToBeersListDTO(Collection<Beer> beers) {
+        return convertToBeersListDTO(beers, null);
+    }
+    
+    private BeersDTOList convertToBeersListDTO(Collection<Beer> beers, DescriptiveLabel listDescription) {
+        BeersDTOList beersDTOList = new BeersDTOList();
+        List<BeerDTO> beersList = beers.stream().map(beer -> convertToDto(beer))
+                .collect(Collectors.toList());
+        beersDTOList.setBeers(beersList);
+        if (listDescription != null) {
+            beersDTOList.setName(listDescription.getName());
+            beersDTOList.setDescription(listDescription.getComment());
+        }
+        return beersDTOList;
+    }
+
+    private BeerDTO convertToDto(Beer beer) {
+        BeerDTO beerDTO = modelMapper.map(beer, BeerDTO.class);
+        return beerDTO;
     }
 }

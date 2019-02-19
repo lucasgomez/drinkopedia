@@ -17,7 +17,7 @@ class ButtonsList extends Component {
     this.setState({
       isLoading: true
     });
-    let baseUrl = `${API_ROOT}/` + this.props.listName + '/list';
+    let baseUrl = `${API_ROOT}/lists/` + this.props.listName;
     fetch(baseUrl)
       .then(response => response.json())
       .then(items =>

@@ -1,7 +1,6 @@
 let backendHost;
 
 const hostname = window && window.location && window.location.hostname;
-debugger;
 // if(hostname === 'http://soif.fetedelabiere.ch/') {
   // backendHost = 'http://drinks.elveteek.ch';
 // } else {
