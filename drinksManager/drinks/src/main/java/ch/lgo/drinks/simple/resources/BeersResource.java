@@ -20,7 +20,6 @@ import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
-import ch.lgo.drinks.simple.service.BarService;
 import ch.lgo.drinks.simple.service.BeersServiceImpl;
 
 @RestController
@@ -30,8 +29,6 @@ public class BeersResource {
 
     @Autowired
     private BeersServiceImpl beersService;
-    @Autowired
-    private BarService barService;
     
     @Context
     UriInfo uriInfo;

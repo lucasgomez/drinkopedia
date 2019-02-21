@@ -21,7 +21,7 @@ import ch.lgo.drinks.simple.service.BeersServiceImpl;
 
 @RestController
 @CrossOrigin(origins={"*"})
-@RequestMapping
+@RequestMapping("/beers")
 public class PublicBeersResource {
 
     @Autowired
@@ -33,12 +33,12 @@ public class PublicBeersResource {
     @Autowired
     ModelMapper modelMapper;
 
-    @GetMapping("/beers")
+    @GetMapping("/")
     public BeersDTOList getBeers() {
         return beersService.getAll();
     }
 
-    @GetMapping("/beers/{beer_id}")
+    @GetMapping("/{beer_id}")
     public ResponseEntity<?> getBeer(@PathVariable("beer_id") long beerId) {
         return beersService.loadById(beerId)
                 .map(beer -> ResponseEntity.ok().body(beer))
@@ -46,32 +46,32 @@ public class PublicBeersResource {
             
     }
 
-    @GetMapping("/beers/bars/{bar_id}")
+    @GetMapping("/bars/{bar_id}")
     public ResponseEntity<?> loadBeersByBar(@PathVariable("bar_id") long barId) {
         return loadBeersByEntity(barId, beersService::loadBeersByBarId);
     }
     
-    @GetMapping("/beers/colors/{beer_color_id}")
+    @GetMapping("/colors/{beer_color_id}")
     public ResponseEntity<?> loadBeersByColor(@PathVariable("beer_color_id") long beerColorId) {
         return loadBeersByEntity(beerColorId, beersService::loadBeersByColorId);
     }
     
-    @GetMapping("/beers/styles/{beer_style_id}")
+    @GetMapping("/styles/{beer_style_id}")
     public ResponseEntity<?> loadBeersByStyle(@PathVariable("beer_style_id") long beerStyleId) {
         return loadBeersByEntity(beerStyleId, beersService::loadBeersByStyleId);
     }
     
-    @GetMapping("/beers/producers/{beer_producer_id}")
+    @GetMapping("/producers/{beer_producer_id}")
     public ResponseEntity<?> loadBeersByProducer(@PathVariable("beer_producer_id") long beerProducerId)  {
         return loadBeersByEntity(beerProducerId, beersService::loadBeersByProducereId);
     }
     
-    @GetMapping("/beers/origins/{beer_origin_id}")
+    @GetMapping("/origins/{beer_origin_id}")
     public ResponseEntity<?> loadBeersByOrigin(@PathVariable("beer_origin_id") long beerOriginId) {
         return loadBeersByEntity(beerOriginId, beersService::loadBeersByOriginId);
     }
 
-    @GetMapping("/beers/search/{beer_name}")
+    @GetMapping("/search/{beer_name}")
     public BeersDTOList findBeersByName(@PathVariable("beer_name") String beerName) {
         return beersService.findByName(beerName);
     }

@@ -14,6 +14,8 @@ server:
 #debug: true
 
 spring:
+  profiles:
+    active: dev
   mvc:
     servlet:
       path: /
@@ -43,4 +45,12 @@ spring:
     user:
       name: belzeboss
       password: 666
-    
+#    oauth2:
+#      client:
+#        registration:
+#          okta:
+#            client-id: 0oaaxvrmqiItRCkPj356
+#            scope: openid, email, profile
+#        provider:
+#          okta:
+#            issuer-uri: https://dev-824683.okta.com/oauth2/default
