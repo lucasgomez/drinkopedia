@@ -5,12 +5,14 @@ import { Security, ImplicitCallback } from '@okta/okta-react';
 
 const config = {
   issuer: 'https://dev-824683.okta.com/oauth2/default',
-  redirect_uri: window.location.origin + '/implicit/callback',
-  client_id: '0oaaxvrmqiItRCkPj356'
+  // redirect_uri: window.location.origin + '/implicit/callback',
+  redirect_uri: 'http://localhost:8081/drinkopedia/authorization-code/callback',
+  client_id: '0oabhh3e7EfXqH83B356'
 }
 
 class App extends Component {
   render() {
+    debugger;
 	  return (
       <Router>
         <Security issuer={config.issuer}

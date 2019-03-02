@@ -40,7 +40,7 @@ class BeersList extends Component {
       isLoading: true
     });
 
-    let listUrl = `${API_ROOT}/beers/`;
+    let listUrl = `${API_ROOT}/public/beers/`;
     if (listName && listId)
       listUrl += listName + '/' + listId;
 

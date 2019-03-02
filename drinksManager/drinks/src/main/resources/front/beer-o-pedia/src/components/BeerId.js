@@ -9,6 +9,8 @@ import {
 import { Link } from 'react-router-dom';
 import RatedLabel from './RatedLabel';
 import { API_ROOT } from '../data/apiConfig';
+import { withAuth } from '@okta/okta-react';
+import fetch from 'isomorphic-fetch';
 
 class BeerId extends Component {
   constructor(props: any) {
@@ -16,6 +18,7 @@ class BeerId extends Component {
 
     this.state = {
       beer: null,
+      answer: null,
       isLoading: false
     };
   }
@@ -37,7 +40,29 @@ class BeerId extends Component {
       isLoading: true
     });
 
-    let beerUrl = `${API_ROOT}/beers/` + beerId;
+    let answerUrl = `${API_ROOT}/private/beers/godmode`;
+
+    fetch(answerUrl, {
+            headers: {
+              Authorization: 'Bearer ' + this.props.auth.getAccessToken()
+            }
+          })
+        .then(response => response.json())
+        .then(data =>
+          this.setState({answer: data})
+        );
+    //
+    // const response = await fetch(answerUrl, {
+    //         headers: {
+    //           Authorization: 'Bearer ' + await this.props.auth.getAccessToken()
+    //         }
+    //       });
+    // const data = await response.json();
+    // this.setState({
+    //   answer: data
+    // });
+
+    let beerUrl = `${API_ROOT}/public/beers/` + beerId;
 
     fetch(beerUrl)
       .then(response => response.json())
@@ -52,6 +77,7 @@ class BeerId extends Component {
   render() {
     const {
       beer,
+      answer,
       isLoading
     } = this.state;
 
@@ -88,6 +114,10 @@ class BeerId extends Component {
           <Row>
             <BarsService bars={beer.bottleBars} beer={beer} type="bottle"/>
             <BarsService bars={beer.tapBars} beer={beer} type="tap"/>
+          </Row>
+
+          <Row>
+            Et la grande réponse est : {answer}
           </Row>
         </Container>
       </div>
@@ -188,4 +218,4 @@ const BeerDescription = (props) => (
   </Card>
 )
 
-export default BeerId;
+export default withAuth(BeerId);

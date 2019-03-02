@@ -12,7 +12,12 @@ server:
     backgroundProcessorDelay: 30 # secs
     
 #debug: true
-
+management:
+  endpoints:
+    web:
+      exposure:
+        # DO NOT COPY IN PROD
+        include: "health,info,httptrace"
 spring:
   profiles:
     active: dev
@@ -41,10 +46,10 @@ spring:
       url: jdbc:postgresql://localhost:5432/drinkopedia
       username: postgres
       password: postgres
-  security:
-    user:
-      name: belzeboss
-      password: 666
+#  security:
+#    user:
+#      name: belzeboss
+#      password: 666
 #    oauth2:
 #      client:
 #        registration:
@@ -54,3 +59,9 @@ spring:
 #        provider:
 #          okta:
 #            issuer-uri: https://dev-824683.okta.com/oauth2/default
+okta:
+  oauth2:
+    issuer: https://dev-824683.okta.com/oauth2/default
+    client-id: 0oabhh3e7EfXqH83B356
+    client-secret: SuwoogEha3WWVSYTnXCtMDjDXy8euzsSGHNSN4KY
+    redirect-uri: /authorization-code/callback

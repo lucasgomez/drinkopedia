@@ -74,6 +74,7 @@ class Manager extends Component {
               </Row>
             </Container>
 					</Jumbotron>
+          
           <Menu/>
 
           <Switch>
