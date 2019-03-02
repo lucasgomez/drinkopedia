@@ -9,8 +9,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +26,7 @@ import ch.lgo.drinks.simple.service.BeersServiceImpl;
 
 @RestController
 @CrossOrigin(origins={"http://localhost:3000"})
-@RequestMapping
+@RequestMapping("/private/beers")
 public class BeersResource {
 
     @Autowired
@@ -36,6 +38,11 @@ public class BeersResource {
     @Autowired
     ModelMapper modelMapper;
     
+    @GetMapping("/godmode")
+    public ResponseEntity<String> getAnswer() {
+        return ResponseEntity.ok().body("42"); 
+    }
+    
     @PostMapping
     public Response createBeer(BeerDTO newBeer) throws BadCreationRequestException {
         Beer createdBeer = beersService.create(convertToEntity(newBeer));
@@ -45,7 +52,7 @@ public class BeersResource {
         return Response.created(location).build();
     }
 
-    @PutMapping("{beer_id}")
+    @PutMapping("/{beer_id}")
     public Response updateBeer(@PathParam("beer_id") long beerId,
             BeerDTO beerToUpdate) throws ResourceNotFoundException, BadCreationRequestException {
         return Response.ok().entity(
@@ -53,7 +60,7 @@ public class BeersResource {
                     .build();
     }
 
-    @DeleteMapping("{beer_id}")
+    @DeleteMapping("/{beer_id}")
     public Response deleteBeer(@PathParam("beer_id") long beerId)
             throws ResourceNotFoundException {
         beersService.delete(beerId);
