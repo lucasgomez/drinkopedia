@@ -1,5 +1,7 @@
 package ch.lgo.drinks.simple.dto;
 
+import java.time.LocalDateTime;
+
 public class BeerDTO {
     
     private Long id;
@@ -17,6 +19,8 @@ public class BeerDTO {
     private Double bottleSellingPrice;
     private Double tapPriceSmall;
     private Double tapPriceBig;
+    private Boolean active;
+    private LocalDateTime activationDate;
     
     public Long getId() {
         return id;
@@ -122,4 +126,19 @@ public class BeerDTO {
     public void setTapPriceBig(Double tapPriceBig) {
         this.tapPriceBig = tapPriceBig;
     }
+    
+    public Boolean isActive() {
+        return active;
+    }
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+    
+    public LocalDateTime getActivationDate() {
+        return activationDate;
+    }
+    public void setActivationDate(LocalDateTime activationDate) {
+        this.activationDate = activationDate;
+    }
+    
 }

@@ -24,7 +24,9 @@ public class TapBeer implements HasId {
 	private Double priceSmall;
 	private Double priceBig;
 	private Double buyingPricePerLiter;
+	private Boolean pricesUpToDate;
 	private Set<Bar> bars = new HashSet<>();
+	
 	private static Comparator<TapBeer> byPrice = comparing(TapBeer::getPriceBig, Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<TapBeer> byName = comparing(tap -> tap.getBeer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
 	
@@ -80,6 +82,13 @@ public class TapBeer implements HasId {
 	public TapBeer setBars(Set<Bar> bars) {
 		this.bars = bars;
 		return this;
+	}
+	
+	public Boolean arePricesUpToDate() {
+	    return pricesUpToDate;
+	}
+	public void setPricesUpToDate(Boolean pricesUpToDate) {
+	    this.pricesUpToDate = pricesUpToDate;
 	}
 	
 	public static Comparator<TapBeer> byPrice() {

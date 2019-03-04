@@ -21,7 +21,9 @@ public class BottledBeer implements HasId {
 	private Long volumeInCl;
 	private Double sellingPrice;
 	private Double buyingPrice;
+	private Boolean priceUpToDate;
 	private Set<Bar> bars = new HashSet<>();
+	
 	private static Comparator<BottledBeer> byPrice = comparing(BottledBeer::getSellingPrice, Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<BottledBeer> byName = comparing(bottle -> bottle.getBeer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<BottledBeer> byStyle = comparing(bottle -> bottle.getBeer().getStyle().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
@@ -80,6 +82,13 @@ public class BottledBeer implements HasId {
 	public BottledBeer setBars(Set<Bar> bars) {
 		this.bars = bars;
 		return this;
+	}
+
+	public Boolean isPriceUpToDate() {
+	    return priceUpToDate;
+	}
+	public void setPriceUpToDate(Boolean priceUpToDate) {
+	    this.priceUpToDate = priceUpToDate;
 	}
 	
 	public static Comparator<BottledBeer> byPrice() {

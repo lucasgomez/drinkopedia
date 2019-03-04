@@ -111,7 +111,10 @@ class BeersList extends Component {
                     </Link>
                   </td><td>
                     {this.formatPricesList(item)}
+                  </td><td>
+                    {this.formatIsActive(item)}
                   </td>
+
               </tr>
             )}
           </tbody>
@@ -119,6 +122,23 @@ class BeersList extends Component {
       </div>
     );
 
+  }
+
+  formatIsActive(beer) {
+    if (beer.active)
+      return null;
+    else {
+      const popover = (
+        <Tooltip id={"tooltip-"+beer.id+"-inactive"}>
+          <div>{beer.activationDate ? "Epuisée" : "Pas encore servie"}</div>
+        </Tooltip>
+      );
+      return (
+        <OverlayTrigger placement="left" overlay={popover}>
+          <div>{beer.activationDate ? "❌" : "🕐" }</div>
+        </OverlayTrigger>
+      );
+    }
   }
 
   formatPricesList(beer) {
