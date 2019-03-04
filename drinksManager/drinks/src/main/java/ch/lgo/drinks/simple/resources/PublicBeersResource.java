@@ -21,7 +21,7 @@ import ch.lgo.drinks.simple.service.BeersServiceImpl;
 
 @RestController
 @CrossOrigin(origins={"*"})
-@RequestMapping("/beers")
+@RequestMapping("/public/beers")
 public class PublicBeersResource {
 
     @Autowired
@@ -43,7 +43,6 @@ public class PublicBeersResource {
         return beersService.loadById(beerId)
                 .map(beer -> ResponseEntity.ok().body(beer))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-            
     }
 
     @GetMapping("/bars/{bar_id}")

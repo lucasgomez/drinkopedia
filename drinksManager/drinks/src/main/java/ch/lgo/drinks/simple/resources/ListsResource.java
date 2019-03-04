@@ -13,7 +13,7 @@ import ch.lgo.drinks.simple.service.BeersServiceImpl;
 
 @RestController
 @CrossOrigin(origins={"*"})
-@RequestMapping("/lists")
+@RequestMapping("/public/lists")
 public class ListsResource {
 
     @Autowired

@@ -37,8 +37,7 @@ class BeerId extends Component {
       isLoading: true
     });
 
-    let beerUrl = `${API_ROOT}/beers/` + beerId;
-
+    let beerUrl = `${API_ROOT}/public/beers/` + beerId;
     fetch(beerUrl)
       .then(response => response.json())
       .then(item =>
