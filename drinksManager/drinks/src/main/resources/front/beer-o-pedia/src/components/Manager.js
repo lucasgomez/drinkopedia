@@ -12,14 +12,11 @@ import {
 } from 'react-router-dom';
 import BeersList from './BeersList';
 import BeerId from './BeerId';
+import EditBeer from './EditBeer';
 import Menu from './Menu';
 import Welcome from './Welcome';
 
 class Manager extends Component {
-
-  constructor(props) {
-    super(props);
-  }
 
 	render() {
 
@@ -47,6 +44,7 @@ class Manager extends Component {
             <Route path="/list/:listName/:listId" component={ListRoute}/>
             <Route path="/list" component={ListRoute}/>
             <Route path="/beerid/:beerId" component={BeerRoute}/>
+            <Route path="/edit/beer/:beerId" component={EditBeerRoute}/>
             <Route component={Welcome}/>
           </Switch>
 				</div>
@@ -66,6 +64,12 @@ const ListRoute = ({ match }) => (
 const BeerRoute = ({ match }) => (
   <div>
     <BeerId beerId={match.params.beerId}/>
+  </div>
+);
+
+const EditBeerRoute = ({ match }) => (
+  <div>
+    <EditBeer beerId={match.params.beerId}/>
   </div>
 );
 

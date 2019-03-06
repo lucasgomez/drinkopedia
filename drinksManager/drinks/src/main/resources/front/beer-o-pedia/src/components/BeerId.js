@@ -70,6 +70,10 @@ class BeerId extends Component {
               <Link to={'/list/origins/'+beer.producerOriginId}>{beer.producerOriginName}</Link>
               </h4>
             </Col>
+
+            <Col xs={6} md={6}>
+              <Link className="float-right"  to={'/edit/beer/'+beer.id}>✏</Link>
+            </Col>
           </Row>
 
           <Row>
@@ -100,7 +104,7 @@ const BarsService = (props) => {
     return (
       <div>
         {props.bars.map((bar: any) =>
-          <Col xs={6} md={4}>
+          <Col xs={6} md={6}>
             <BarServiceDetails beer={props.beer} bar={bar} type={props.type}/>
           </Col>
         )}
