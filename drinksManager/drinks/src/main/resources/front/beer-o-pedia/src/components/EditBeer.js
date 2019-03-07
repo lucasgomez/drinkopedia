@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import {
-  Container,
-  Col,
-  Form
-} from 'react-bootstrap';
+import { Container, Col } from 'react-bootstrap';
+import * as yup from 'yup';
+import { Formik, FormikProps, Field, Form } from 'formik';
 import { API_ROOT } from '../data/apiConfig';
 
 // const EditBeer = () => (
@@ -69,28 +67,62 @@ class EditBeer extends Component {
     }
 
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Name:
-          <input
-            name="name"
-            type="text"
-            value={this.state.name}
-            onChange={this.handleInputChange} />
-        </label>
-        <br />
 
-        <label>
-          Description:
-          <textarea
-            name="description"
-            value={this.state.description}
-            onChange={this.handleInputChange} />
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
+
+      <Formik
+        initialValues={{
+          name: this.state.name,
+          description: this.state.description,
+        }}
+        validationSchema={beerValidator}
+        onSubmit={this.handleSubmit}
+        render={formProps => {
+
+           return(
+              <Form>
+                <label htmlFor="name" style={{ display: 'block' }}>
+                  Nom
+                </label>
+                <Field
+                  type="text"
+                  name="name"
+                  placeholder="Nom de la Bière"
+                  className='textbox'
+                  />
+                <br/>
+
+                <label htmlFor="description" style={{ display: 'block' }}>
+                  Description
+                </label>
+                <Field
+                  type="textarea"
+                  name="description"
+                  placeholder="Texte de description de la Bière"
+                  />
+
+                <br/>
+                <button
+                  type="submit"
+                  disabled={formProps.isSubmitting}>
+                     Submit Form
+                </button>
+              </Form>
+           );
+       }}
+      />
     );
   }
 }
+
+const beerValidator = yup.object().shape({
+  name: yup
+    .string()
+    .trim()
+    .required(),
+  description: yup
+    .string()
+    .trim()
+    .max(255, "Too much, mon!"),
+});
 
 export default EditBeer;
