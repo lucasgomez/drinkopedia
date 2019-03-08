@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Container, Col } from 'react-bootstrap';
 import * as yup from 'yup';
-import { Formik, FormikProps, Field, Form } from 'formik';
+import { Formik, FormikProps, Field, Form, ErrorMessage } from 'formik';
 import { API_ROOT } from '../data/apiConfig';
 
 // const EditBeer = () => (
@@ -87,18 +86,20 @@ class EditBeer extends Component {
                   type="text"
                   name="name"
                   placeholder="Nom de la Bière"
-                  className='textbox'
                   />
+                  <ErrorMessage name="name" />
                 <br/>
 
                 <label htmlFor="description" style={{ display: 'block' }}>
                   Description
                 </label>
                 <Field
-                  type="textarea"
+                  component="textarea"
+                  rows="4"
                   name="description"
                   placeholder="Texte de description de la Bière"
                   />
+                {formProps.errors.description && formProps.touched.description ? (<div>{formProps.errors.description}</div>) : null}
 
                 <br/>
                 <button
@@ -118,11 +119,11 @@ const beerValidator = yup.object().shape({
   name: yup
     .string()
     .trim()
-    .required(),
+    .required("Le nom est obligatoire"),
   description: yup
     .string()
     .trim()
-    .max(255, "Too much, mon!"),
+    .max(255, "Description trop longue"),
 });
 
 export default EditBeer;
