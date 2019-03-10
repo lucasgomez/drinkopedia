@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import * as yup from 'yup';
 import { Formik, FormikProps, Field, Form, ErrorMessage } from 'formik';
+import { ReactstrapRadio } from "reactstrap-formik";
 import { API_ROOT } from '../data/apiConfig';
 
-// const EditBeer = () => (
 class EditBeer extends Component {
 
   constructor(props: any) {
@@ -12,6 +12,7 @@ class EditBeer extends Component {
     this.state = {
       name: null,
       description: null,
+      bitternessRank: null,
       isLoading: false
     };
 
@@ -36,17 +37,19 @@ class EditBeer extends Component {
         this.setState({
           name: beer.name,
           description: beer.comment,
+          bitternessRank: beer.bitternessRank,
           isLoading: false
         })
       );
   }
 
   handleSubmit(event) {
-    alert('Name: ' + this.state.name + " description: '" + this.state.description + "'");
+    alert('Name: ' + this.state.name + " combo: " + this.state.bitternessRank + " description: '" + this.state.description + "'");
     event.preventDefault();
   }
 
   handleInputChange(event) {
+    debugger;
     const target = event.target;
     const value = target.value;
     const name = target.name;
@@ -72,6 +75,7 @@ class EditBeer extends Component {
         initialValues={{
           name: this.state.name,
           description: this.state.description,
+          bitternessRank: this.state.bitternessRank,
         }}
         validationSchema={beerValidator}
         onSubmit={this.handleSubmit}
@@ -99,8 +103,29 @@ class EditBeer extends Component {
                   name="description"
                   placeholder="Texte de description de la Bière"
                   />
-                {formProps.errors.description && formProps.touched.description ? (<div>{formProps.errors.description}</div>) : null}
+                <ErrorMessage name="description" />
 
+                <Field
+                    name="bitternessRank"
+                    component={ReactstrapRadio}
+                    value="1"
+                    type="radio"
+                    label="True"
+                  />
+                <Field
+                    name="bitternessRank"
+                    component={ReactstrapRadio}
+                    value="2"
+                    type="radio"
+                    label="False"
+                  />
+                <Field
+                    name="bitternessRank"
+                    component={ReactstrapRadio}
+                    value="3"
+                    type="radio"
+                    label="False"
+                  />
                 <br/>
                 <button
                   type="submit"
