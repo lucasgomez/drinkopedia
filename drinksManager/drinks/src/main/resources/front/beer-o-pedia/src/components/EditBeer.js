@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as yup from 'yup';
 import { Formik, FormikProps, Field, Form, ErrorMessage } from 'formik';
-import { ReactstrapRadio } from "reactstrap-formik";
+import { ReactstrapRadio, ReactstrapSelect } from "reactstrap-formik";
 import { API_ROOT } from '../data/apiConfig';
 
 class EditBeer extends Component {
@@ -13,10 +13,12 @@ class EditBeer extends Component {
       name: null,
       description: null,
       bitternessRank: null,
+      sournessRank: null,
+      sweetnessRank: null,
+      hoppingRank: null,
       isLoading: false
     };
 
-    this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -38,24 +40,21 @@ class EditBeer extends Component {
           name: beer.name,
           description: beer.comment,
           bitternessRank: beer.bitternessRank,
+          sournessRank: beer.sournessRank,
+          sweetnessRank: beer.sweetnessRank,
+          hoppingRank: beer.hoppingRank,
           isLoading: false
         })
       );
   }
 
-  handleSubmit(event) {
-    alert('Name: ' + this.state.name + " combo: " + this.state.bitternessRank + " description: '" + this.state.description + "'");
-    event.preventDefault();
-  }
-
-  handleInputChange(event) {
-    debugger;
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
-    this.setState({
-      [name]: value
-    });
+  handleSubmit(values, {setSubmitting}) {
+    setTimeout(() => {
+          setSubmitting(false);
+          alert(
+            `Submitted Successfully ->  ${JSON.stringify(values, null, 2)}`
+          );
+        }, 1000);
   }
 
   render() {
@@ -76,12 +75,15 @@ class EditBeer extends Component {
           name: this.state.name,
           description: this.state.description,
           bitternessRank: this.state.bitternessRank,
+          sournessRank: this.state.sournessRank,
+          sweetnessRank: this.state.sweetnessRank,
+          hoppingRank: this.state.hoppingRank,
         }}
         validationSchema={beerValidator}
         onSubmit={this.handleSubmit}
-        render={formProps => {
 
-           return(
+        render={({ submitForm, isSubmitting, values }) => (
+
               <Form>
                 <label htmlFor="name" style={{ display: 'block' }}>
                   Nom
@@ -105,40 +107,65 @@ class EditBeer extends Component {
                   />
                 <ErrorMessage name="description" />
 
-                <Field
-                    name="bitternessRank"
-                    component={ReactstrapRadio}
-                    value="1"
-                    type="radio"
-                    label="True"
-                  />
-                <Field
-                    name="bitternessRank"
-                    component={ReactstrapRadio}
-                    value="2"
-                    type="radio"
-                    label="False"
-                  />
-                <Field
-                    name="bitternessRank"
-                    component={ReactstrapRadio}
-                    value="3"
-                    type="radio"
-                    label="False"
-                  />
+                <StrengthInput name="bitternessRank" label="Amertume"/>
                 <br/>
+
+                <StrengthInput name="sournessRank" label="Acidité"/>
+                <br/>
+
+                <StrengthInput name="sweetnessRank" label="Douceur"/>
+                <br/>
+
+                <StrengthInput name="hoppingRank" label="Houblonnage"/>
+                <br/>
+
                 <button
                   type="submit"
-                  disabled={formProps.isSubmitting}>
+                  disabled={isSubmitting}>
                      Submit Form
                 </button>
               </Form>
-           );
-       }}
+       )}
       />
     );
   }
 }
+
+const StrengthInput = (props) => (
+  <div>
+    <label htmlFor={props.name} style={{ display: 'block' }}>
+      {props.label}
+    </label>
+    <Field
+        name={props.name}
+        component={ReactstrapRadio}
+        value=""
+        type="radio"
+        label="-"
+      />
+    <Field
+        name={props.name}
+        component={ReactstrapRadio}
+        value="1"
+        type="radio"
+        label="1"
+      />
+    <Field
+        name={props.name}
+        component={ReactstrapRadio}
+        value="2"
+        type="radio"
+        label="2"
+      />
+    <Field
+        name={props.name}
+        component={ReactstrapRadio}
+        value="3"
+        type="radio"
+        label="3"
+      />
+    </div>
+)
 
 const beerValidator = yup.object().shape({
   name: yup
