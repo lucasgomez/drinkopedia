@@ -11,6 +11,7 @@ class EditBeer extends Component {
 
     this.state = {
       name: null,
+      producerId: null,
       description: null,
       bitternessRank: null,
       sournessRank: null,
@@ -38,6 +39,7 @@ class EditBeer extends Component {
       .then(beer =>
         this.setState({
           name: beer.name,
+          producerId: beer.producerId,
           description: beer.comment,
           bitternessRank: beer.bitternessRank,
           sournessRank: beer.sournessRank,
@@ -73,6 +75,7 @@ class EditBeer extends Component {
       <Formik
         initialValues={{
           name: this.state.name,
+          producerId: this.state.producerId,
           description: this.state.description,
           bitternessRank: this.state.bitternessRank,
           sournessRank: this.state.sournessRank,
@@ -94,6 +97,19 @@ class EditBeer extends Component {
                   placeholder="Nom de la Bière"
                   />
                   <ErrorMessage name="name" />
+                <br/>
+
+                <Field
+                  label="Producteur"
+                  name="producerId"
+                  component={ReactstrapSelect}
+                  inputprops={{
+                    name: "producerId",
+                    id: "producerId",
+                    options: [{id:1, name:"India"}, {id:2, name:"USA"}, {id:3, name:"UK"}, {id:4, name:"Saudi Arabia"}],
+                    defaultOption: "Country"
+                  }}
+                />
                 <br/>
 
                 <label htmlFor="description" style={{ display: 'block' }}>
