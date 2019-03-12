@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as yup from 'yup';
 import { Formik, FormikProps, Field, Form, ErrorMessage } from 'formik';
 import { ReactstrapRadio, ReactstrapSelect } from "reactstrap-formik";
+import SelectList from './edit/SelectList';
 import { API_ROOT } from '../data/apiConfig';
 
 class EditBeer extends Component {
@@ -17,7 +18,8 @@ class EditBeer extends Component {
       sournessRank: null,
       sweetnessRank: null,
       hoppingRank: null,
-      isLoading: false
+      producerOptions: [{id:1, name:"India"}, {id:2, name:"USA"}, {id:166, name:"UK"}, {id:4, name:"Saudi Arabia"}],
+      isLoading: false,
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -99,17 +101,7 @@ class EditBeer extends Component {
                   <ErrorMessage name="name" />
                 <br/>
 
-                <Field
-                  label="Producteur"
-                  name="producerId"
-                  component={ReactstrapSelect}
-                  inputprops={{
-                    name: "producerId",
-                    id: "producerId",
-                    options: [{id:1, name:"India"}, {id:2, name:"USA"}, {id:3, name:"UK"}, {id:4, name:"Saudi Arabia"}],
-                    defaultOption: "Country"
-                  }}
-                />
+                <SelectList label="Producteur" name="producerId" listName="producers"/>
                 <br/>
 
                 <label htmlFor="description" style={{ display: 'block' }}>
@@ -146,6 +138,20 @@ class EditBeer extends Component {
     );
   }
 }
+
+const ProducerSelect = (props) => (
+  <Field
+    label={props.label}
+    name={props.name}
+    component={ReactstrapSelect}
+    inputprops={{
+      name: props.name,
+      id: props.name,
+      options: props.options,
+      defaultOption: "Choisir un producteur"
+    }}
+  />
+)
 
 const StrengthInput = (props) => (
   <div>
