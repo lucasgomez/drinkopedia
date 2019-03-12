@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as yup from 'yup';
 import { Formik, FormikProps, Field, Form, ErrorMessage } from 'formik';
-import { ReactstrapRadio, ReactstrapSelect } from "reactstrap-formik";
+import { ReactstrapRadio, ReactstrapInput } from "reactstrap-formik";
 import SelectList from './edit/SelectList';
 import { API_ROOT } from '../data/apiConfig';
 
@@ -13,6 +13,9 @@ class EditBeer extends Component {
     this.state = {
       name: null,
       producerId: null,
+      abv: null,
+      styleId: null,
+      colorId: null,
       description: null,
       bitternessRank: null,
       sournessRank: null,
@@ -42,6 +45,9 @@ class EditBeer extends Component {
         this.setState({
           name: beer.name,
           producerId: beer.producerId,
+          abv: beer.abv,
+          styleId: beer.styleId,
+          colorId: beer.colorId,
           description: beer.comment,
           bitternessRank: beer.bitternessRank,
           sournessRank: beer.sournessRank,
@@ -78,6 +84,9 @@ class EditBeer extends Component {
         initialValues={{
           name: this.state.name,
           producerId: this.state.producerId,
+          abv: this.state.abv,
+          styleId: this.state.styleId,
+          colorId: this.state.colorId,
           description: this.state.description,
           bitternessRank: this.state.bitternessRank,
           sournessRank: this.state.sournessRank,
@@ -90,18 +99,34 @@ class EditBeer extends Component {
         render={({ submitForm, isSubmitting, values }) => (
 
               <Form>
-                <label htmlFor="name" style={{ display: 'block' }}>
-                  Nom
-                </label>
                 <Field
+                  id="name"
                   type="text"
+                  label="Nom"
                   name="name"
                   placeholder="Nom de la Bière"
+                  component={ReactstrapInput}
                   />
                   <ErrorMessage name="name" />
                 <br/>
 
                 <SelectList label="Producteur" name="producerId" listName="producers"/>
+                <br/>
+
+                <Field
+                  id="abv"
+                  type="text"
+                  label="Alcool (%)"
+                  name="abv"
+                  component={ReactstrapInput}
+                  />
+                <ErrorMessage name="abv" />
+                <br/>
+
+                <SelectList label="Couleur" name="colorId" listName="colors"/>
+                <br/>
+
+                <SelectList label="Style" name="styleId" listName="styles"/>
                 <br/>
 
                 <label htmlFor="description" style={{ display: 'block' }}>
@@ -139,20 +164,6 @@ class EditBeer extends Component {
   }
 }
 
-const ProducerSelect = (props) => (
-  <Field
-    label={props.label}
-    name={props.name}
-    component={ReactstrapSelect}
-    inputprops={{
-      name: props.name,
-      id: props.name,
-      options: props.options,
-      defaultOption: "Choisir un producteur"
-    }}
-  />
-)
-
 const StrengthInput = (props) => (
   <div>
     <label htmlFor={props.name} style={{ display: 'block' }}>
@@ -170,21 +181,21 @@ const StrengthInput = (props) => (
         component={ReactstrapRadio}
         value="1"
         type="radio"
-        label="1"
+        label="Faible"
       />
     <Field
         name={props.name}
         component={ReactstrapRadio}
         value="2"
         type="radio"
-        label="2"
+        label="Moyenne"
       />
     <Field
         name={props.name}
         component={ReactstrapRadio}
         value="3"
         type="radio"
-        label="3"
+        label="Forte"
       />
     </div>
 )
