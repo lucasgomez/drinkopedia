@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import * as yup from 'yup';
-import { Formik, FormikProps, Field, Form, ErrorMessage } from 'formik';
-import { ReactstrapRadio, ReactstrapInput } from "reactstrap-formik";
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import { ReactstrapInput } from "reactstrap-formik";
 import SelectList from './edit/SelectList';
+import StrengthInput from './edit/StrengthInput';
 import { API_ROOT } from '../data/apiConfig';
 
 class EditBeer extends Component {
@@ -113,6 +114,17 @@ class EditBeer extends Component {
                 <SelectList label="Producteur" name="producerId" listName="producers"/>
                 <br/>
 
+                <label htmlFor="description" style={{ display: 'block' }}>
+                  Description
+                </label>
+                <Field
+                  component="textarea"
+                  rows="4"
+                  name="description"
+                  placeholder="Texte de description de la Bière"
+                  />
+                <ErrorMessage name="description" />
+
                 <Field
                   id="abv"
                   type="text"
@@ -128,17 +140,6 @@ class EditBeer extends Component {
 
                 <SelectList label="Style" name="styleId" listName="styles"/>
                 <br/>
-
-                <label htmlFor="description" style={{ display: 'block' }}>
-                  Description
-                </label>
-                <Field
-                  component="textarea"
-                  rows="4"
-                  name="description"
-                  placeholder="Texte de description de la Bière"
-                  />
-                <ErrorMessage name="description" />
 
                 <StrengthInput name="bitternessRank" label="Amertume"/>
                 <br/>
@@ -164,42 +165,6 @@ class EditBeer extends Component {
   }
 }
 
-const StrengthInput = (props) => (
-  <div>
-    <label htmlFor={props.name} style={{ display: 'block' }}>
-      {props.label}
-    </label>
-    <Field
-        name={props.name}
-        component={ReactstrapRadio}
-        value=""
-        type="radio"
-        label="-"
-      />
-    <Field
-        name={props.name}
-        component={ReactstrapRadio}
-        value="1"
-        type="radio"
-        label="Faible"
-      />
-    <Field
-        name={props.name}
-        component={ReactstrapRadio}
-        value="2"
-        type="radio"
-        label="Moyenne"
-      />
-    <Field
-        name={props.name}
-        component={ReactstrapRadio}
-        value="3"
-        type="radio"
-        label="Forte"
-      />
-    </div>
-)
-
 const beerValidator = yup.object().shape({
   name: yup
     .string()
@@ -209,6 +174,10 @@ const beerValidator = yup.object().shape({
     .string()
     .trim()
     .max(255, "Description trop longue"),
+  abv: yup
+    .number()
+    .min(0)
+    .max(100)
 });
 
 export default EditBeer;

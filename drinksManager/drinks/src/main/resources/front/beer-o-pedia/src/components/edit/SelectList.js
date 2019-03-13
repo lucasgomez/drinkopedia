@@ -9,7 +9,6 @@ class SelectList extends Component {
 
     this.state = {
       items: [],
-      producerOptions: [{id:1, name:"India"}, {id:2, name:"USA"}, {id:166, name:"UK"}, {id:4, name:"Saudi Arabia"}],
       isLoading: false
     };
   }
@@ -33,14 +32,11 @@ class SelectList extends Component {
   render() {
     const {
       items,
-      producerOptions,
       isLoading
     } = this.state;
     const name = this.props.name;
     const label = this.props.label;
-    const tab = Array.from(["India", "USA", "UK", "Saudi Arabia"]);
 
-    debugger;
     if (isLoading) {
       return (
         <div>Loading...</div>
