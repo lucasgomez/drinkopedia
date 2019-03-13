@@ -8,6 +8,7 @@ import {
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import RatedLabel from './RatedLabel';
+import StrengthRadar from './StrengthRadar';
 import { API_ROOT } from '../data/apiConfig';
 
 class BeerId extends Component {
@@ -84,7 +85,14 @@ class BeerId extends Component {
               <BasicProperties beer={beer}/>
             </Col>
             <Col xs={12} md={4}>
-              <BeerRadar beer={beer}/>
+              <Card body>
+                <h4>Goûts</h4>
+                <StrengthRadar
+                  bitterness={beer.bitternessRank}
+                  hopping={beer.hoppingRank}
+                  sweetness={beer.sweetnessRank}
+                  sourness={beer.sournessRank}/>
+              </Card>
             </Col>
           </Row>
 
@@ -147,6 +155,7 @@ const PriceDisplay = (props) => {
 
 const BasicProperties = (props) => (
   <Card body>
+    <h4>Détails</h4>
     <Table>
       <NamedLabel name="Alcool" value={props.beer.abv+' %'}/>
       <NamedLabel name="Couleur" value={<Link to={'/list/colors/'+props.beer.colorId}>{props.beer.colorName}</Link>}/>
@@ -172,17 +181,6 @@ const NamedLabel = (props) => (
     }
   </div>
 );
-
-const BeerRadar = (props) => (
-  <Card body>
-    <Table>
-      <RatedLabel name="Amertume" strength={props.beer.bitternessRank}/>
-      <RatedLabel name="Acidité" strength={props.beer.sournessRank}/>
-      <RatedLabel name="Douceur" strength={props.beer.sweetnessRank}/>
-      <RatedLabel name="Houblonnage" strength={props.beer.hoppingRank}/>
-    </Table>
-  </Card>
-)
 
 const BeerDescription = (props) => (
   <Card body>
