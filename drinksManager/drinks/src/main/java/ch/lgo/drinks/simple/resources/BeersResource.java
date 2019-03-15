@@ -1,7 +1,5 @@
 package ch.lgo.drinks.simple.resources;
 
-import java.net.URI;
-
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -11,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,7 @@ import ch.lgo.drinks.simple.service.BeersServiceImpl;
 
 @RestController
 @CrossOrigin(origins={"http://localhost:3000"})
-@RequestMapping
+@RequestMapping("/private/beers")
 public class BeersResource {
 
     @Autowired
@@ -38,19 +37,23 @@ public class BeersResource {
     
     @PostMapping
     public Response createBeer(BeerDTO newBeer) throws BadCreationRequestException {
-        Beer createdBeer = beersService.create(convertToEntity(newBeer));
-        URI location = uriInfo.getAbsolutePathBuilder().path("{id}")
-                .resolveTemplate("id", createdBeer.getId()).build();
-
-        return Response.created(location).build();
+//        Beer createdBeer = beersService.create(convertToEntity(newBeer));
+//        URI location = uriInfo.getAbsolutePathBuilder().path("{id}")
+//                .resolveTemplate("id", createdBeer.getId()).build();
+//
+//        return Response.created(location).build();
+        return Response.ok().build();
     }
 
     @PutMapping("{beer_id}")
-    public Response updateBeer(@PathParam("beer_id") long beerId,
+    public Response updateBeer(@PathVariable("beer_id") long beerId,
             BeerDTO beerToUpdate) throws ResourceNotFoundException, BadCreationRequestException {
-        return Response.ok().entity(
-                    beersService.update(beerId, convertToEntity(beerToUpdate)))
-                    .build();
+        return Response.ok()
+                .entity(beerToUpdate)
+                .build();
+//        return Response.ok().entity(
+//                beersService.update(beerId, convertToEntity(beerToUpdate)))
+//                .build();
     }
 
     @DeleteMapping("{beer_id}")

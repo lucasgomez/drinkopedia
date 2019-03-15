@@ -5,6 +5,7 @@ import { ReactstrapInput } from "reactstrap-formik";
 import SelectList from './edit/SelectList';
 import StrengthInput from './edit/StrengthInput';
 import { API_ROOT } from '../data/apiConfig';
+import axios from 'axios';
 
 class EditBeer extends Component {
 
@@ -12,17 +13,7 @@ class EditBeer extends Component {
     super(props);
 
     this.state = {
-      name: null,
-      producerId: null,
-      abv: null,
-      styleId: null,
-      colorId: null,
-      description: null,
-      bitternessRank: null,
-      sournessRank: null,
-      sweetnessRank: null,
-      hoppingRank: null,
-      producerOptions: [{id:1, name:"India"}, {id:2, name:"USA"}, {id:166, name:"UK"}, {id:4, name:"Saudi Arabia"}],
+      beer: null,
       isLoading: false,
     };
 
@@ -40,59 +31,77 @@ class EditBeer extends Component {
 
     let beerUrl = `${API_ROOT}/public/beers/` + beerId;
 
-    fetch(beerUrl)
-      .then(response => response.json())
-      .then(beer =>
-        this.setState({
-          name: beer.name,
-          producerId: beer.producerId,
-          abv: beer.abv,
-          styleId: beer.styleId,
-          colorId: beer.colorId,
-          description: beer.comment,
-          bitternessRank: beer.bitternessRank,
-          sournessRank: beer.sournessRank,
-          sweetnessRank: beer.sweetnessRank,
-          hoppingRank: beer.hoppingRank,
-          isLoading: false
-        })
-      );
+    var self = this;
+    axios.get(beerUrl)
+     .then(function (response) {
+       self.setState({
+         beer: response.data,
+         isLoading: false
+       })
+     })
+    .catch(function (error) {
+       console.log(error);
+    });
+  }
+
+  postData = (updatedBeer) => {
+
+    debugger;
+    let postBeerUrl = `${API_ROOT}/private/beers/` + updatedBeer.id;
+
+    var self = this;
+    axios.put(postBeerUrl, updatedBeer)
+     .then(response =>
+       console.log(response)
+    )
+     .catch(error =>
+       console.log(error)
+    );
+
+    fetch(postBeerUrl, {
+        method: 'POST',
+        mode: 'CORS',
+        body: JSON.stringify(updatedBeer),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(res => {
+        return res;
+    }).catch(err => err);
+
   }
 
   handleSubmit(values, {setSubmitting}) {
-    setTimeout(() => {
-          setSubmitting(false);
-          alert(
-            `Submitted Successfully ->  ${JSON.stringify(values, null, 2)}`
-          );
-        }, 1000);
+    let updatedBeer = Object.assign(this.state.beer, values);
+
+    this.postData(updatedBeer);
+    setSubmitting(false);
   }
 
   render() {
 
     const {
+      beer,
       isLoading
     } = this.state;
 
-    if (isLoading) {
+    if (isLoading || !beer) {
       return <div class="container"><p> Loading... < /p></div>;
     }
 
     return (
-
-
       <Formik
         initialValues={{
-          name: this.state.name,
-          producerId: this.state.producerId,
-          abv: this.state.abv,
-          styleId: this.state.styleId,
-          colorId: this.state.colorId,
-          description: this.state.description,
-          bitternessRank: this.state.bitternessRank,
-          sournessRank: this.state.sournessRank,
-          sweetnessRank: this.state.sweetnessRank,
-          hoppingRank: this.state.hoppingRank,
+          name: this.state.beer.name,
+          producerId: this.state.beer.producerId,
+          abv: this.state.beer.abv,
+          styleId: this.state.beer.styleId,
+          colorId: this.state.beer.colorId,
+          comment: this.state.beer.comment,
+          bitternessRank: this.state.beer.bitternessRank,
+          sournessRank: this.state.beer.sournessRank,
+          sweetnessRank: this.state.beer.sweetnessRank,
+          hoppingRank: this.state.beer.hoppingRank,
         }}
         validationSchema={beerValidator}
         onSubmit={this.handleSubmit}
@@ -114,16 +123,16 @@ class EditBeer extends Component {
                 <SelectList label="Producteur" name="producerId" listName="producers"/>
                 <br/>
 
-                <label htmlFor="description" style={{ display: 'block' }}>
+                <label htmlFor="comment" style={{ display: 'block' }}>
                   Description
                 </label>
                 <Field
                   component="textarea"
                   rows="4"
-                  name="description"
+                  name="comment"
                   placeholder="Texte de description de la Bière"
                   />
-                <ErrorMessage name="description" />
+                <ErrorMessage name="comment" />
 
                 <Field
                   id="abv"
@@ -170,7 +179,7 @@ const beerValidator = yup.object().shape({
     .string()
     .trim()
     .required("Le nom est obligatoire"),
-  description: yup
+  comment: yup
     .string()
     .trim()
     .max(255, "Description trop longue"),

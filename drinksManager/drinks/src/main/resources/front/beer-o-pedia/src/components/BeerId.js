@@ -7,7 +7,6 @@ import {
   Col
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import RatedLabel from './RatedLabel';
 import StrengthRadar from './StrengthRadar';
 import { API_ROOT } from '../data/apiConfig';
 

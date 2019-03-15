@@ -21,24 +21,13 @@ class StrengthRadar extends Component {
     const targetRadius = 60;
 
     var values = [{
-        name: 'Amertume',
-        value: this.props.bitterness
-      },
-      {
-        name: 'Houblonnage',
-        value: this.props.hopping
-      },
-      {
-        name: 'Douceur',
-        value: this.props.sweetness
-      },
-      {
-        name: 'Acidité',
-        value: this.props.sourness
-      },
-      {
-        name: 'Unami',
-        value: 3
+        name: 'Amertume', value: this.props.bitterness
+      },{
+        name: 'Houblonnage', value: this.props.hopping
+      },{
+        name: 'Douceur', value: this.props.sweetness
+      },{
+        name: 'Acidité', value: this.props.sourness
       }
     ];
 
