@@ -19,7 +19,7 @@ public abstract class AbstractCrudService<E extends HasId> {
 		if (producerToUpdate != null) {
 			return getCrudRepository().save(updatedE);
 		} else {
-			throw new ResourceNotFoundException("Entity of id " + updatedE.getId() + " does not exists");
+			throw new ResourceNotFoundException();
 		}
 	}
 

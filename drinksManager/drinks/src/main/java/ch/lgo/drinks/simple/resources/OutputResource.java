@@ -16,7 +16,7 @@ import ch.lgo.drinks.simple.dao.BarRepository;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
-import ch.lgo.drinks.simple.service.BeersServiceImpl;
+import ch.lgo.drinks.simple.service.BeersService;
 import ch.lgo.drinks.simple.service.XlsxOutputService;
 
 @RestController
@@ -27,7 +27,7 @@ public class OutputResource {
 	@Autowired
 	private XlsxOutputService outputService;
 	@Autowired
-	private BeersServiceImpl beersService;
+	private BeersService beersService;
 	@Autowired
 	private BarRepository barRepo;
 	
@@ -35,7 +35,7 @@ public class OutputResource {
     public Response outputBottledBar(@PathVariable(value="bottled_bar_id") long bottledBarId) throws Exception {
 		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
 		if (bottledBar == null)
-			throw new ResourceNotFoundException("No bar with id "+bottledBarId);
+			throw new ResourceNotFoundException();
 		
 		outputService.outputBottledBarPricesLists(bottledBar, OUTPUT_FOLDER, bottledBar.getName());
         return Response.created(null).build();
@@ -45,7 +45,7 @@ public class OutputResource {
 	public Response outputTapBar(@PathVariable(value="tap_bar_id") long tapBarId) throws Exception {
 		Bar tapBar = barRepo.loadTapById(tapBarId);
 		if (tapBar == null)
-			throw new ResourceNotFoundException("No bar with id "+tapBarId);
+			throw new ResourceNotFoundException();
 		
 		outputService.outputTapBarPricesLists(tapBar, OUTPUT_FOLDER, tapBar.getName());
 		return null;
@@ -55,7 +55,7 @@ public class OutputResource {
 	public Response listBottlesWithDetails(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
 		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
 		if (bottledBar == null)
-			throw new ResourceNotFoundException("No bar with id "+bottledBarId);
+			throw new ResourceNotFoundException();
 		outputService.outputBottledDetailedMultiSortedAlphaPlusPlus(bottledBar, OUTPUT_FOLDER, "details");
 		return null;
 	}

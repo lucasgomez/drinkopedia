@@ -1,8 +1,11 @@
 package ch.lgo.drinks.simple.service;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,11 +25,12 @@ import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.StrengthEnum;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 
 @Service
-public class BeersServiceImpl {
+public class BeersService {
 
     @Autowired
     BeersRepository beersRepository;
@@ -45,7 +49,16 @@ public class BeersServiceImpl {
     @Autowired
     ColorService colorService;
     @Autowired
-    ModelMapper modelMapper;
+    ModelMapper beerFieldsMapper;
+    
+    private static Map<Function<DetailedBeerDto, String>, BiFunction<Beer, String, Beer>> strengthConverter;
+    {
+        strengthConverter = new HashMap<>();
+        strengthConverter.put(DetailedBeerDto::getBitternessRank, (entity, stringValue) -> entity.setBitterness(StrengthEnum.getStrengthByRank(stringValue)));
+        strengthConverter.put(DetailedBeerDto::getHoppingRank, (entity, stringValue) -> entity.setHopping(StrengthEnum.getStrengthByRank(stringValue)));
+        strengthConverter.put(DetailedBeerDto::getSweetnessRank, (entity, stringValue) -> entity.setSweetness(StrengthEnum.getStrengthByRank(stringValue)));
+        strengthConverter.put(DetailedBeerDto::getSournessRank, (entity, stringValue) -> entity.setSourness(StrengthEnum.getStrengthByRank(stringValue)));
+    }
 
     public Beer create(Beer newBeer) throws BadCreationRequestException {
         //TODO Add checks about beer consistency
@@ -53,18 +66,35 @@ public class BeersServiceImpl {
     }
 
     //TODO Check if worth keeping empty custom exceptions
-    public Beer update(long beerId, Beer updatedBeer)
-            throws ResourceNotFoundException, BadCreationRequestException {
-        Beer beerToUpdate = beersRepository.loadById(beerId);
-        if (beerToUpdate != null) {
-            beerToUpdate.setName(updatedBeer.getName());
-            beerToUpdate.setProducer(updatedBeer.getProducer());
-            Beer updatedDrink = beersRepository.save(beerToUpdate);
-            return updatedDrink;
-        } else {
-            throw new ResourceNotFoundException(
-                    "Drink of id " + beerId + " does not exists");
-        }
+    public Beer update(long beerId, DetailedBeerDto updatedBeer) throws ResourceNotFoundException {
+        //Load original entity
+        // if empty : return 404
+        Beer beerToUpdate = beersRepository.loadById(beerId)
+                .orElseThrow(ResourceNotFoundException::new);
+        
+        //Then replace all "simple values" from those from dto
+        beerFieldsMapper.map(updatedBeer, beerToUpdate);
+        
+        convertStrength(updatedBeer, beerToUpdate);
+
+        // and parse foreign entities, foreach :
+        //      if FE id has changed then
+        //          load said entity
+        
+//        Beer updatedDrink = beersRepository.save(beerToUpdate);
+//        return updatedDrink;
+        
+        return beerToUpdate;
+    }
+
+    private void convertStrength(DetailedBeerDto updatedBeer,
+            Beer beerToUpdate) {
+        strengthConverter.entrySet().stream()
+            .forEach(action -> mapStrength(updatedBeer, beerToUpdate, action.getKey(), action.getValue()));
+    }
+
+    private Beer mapStrength(DetailedBeerDto updatedBeer, Beer beerToUpdate, Function<DetailedBeerDto, String> strengthRankGetter, BiFunction<Beer, String, Beer> strengthRankSetter) {
+        return strengthRankSetter.apply(beerToUpdate, strengthRankGetter.apply(updatedBeer));
     }
 
     public Optional<BeersDTOList> loadBeersByStyleId(long styleId) {
@@ -103,8 +133,7 @@ public class BeersServiceImpl {
         if (beersRepository.exists(beerId)) {
             beersRepository.delete(beerId);
         } else {
-            throw new ResourceNotFoundException(
-                    "Drink of id " + beerId + " does not exists");
+            throw new ResourceNotFoundException();
         }
     }
 
@@ -143,7 +172,7 @@ public class BeersServiceImpl {
     
     private DetailedBeerDto toDetailedDto(Beer beer) {
         if (beer != null)
-            return modelMapper.map(beer, DetailedBeerDto.class);
+            return beerFieldsMapper.map(beer, DetailedBeerDto.class);
         else
             return null;
     }
@@ -151,7 +180,7 @@ public class BeersServiceImpl {
     private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {
         return labels.stream()
             .sorted(DescriptiveLabel.byName)
-            .map(label -> modelMapper.map(label, DescriptiveLabelDto.class))
+            .map(label -> beerFieldsMapper.map(label, DescriptiveLabelDto.class))
             .collect(Collectors.toList());
     }
 
@@ -172,7 +201,7 @@ public class BeersServiceImpl {
     }
 
     private BeerDTO convertToDto(Beer beer) {
-        BeerDTO beerDTO = modelMapper.map(beer, BeerDTO.class);
+        BeerDTO beerDTO = beerFieldsMapper.map(beer, BeerDTO.class);
         return beerDTO;
     }
 }

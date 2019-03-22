@@ -46,7 +46,6 @@ class EditBeer extends Component {
 
   postData = (updatedBeer) => {
 
-    debugger;
     let postBeerUrl = `${API_ROOT}/private/beers/` + updatedBeer.id;
 
     var self = this;

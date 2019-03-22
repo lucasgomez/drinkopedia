@@ -22,7 +22,7 @@ import org.xlsx4j.exceptions.Xlsx4jException;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BeerColor;
 import ch.lgo.drinks.simple.entity.BeerStyle;
-import ch.lgo.drinks.simple.service.BeersServiceImpl;
+import ch.lgo.drinks.simple.service.BeersService;
 import ch.lgo.drinks.simple.service.ImportDataService;
 import ch.lgo.drinks.simple.service.XlsxOutputService;
 
@@ -32,7 +32,7 @@ public class BeerImporterResource {
     private static final String IMPORT_FOLDER = "src/main/resources/input/";
 	private static final String OUTPUT_FOLDER = "src/main/resources/output/";
 	@Autowired
-    private BeersServiceImpl beersService;
+    private BeersService beersService;
     @Autowired
     private ImportDataService importDataService;
     @Autowired

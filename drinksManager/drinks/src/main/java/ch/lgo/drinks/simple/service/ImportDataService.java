@@ -614,7 +614,7 @@ public class ImportDataService {
 	
 	private StrengthEnum getStrengthFromWeirdNumber(String weirdNumber) {
 		String rank = weirdNumber.substring(0, 1);
-		return StrengthEnum.getStrengthByRank(Integer.valueOf(rank));
+		return StrengthEnum.getStrengthByRank(rank);
 	}
 	
 	private Set<String> extractUnreferencedEntities(List<List<String>> content, int columnId, Map<String, ? extends DescriptiveLabel> entitiesByName) {
@@ -848,7 +848,7 @@ public class ImportDataService {
         for (List<String> beerEntry : beersContent) {
             String id = beerEntry.get(0);
             if (StringUtils.isNotBlank(id)) {
-                Beer beer = beersRepository.loadById(Long.valueOf(id));
+                Beer beer = beersRepository.loadById(Long.valueOf(id)).get();
                 // [2] Name
                 beer.setName(beerEntry.get(2));
                 // [3,4] ProducerId

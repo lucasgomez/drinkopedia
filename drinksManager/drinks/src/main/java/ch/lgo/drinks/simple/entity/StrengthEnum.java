@@ -20,6 +20,14 @@ public enum StrengthEnum {
 		return rank;
 	}
 	
+	public static StrengthEnum getStrengthByRank(String rank) {
+	    try {
+	        return getStrengthByRank(Integer.valueOf(rank));
+	    } catch (NumberFormatException exception) {
+	        return null;
+	    }
+	}
+	
 	public static StrengthEnum getStrengthByRank(int rank) {
 		return Arrays.stream(StrengthEnum.values())
 			.filter(strength -> strength.getRank() == rank)

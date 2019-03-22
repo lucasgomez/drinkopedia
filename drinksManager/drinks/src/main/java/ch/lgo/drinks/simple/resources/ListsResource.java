@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
-import ch.lgo.drinks.simple.service.BeersServiceImpl;
+import ch.lgo.drinks.simple.service.BeersService;
 
 @RestController
 @CrossOrigin(origins={"*"})
@@ -17,7 +17,7 @@ import ch.lgo.drinks.simple.service.BeersServiceImpl;
 public class ListsResource {
 
     @Autowired
-    private BeersServiceImpl beersService;
+    private BeersService beersService;
     
     @GetMapping("/bars")
     public List<DescriptiveLabelDto> getBars() {

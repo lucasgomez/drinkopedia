@@ -2,6 +2,7 @@ package ch.lgo.drinks.simple.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -30,13 +31,14 @@ public class BeersRepository {
     @PersistenceContext
     private EntityManager em;
     
-    public Beer loadById(long id) {
+    //TODO replace usage of loadById().get() by something more meaningul
+    public Optional<Beer> loadById(long id) {
         JPAQuery<Beer> query = new JPAQuery<>(em);
         QBeer qBeer = QBeer.beer;
-        return query
+        return Optional.ofNullable(query
         		.from(qBeer)
         		.where(qBeer.id.eq(id))
-        		.fetchOne();
+        		.fetchOne());
     }
 
     public Collection<Beer> findAll() {
@@ -123,18 +125,18 @@ public class BeersRepository {
     }
 
 	public Beer addBottledBeer(BottledBeer bottledBeer) {
-    	Beer beer = loadById(bottledBeer.getBeer().getId());
+    	Beer beer = loadById(bottledBeer.getBeer().getId()).get();
     	bottledBeer.setBeer(beer);
     	em.persist(bottledBeer);
-		return loadById(bottledBeer.getBeer().getId());
+		return loadById(bottledBeer.getBeer().getId()).get();
 	}
 
 	public Beer addTapBeer(TapBeer tapBeer) {
-    	Beer beer = loadById(tapBeer.getBeer().getId());
+    	Beer beer = loadById(tapBeer.getBeer().getId()).get();
     	tapBeer.setBeer(beer);
 		em.persist(tapBeer);
 		//TODO Should return an entity where tap is fetched!
-		return loadById(tapBeer.getBeer().getId());
+		return loadById(tapBeer.getBeer().getId()).get();
 	}
 
 	public void clearService() {
