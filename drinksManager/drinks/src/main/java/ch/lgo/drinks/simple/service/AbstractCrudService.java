@@ -1,5 +1,7 @@
 package ch.lgo.drinks.simple.service;
 
+import java.util.Optional;
+
 import ch.lgo.drinks.simple.dao.ICrudRepository;
 import ch.lgo.drinks.simple.entity.HasId;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
@@ -15,15 +17,11 @@ public abstract class AbstractCrudService<E extends HasId> {
 	}
 
 	public E update(E updatedE) throws ResourceNotFoundException, BadCreationRequestException {
-		E producerToUpdate = getCrudRepository().loadById(updatedE.getId());
-		if (producerToUpdate != null) {
-			return getCrudRepository().save(updatedE);
-		} else {
-			throw new ResourceNotFoundException();
-		}
+		return getCrudRepository().save(getCrudRepository().loadById(updatedE.getId())
+		        .orElseThrow(ResourceNotFoundException::new));
 	}
 
-	public E loadById(long producerId) {
+	public Optional<E> loadById(long producerId) {
 		return getCrudRepository().loadById(producerId);
 	}
 

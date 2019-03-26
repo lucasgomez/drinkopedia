@@ -2,6 +2,7 @@ package ch.lgo.drinks.simple.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,10 +25,10 @@ public class BeerStylesRepository implements ICrudRepository<BeerStyle>  {
     @PersistenceContext
     private EntityManager em;
     
-    public BeerStyle loadById(long id) {
+    public Optional<BeerStyle> loadById(long id) {
     	JPAQuery<BeerStyle> query = new JPAQuery<>(em);
     	QBeerStyle qStyle = QBeerStyle.beerStyle;
-    	return query.from(qStyle).where(qStyle.id.eq(id)).fetchOne();
+    	return Optional.ofNullable(query.from(qStyle).where(qStyle.id.eq(id)).fetchOne());
     }
 
     public Collection<BeerStyle> findAll() {

@@ -8,7 +8,8 @@ import ch.lgo.drinks.simple.service.AbstractCrudService;
 
 @Service
 public class BeerColorService extends AbstractCrudService<BeerColor> {
-
+    //TODO Still used?
+    
     @Autowired
     BeerColorRepository colorRepository;
     

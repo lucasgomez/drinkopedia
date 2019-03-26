@@ -3,6 +3,7 @@ package ch.lgo.drinks.simple.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -92,15 +93,15 @@ public class BarRepository implements ICrudRepository<Bar> {
         return list;
     }
     
-    public Bar loadTapById(long id) {
+    public Optional<Bar> loadTapById(long id) {
     	return loadById(id, true, false);
     }
     
-    public Bar loadBottledById(long id) {
+    public Optional<Bar> loadBottledById(long id) {
     	return loadById(id, false, true);
     }
     
-    public Bar loadById(long id, boolean joinTap, boolean joinBottled) {
+    public Optional<Bar> loadById(long id, boolean joinTap, boolean joinBottled) {
         JPAQuery<Bar> query = new JPAQuery<>(em);
         QBar bar = QBar.bar;
         
@@ -119,9 +120,10 @@ public class BarRepository implements ICrudRepository<Bar> {
 					.leftJoin(bar.bottledBeer, bottledbeer).fetchJoin()
 					.leftJoin(bottledbeer.beer, QBeer.beer).fetchJoin();
         }
-        return query
+        return Optional.ofNullable(
+                query
         		.where(bar.id.eq(id))
-        		.fetchOne();
+        		.fetchOne());
     }
 
 	public Bar save(Bar bottleBar) {
@@ -129,7 +131,7 @@ public class BarRepository implements ICrudRepository<Bar> {
 	}
 
     @Override
-    public Bar loadById(long id) {
+    public Optional<Bar> loadById(long id) {
         return loadById(id, false, false);
     }
 

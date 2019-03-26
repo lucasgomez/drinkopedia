@@ -2,6 +2,7 @@ package ch.lgo.drinks.simple.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -25,10 +26,10 @@ public class ProducerRepository implements ICrudRepository<Producer> {
 	@PersistenceContext
 	private EntityManager em;
 	
-    public Producer loadById(long id) {
+    public Optional<Producer> loadById(long id) {
         JPAQuery<Producer> query = new JPAQuery<>(em);
         QProducer qProducer = QProducer.producer;
-        return query.from(qProducer).where(qProducer.id.eq(id)).fetchOne();
+        return Optional.ofNullable(query.from(qProducer).where(qProducer.id.eq(id)).fetchOne());
     }
 
     public Collection<Producer> findAll() {

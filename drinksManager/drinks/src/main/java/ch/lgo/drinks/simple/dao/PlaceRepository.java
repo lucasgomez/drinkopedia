@@ -2,6 +2,7 @@ package ch.lgo.drinks.simple.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -27,10 +28,10 @@ public class PlaceRepository implements ICrudRepository<Place> {
     private EntityManager em;
     
 	@Override
-	public Place loadById(long id) {
+	public Optional<Place> loadById(long id) {
         JPAQuery<Place> query = new JPAQuery<>(em);
         QPlace qPlace = QPlace.place;
-        return query.from(qPlace).where(qPlace.id.eq(id)).fetchOne();
+        return Optional.ofNullable(query.from(qPlace).where(qPlace.id.eq(id)).fetchOne());
 	}
 
 	@Override

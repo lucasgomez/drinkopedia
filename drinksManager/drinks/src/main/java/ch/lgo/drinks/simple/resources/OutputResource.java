@@ -33,29 +33,21 @@ public class OutputResource {
 	
 	@GetMapping("output/bottledBar/{bottled_bar_id}")
     public Response outputBottledBar(@PathVariable(value="bottled_bar_id") long bottledBarId) throws Exception {
-		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
-		if (bottledBar == null)
-			throw new ResourceNotFoundException();
-		
+		Bar bottledBar = barRepo.loadBottledById(bottledBarId).orElseThrow(ResourceNotFoundException::new);
 		outputService.outputBottledBarPricesLists(bottledBar, OUTPUT_FOLDER, bottledBar.getName());
         return Response.created(null).build();
     }
 	
 	@GetMapping("output/tapBar/{tap_bar_id}")
 	public Response outputTapBar(@PathVariable(value="tap_bar_id") long tapBarId) throws Exception {
-		Bar tapBar = barRepo.loadTapById(tapBarId);
-		if (tapBar == null)
-			throw new ResourceNotFoundException();
-		
+		Bar tapBar = barRepo.loadTapById(tapBarId).orElseThrow(ResourceNotFoundException::new);
 		outputService.outputTapBarPricesLists(tapBar, OUTPUT_FOLDER, tapBar.getName());
 		return null;
 	}
 	
 	@GetMapping("output/listWithBottlesDetails/{bottled_bar_id}")
 	public Response listBottlesWithDetails(@PathParam("bottled_bar_id") long bottledBarId) throws Exception {
-		Bar bottledBar = barRepo.loadBottledById(bottledBarId);
-		if (bottledBar == null)
-			throw new ResourceNotFoundException();
+		Bar bottledBar = barRepo.loadBottledById(bottledBarId).orElseThrow(ResourceNotFoundException::new);
 		outputService.outputBottledDetailedMultiSortedAlphaPlusPlus(bottledBar, OUTPUT_FOLDER, "details");
 		return null;
 	}

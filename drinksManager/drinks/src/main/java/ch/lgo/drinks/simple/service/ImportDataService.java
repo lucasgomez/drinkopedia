@@ -802,7 +802,8 @@ public class ImportDataService {
             if (StringUtils.isNotBlank(id)) {
                 boolean hasChange = false;
                 //Update producer
-                Producer producer = producerRepository.loadById(Long.valueOf(id));
+                //TODO Replace get()
+                Producer producer = producerRepository.loadById(Long.valueOf(id)).get();
                 if (!producer.getName().equals(name)) {
                     producer.setName(name);
                     hasChange = true;
