@@ -45,4 +45,8 @@ public class BeerStyle implements HasId, DescriptiveLabel {
 	public BeerStyle(String styleName) {
 		this.name = styleName;
 	}
+    
+    public String toString() {
+        return String.format("Id: %s, name: %s", getId(), getName());
+    }
 }

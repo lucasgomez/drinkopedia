@@ -228,4 +228,8 @@ public class Beer implements HasId, DescriptiveLabel {
 	    this.detailsUpToDate = false;
 	    this.modificationDate = LocalDateTime.now();
 	}
+    
+    public String toString() {
+        return String.format("Id: %s, name: %s", getId(), getName());
+    }
 }

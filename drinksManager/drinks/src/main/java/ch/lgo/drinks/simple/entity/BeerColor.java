@@ -47,4 +47,7 @@ public class BeerColor implements HasId, DescriptiveLabel {
     public BeerColor() {
     }
     
+    public String toString() {
+        return String.format("Id: %s, name: %s", getId(), getName());
+    }
 }

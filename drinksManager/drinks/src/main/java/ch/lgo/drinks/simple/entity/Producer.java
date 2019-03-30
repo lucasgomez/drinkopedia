@@ -65,4 +65,8 @@ public class Producer implements HasId, DescriptiveLabel, Comparable<Producer> {
 	public int compareTo(Producer o) {
 		return comparing.compare(this, o);
 	}
+    
+    public String toString() {
+        return String.format("Id: %s, name: %s", getId(), getName());
+    }
 }

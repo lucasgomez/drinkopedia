@@ -3,8 +3,12 @@ package ch.lgo.drinks.simple.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
@@ -14,7 +18,12 @@ import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.BeerColor;
+import ch.lgo.drinks.simple.entity.BeerStyle;
 import ch.lgo.drinks.simple.entity.BottledBeer;
+import ch.lgo.drinks.simple.entity.EntityManipulator;
+import ch.lgo.drinks.simple.entity.HasId;
+import ch.lgo.drinks.simple.entity.Producer;
 import ch.lgo.drinks.simple.entity.QBeer;
 import ch.lgo.drinks.simple.entity.QBeerColor;
 import ch.lgo.drinks.simple.entity.QBeerStyle;
@@ -202,7 +211,41 @@ public class BeersRepository {
                 .where(qPlace.id.eq(originId))
                 .orderBy(qBeer.name.asc())
                 .fetch();
+    }
+    
+    public Beer updateStyleReference(Beer beerToUpdate, Long newId) {
+        return updateReference(beerToUpdate, newId, Beer::getStyle, (beer, style) -> beer.setStyle((BeerStyle) style), BeerStyle.class);
+    }
+    
+    public Beer updateColorReference(Beer beerToUpdate, Long newId) {
+        return updateReference(beerToUpdate, newId, Beer::getColor, (beer, color) -> beer.setColor((BeerColor) color), BeerColor.class);
+    }
+    
+    public Beer updateProducerReference(Beer beerToUpdate, Long newId) {
+        return updateReference(beerToUpdate, newId, Beer::getProducer, (beer, producer) -> beer.setProducer((Producer) producer), Producer.class);
+    }
 
+    private Beer updateReference(Beer beer, Long newId, Function<Beer, HasId> getter, BiFunction<Beer, HasId, Beer> setter, Class<? extends HasId> clazz) {
+        try {
+            return setter.apply(beer, Optional.ofNullable(newId)
+                    .map(id -> em.getReference(clazz, id))
+                    .orElse(null)
+            );
+        } catch (EntityNotFoundException ex) {
+            //Not found? Nothing then.
+            return setter.apply(beer, null);
+        }
+    }
+
+    public void detachForeignReferences(Beer beerToUpdate, Collection<EntityManipulator<? extends HasId>> manipulators) {
+        //Detach all foreign entities to update
+        manipulators.stream()
+            .map(manipulator -> manipulator.getGetter().apply(beerToUpdate))
+            .filter(foreignEntity -> foreignEntity != null)
+            .collect(Collectors.toSet())
+            .forEach(foreignEntity -> em.detach(foreignEntity));
+        
+        manipulators.forEach(manipulator -> manipulator.getSetter().apply(beerToUpdate, manipulator.getNewId()));
     }
 
 }
