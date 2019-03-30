@@ -213,21 +213,21 @@ public class BeersRepository {
                 .fetch();
     }
     
-    public Beer updateStyleReference(Beer beerToUpdate, Long newId) {
+    public Beer updateStyleReference(Beer beerToUpdate, Optional<Long> newId) {
         return updateReference(beerToUpdate, newId, Beer::getStyle, (beer, style) -> beer.setStyle((BeerStyle) style), BeerStyle.class);
     }
     
-    public Beer updateColorReference(Beer beerToUpdate, Long newId) {
+    public Beer updateColorReference(Beer beerToUpdate, Optional<Long> newId) {
         return updateReference(beerToUpdate, newId, Beer::getColor, (beer, color) -> beer.setColor((BeerColor) color), BeerColor.class);
     }
     
-    public Beer updateProducerReference(Beer beerToUpdate, Long newId) {
+    public Beer updateProducerReference(Beer beerToUpdate, Optional<Long> newId) {
         return updateReference(beerToUpdate, newId, Beer::getProducer, (beer, producer) -> beer.setProducer((Producer) producer), Producer.class);
     }
 
-    private Beer updateReference(Beer beer, Long newId, Function<Beer, HasId> getter, BiFunction<Beer, HasId, Beer> setter, Class<? extends HasId> clazz) {
+    private Beer updateReference(Beer beer, Optional<Long> newId, Function<Beer, HasId> getter, BiFunction<Beer, HasId, Beer> setter, Class<? extends HasId> clazz) {
         try {
-            return setter.apply(beer, Optional.ofNullable(newId)
+            return setter.apply(beer, newId
                     .map(id -> em.getReference(clazz, id))
                     .orElse(null)
             );
@@ -240,12 +240,12 @@ public class BeersRepository {
     public void detachForeignReferences(Beer beerToUpdate, Collection<EntityManipulator<? extends HasId>> manipulators) {
         //Detach all foreign entities to update
         manipulators.stream()
-            .map(manipulator -> manipulator.getGetter().apply(beerToUpdate))
+            .map(manipulator -> manipulator.getForeignEntityGetter().apply(beerToUpdate))
             .filter(foreignEntity -> foreignEntity != null)
             .collect(Collectors.toSet())
             .forEach(foreignEntity -> em.detach(foreignEntity));
         
-        manipulators.forEach(manipulator -> manipulator.getSetter().apply(beerToUpdate, manipulator.getNewId()));
+        manipulators.forEach(manipulator -> manipulator.getForeignEntitySetter().apply(beerToUpdate, manipulator.getNewId()));
     }
 
 }
