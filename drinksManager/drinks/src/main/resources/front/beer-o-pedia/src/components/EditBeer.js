@@ -69,7 +69,6 @@ class EditBeer extends Component {
     }).catch(err => err);
 
   }
-
   handleSubmit(values, {setSubmitting}) {
     let updatedBeer = Object.assign(this.state.beer, values);
 
@@ -105,7 +104,7 @@ class EditBeer extends Component {
         validationSchema={beerValidator}
         onSubmit={this.handleSubmit}
 
-        render={({ submitForm, isSubmitting, values }) => (
+        render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
 
               <Form>
                 <Field
@@ -162,9 +161,16 @@ class EditBeer extends Component {
                 <br/>
 
                 <button
+                    type="button"
+                    className="outline"
+                    onClick={handleReset}
+                    disabled={!dirty || isSubmitting}>
+                    Annuler
+                  </button>
+                <button
                   type="submit"
                   disabled={isSubmitting}>
-                     Submit Form
+                     Sauver
                 </button>
               </Form>
        )}
