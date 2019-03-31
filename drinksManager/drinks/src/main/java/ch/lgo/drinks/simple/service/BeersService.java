@@ -85,7 +85,7 @@ public class BeersService {
         return beersRepository.save(newBeer);
     }
 
-    public Beer update(long beerId, DetailedBeerDto updatedBeer) throws ResourceNotFoundException {
+    public BeerDTO update(long beerId, DetailedBeerDto updatedBeer) throws ResourceNotFoundException {
         //Load original entity
         // if empty : return 404
         Beer beerToUpdate = beersRepository.loadById(beerId)
@@ -106,7 +106,7 @@ public class BeersService {
         beersRepository.detachForeignReferences(beerToUpdate, updaters); 
         
         //Persist
-        return beersRepository.save(beerToUpdate);
+        return convertToDto(beersRepository.save(beerToUpdate));
     }
 
     private Set<EntityManipulator<? extends HasId>> getUpdatersForForeignRelations(DetailedBeerDto updatedBeer, Beer beerToUpdate, 
