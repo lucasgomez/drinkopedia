@@ -11,6 +11,7 @@ import {
   Switch
 } from 'react-router-dom';
 import BeersList from './BeersList';
+import TapBeersDisplay from './TapBeersDisplay';
 import BeerId from './BeerId';
 import EditBeer from './EditBeer';
 import Menu from './Menu';
@@ -44,6 +45,7 @@ class Manager extends Component {
             <Route path="/list/:listName/:listId" component={ListRoute}/>
             <Route path="/list" component={ListRoute}/>
             <Route path="/beerid/:beerId" component={BeerRoute}/>
+            <Route path="/beamer" component={BeamerRoute}/>
             <Route path="/edit/beer/:beerId" component={EditBeerRoute}/>
             <Route component={Welcome}/>
           </Switch>
@@ -58,6 +60,14 @@ const ListRoute = ({ match }) => (
     <BeersList
       listId={match.params.listId}
       listName={match.params.listName}/>
+  </div>
+);
+
+const BeamerRoute = ({ match }) => (
+  <div>
+    <TapBeersDisplay
+      listId={666}
+      listName={"bars"}/>
   </div>
 );
 
