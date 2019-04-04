@@ -5,6 +5,8 @@ import { ReactstrapInput } from "reactstrap-formik";
 import SelectList from './edit/SelectList';
 import StrengthInput from './edit/StrengthInput';
 import { API_ROOT } from '../data/apiConfig';
+import {Button} from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 class EditBeer extends Component {
@@ -88,93 +90,99 @@ class EditBeer extends Component {
     }
 
     return (
-      <Formik
-        initialValues={{
-          name: this.state.beer.name,
-          producerId: this.state.beer.producerId,
-          abv: this.state.beer.abv,
-          styleId: this.state.beer.styleId,
-          colorId: this.state.beer.colorId,
-          comment: this.state.beer.comment,
-          bitternessRank: this.state.beer.bitternessRank,
-          sournessRank: this.state.beer.sournessRank,
-          sweetnessRank: this.state.beer.sweetnessRank,
-          hoppingRank: this.state.beer.hoppingRank,
-        }}
-        validationSchema={beerValidator}
-        onSubmit={this.handleSubmit}
+      <div>
+        <Link to={'/beerid/'+this.props.beerId}>
+          <h2>{'⬅'}</h2>
+        </Link>
 
-        render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
+        <Formik
+          initialValues={{
+            name: this.state.beer.name,
+            producerId: this.state.beer.producerId,
+            abv: this.state.beer.abv,
+            styleId: this.state.beer.styleId,
+            colorId: this.state.beer.colorId,
+            comment: this.state.beer.comment,
+            bitternessRank: this.state.beer.bitternessRank,
+            sournessRank: this.state.beer.sournessRank,
+            sweetnessRank: this.state.beer.sweetnessRank,
+            hoppingRank: this.state.beer.hoppingRank,
+          }}
+          validationSchema={beerValidator}
+          onSubmit={this.handleSubmit}
 
-              <Form>
-                <Field
-                  id="name"
-                  type="text"
-                  label="Nom"
-                  name="name"
-                  placeholder="Nom de la Bière"
-                  component={ReactstrapInput}
-                  />
-                  <ErrorMessage name="name" />
-                <br/>
+          render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
 
-                <SelectList label="Producteur" name="producerId" listName="producers"/>
-                <br/>
+                <Form>
+                  <Field
+                    id="name"
+                    type="text"
+                    label="Nom"
+                    name="name"
+                    placeholder="Nom de la Bière"
+                    component={ReactstrapInput}
+                    />
+                    <ErrorMessage name="name" />
+                  <br/>
 
-                <label htmlFor="comment" style={{ display: 'block' }}>
-                  Description
-                </label>
-                <Field
-                  component="textarea"
-                  rows="4"
-                  name="comment"
-                  placeholder="Texte de description de la Bière"
-                  />
-                <ErrorMessage name="comment" />
+                  <SelectList label="Producteur" name="producerId" listName="producers"/>
+                  <br/>
 
-                <Field
-                  id="abv"
-                  type="text"
-                  label="Alcool (%)"
-                  name="abv"
-                  component={ReactstrapInput}
-                  />
-                <ErrorMessage name="abv" />
-                <br/>
+                  <label htmlFor="comment" style={{ display: 'block' }}>
+                    Description
+                  </label>
+                  <Field
+                    component="textarea"
+                    rows="4"
+                    name="comment"
+                    placeholder="Texte de description de la Bière"
+                    />
+                  <ErrorMessage name="comment" />
 
-                <SelectList label="Couleur" name="colorId" listName="colors"/>
-                <br/>
+                  <Field
+                    id="abv"
+                    type="text"
+                    label="Alcool (%)"
+                    name="abv"
+                    component={ReactstrapInput}
+                    />
+                  <ErrorMessage name="abv" />
+                  <br/>
 
-                <SelectList label="Style" name="styleId" listName="styles"/>
-                <br/>
+                  <SelectList label="Couleur" name="colorId" listName="colors"/>
+                  <br/>
 
-                <StrengthInput name="bitternessRank" label="Amertume"/>
-                <br/>
+                  <SelectList label="Style" name="styleId" listName="styles"/>
+                  <br/>
 
-                <StrengthInput name="sournessRank" label="Acidité"/>
-                <br/>
+                  <StrengthInput name="bitternessRank" label="Amertume"/>
+                  <br/>
 
-                <StrengthInput name="sweetnessRank" label="Douceur"/>
-                <br/>
+                  <StrengthInput name="sournessRank" label="Acidité"/>
+                  <br/>
 
-                <StrengthInput name="hoppingRank" label="Houblonnage"/>
-                <br/>
+                  <StrengthInput name="sweetnessRank" label="Douceur"/>
+                  <br/>
 
-                <button
-                    type="button"
-                    className="outline"
-                    onClick={handleReset}
-                    disabled={!dirty || isSubmitting}>
-                    Annuler
+                  <StrengthInput name="hoppingRank" label="Houblonnage"/>
+                  <br/>
+
+                  <button
+                      type="button"
+                      className="outline"
+                      onClick={handleReset}
+                      disabled={!dirty || isSubmitting}>
+                      Annuler
+                    </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}>
+                       Sauver
                   </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}>
-                     Sauver
-                </button>
-              </Form>
-       )}
-      />
+                </Form>
+         )}
+        />
+      </div>
     );
   }
 }
