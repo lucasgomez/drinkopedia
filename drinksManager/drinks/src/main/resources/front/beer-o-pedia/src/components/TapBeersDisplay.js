@@ -64,6 +64,29 @@ class TapBeersDisplay extends Component {
     return producerString
   }
 
+  renderAvailibity = (beer) => {
+    switch (beer.tapAvailability) {
+      case "NOT_YET_AVAILABLE":
+        return "🕘";
+        break;
+      case "AVAILABLE":
+        return beer.tapAssortment=="FIXED"?
+          "🌟":
+          "⏳";
+        break;
+      case "NEARLY_OUT_OF_STOCK":
+        return beer.tapAssortment=="FIXED"?
+          "🌟":
+          "⌛";
+        break;
+      case "OUT_OF_STOCK":
+        return "💀";
+        break;
+      default:
+        return null;
+    }
+  }
+
   createBeerCard = (beer, isPair) => {
     let bgColor=isPair?"":"dark"
     let textColor=isPair?"":"light"
@@ -74,7 +97,7 @@ class TapBeersDisplay extends Component {
           <h7 class="card-subtitle mb-2 text-muted">{this.renderProducer(beer)}</h7>
           <div>
             {beer.abv}% <i>{beer.styleName}</i> ({beer.colorName})
-            <h4 class="float-sm-right">🌟</h4>
+            <h4 class="float-sm-right">{this.renderAvailibity(beer)}</h4>
           </div>
         </Card>
       </Col>
@@ -83,7 +106,6 @@ class TapBeersDisplay extends Component {
 
   createTable = (items, rowLength) => {
     let table = []
-    debugger
 
     for (let rowId = 0; rowId < (items.length/rowLength); rowId++) {
       let children = []
@@ -95,7 +117,7 @@ class TapBeersDisplay extends Component {
         if (cellId<items.length)
           children.push(this.createBeerCard(items[cellId], isEven))
         else
-          children.push(<Col></Col>)
+          children.push(<Col/>)
       }
       table.push(<Row noGutters="true">{children}</Row>)
     }
@@ -120,12 +142,13 @@ class TapBeersDisplay extends Component {
 
         {this.createTable(items, 4)}
 
-    		<div class="row text-center">
-    			<h6 class="col">🌟 - Assortiment fixe</h6>
-    			<h6 class="col">🎇 - Nouvellement ajoutée</h6>
-    			<h6 class="col">⏳ - Assortiment temporaire</h6>
-    			<h6 class="col">⌛ - Bientôt épuisée</h6>
-    		</div>
+        <div>.</div>
+    		<Row className="text-center">
+    			<h5 class="col">🌟 - Assortiment fixe</h5>
+    			<h5 class="col">🎇 - Nouvellement ajoutée</h5>
+    			<h5 class="col">⏳ - Assortiment temporaire</h5>
+    			<h5 class="col">⌛ - Bientôt épuisée</h5>
+    		</Row>
       </Container>
     );
   }

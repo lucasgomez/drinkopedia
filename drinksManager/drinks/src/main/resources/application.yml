@@ -38,16 +38,11 @@ spring:
               action: create
               create-target: create.sql
   datasource:
+      initialization-mode: always
       url: jdbc:postgresql://localhost:5432/drinkopedia
       username: postgres
       password: postgres
   security:
-#    user:
-#      name: belzeboss
-#      password: 666
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: 1088436272294-cuipv8045qdel0vgi9v9mv36qhr0vaeb.apps.googleusercontent.com
-            client-secret: ZIJG8E9L002pNvr4pQM2grLS
+    user:
+      name: belzeboss
+      password: 666

@@ -54,7 +54,7 @@ const WithMenuRoute = ({ match }) => (
     <Menu/>
 
     <Switch>
-      <Route path="*/list/:listName/:listId" component={ListRoute}/>
+      <Route path="/list/:listName/:listId" component={ListRoute}/>
       <Route path="/list" component={ListRoute}/>
       <Route path="/beerid/:beerId" component={BeerRoute}/>
       <Route path="/edit/beer/:beerId" component={EditBeerRoute}/>
