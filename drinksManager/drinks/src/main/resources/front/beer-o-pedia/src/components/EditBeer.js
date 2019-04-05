@@ -6,7 +6,7 @@ import SelectList from './edit/SelectList';
 import StrengthInput from './edit/StrengthInput';
 import { API_ROOT } from '../data/apiConfig';
 import {Button} from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 
 class EditBeer extends Component {
@@ -16,6 +16,7 @@ class EditBeer extends Component {
 
     this.state = {
       beer: null,
+      fireRedirect: false,
       isLoading: false,
     };
 
@@ -46,43 +47,32 @@ class EditBeer extends Component {
     });
   }
 
-  postData = (updatedBeer) => {
-
+  handleSubmit(values, {setSubmitting}) {
+    let updatedBeer = Object.assign(this.state.beer, values);
     let postBeerUrl = `${API_ROOT}/private/beers/` + updatedBeer.id;
 
     var self = this;
     axios.put(postBeerUrl, updatedBeer)
-     .then(response =>
-       console.log(response)
-    )
-     .catch(error =>
-       console.log(error)
+     .then(function (response){
+       setSubmitting(false);
+       self.setState({
+         fireRedirect: true
+       });
+     }).catch(function (error) {
+       setSubmitting(false);
+       console.log(error);
+       alert("Erreur pas spécialement attendue, voir console pour détails");
+     }
     );
 
-    fetch(postBeerUrl, {
-        method: 'POST',
-        mode: 'CORS',
-        body: JSON.stringify(updatedBeer),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then(res => {
-        return res;
-    }).catch(err => err);
-
-  }
-  handleSubmit(values, {setSubmitting}) {
-    let updatedBeer = Object.assign(this.state.beer, values);
-
-    this.postData(updatedBeer);
-    setSubmitting(false);
   }
 
   render() {
 
     const {
       beer,
-      isLoading
+      isLoading,
+      fireRedirect
     } = this.state;
 
     if (isLoading || !beer) {
@@ -94,6 +84,10 @@ class EditBeer extends Component {
         <Link to={'/beerid/'+this.props.beerId}>
           <h2>{'⬅'}</h2>
         </Link>
+
+        {fireRedirect && (
+          <Redirect to={'/beerid/'+this.props.beerId}/>
+        )}
 
         <Formik
           initialValues={{
