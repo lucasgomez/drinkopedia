@@ -25,11 +25,14 @@ import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
+import ch.lgo.drinks.simple.dto.VeryDetailedBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.EntityManipulator;
 import ch.lgo.drinks.simple.entity.HasId;
 import ch.lgo.drinks.simple.entity.StrengthEnum;
+import ch.lgo.drinks.simple.entity.TapBeer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 
@@ -79,13 +82,27 @@ public class BeersService {
                 Beer::getProducer,
                 (beer, id) -> beersRepository.updateProducerReference(beer, id)));
     }
+    private static Set<Function<VeryDetailedBeerDto, ?>> dtoTapFieldsGetters;
+    {
+        dtoTapFieldsGetters = new HashSet<>();
+        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapBuyingPricePerLiter);
+        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapPriceBig);
+        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapPriceSmall);
+    }
+    private static Set<Function<VeryDetailedBeerDto, ?>> dtoBottleFieldsGetters;
+    {
+        dtoTapFieldsGetters = new HashSet<>();
+        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleBuyingPrice);
+        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleSellingPrice);
+        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleVolumeInCl);
+    }
 
     public Beer create(Beer newBeer) throws BadCreationRequestException {
         //TODO Add checks about beer consistency
         return beersRepository.save(newBeer);
     }
 
-    public BeerDTO update(long beerId, DetailedBeerDto updatedBeer) throws ResourceNotFoundException {
+    public BeerDTO update(long beerId, VeryDetailedBeerDto updatedBeer) throws ResourceNotFoundException {
         //Load original entity
         // if empty : return 404
         Beer beerToUpdate = beersRepository.loadById(beerId)
@@ -94,6 +111,15 @@ public class BeersService {
         //List needed updaters for foreign entities
         Set<EntityManipulator<? extends HasId>> updaters = getUpdatersForForeignRelations(updatedBeer, beerToUpdate, foreignEntitiesMapper);
 
+        if (fieldNeedsCreation(beerToUpdate, updatedBeer, Beer::getTap, dtoTapFieldsGetters)) {
+            beerToUpdate.setTap(new TapBeer(beerToUpdate));
+            beersRepository.save(beerToUpdate.getTap());
+        }
+        if (fieldNeedsCreation(beerToUpdate, updatedBeer, Beer::getBottle, dtoBottleFieldsGetters)) {
+            beerToUpdate.setBottle(new BottledBeer(beerToUpdate));
+            beersRepository.save(beerToUpdate.getBottle());
+        }
+        
         //Then replace all "simple values" by those from dto
         beerFieldsMapper.map(updatedBeer, beerToUpdate);
         
@@ -103,10 +129,14 @@ public class BeersService {
         // and parse foreign entities, foreach :
         //      if FE id has changed then
         //          load said entity (or null)
-        beersRepository.detachForeignReferences(beerToUpdate, updaters); 
+        beersRepository.detachThenUpdateForeignReferences(beerToUpdate, updaters); 
         
         //Persist
         return convertToDto(beersRepository.save(beerToUpdate));
+    }
+
+    private boolean fieldNeedsCreation(Beer beerToUpdate, VeryDetailedBeerDto updatedBeer, Function<Beer, ?> entityAttributeGetter, Set<Function<VeryDetailedBeerDto, ?>> dtoGetters) {
+        return entityAttributeGetter.apply(beerToUpdate) == null && dtoGetters.stream().anyMatch(function -> function.apply(updatedBeer) != null); 
     }
 
     private Set<EntityManipulator<? extends HasId>> getUpdatersForForeignRelations(DetailedBeerDto updatedBeer, Beer beerToUpdate, 
@@ -166,6 +196,10 @@ public class BeersService {
     public Optional<DetailedBeerDto> loadById(long drinkId) {
         return Optional.of(toDetailedDto(beersRepository.loadByIdWithServices(drinkId)));
     }
+    
+    public Optional<VeryDetailedBeerDto> loadByIdForEdit(long drinkId) {
+        return Optional.of(toVeryDetailedDto(beersRepository.loadByIdWithServices(drinkId)));
+    }
 
     public void delete(long beerId) throws ResourceNotFoundException {
         if (beersRepository.exists(beerId)) {
@@ -210,6 +244,13 @@ public class BeersService {
     private DetailedBeerDto toDetailedDto(Beer beer) {
         if (beer != null)
             return beerFieldsMapper.map(beer, DetailedBeerDto.class);
+        else
+            return null;
+    }
+    
+    private VeryDetailedBeerDto toVeryDetailedDto(Beer beer) {
+        if (beer != null)
+            return beerFieldsMapper.map(beer, VeryDetailedBeerDto.class);
         else
             return null;
     }

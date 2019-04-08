@@ -32,7 +32,7 @@ class EditBeer extends Component {
       isLoading: true
     });
 
-    let beerUrl = `${API_ROOT}/public/beers/` + beerId;
+    let beerUrl = `${API_ROOT}/private/beers/` + beerId;
 
     var self = this;
     axios.get(beerUrl)
@@ -75,18 +75,20 @@ class EditBeer extends Component {
       fireRedirect
     } = this.state;
 
+    const redirectUrl = '/beerid/'+this.props.beerId;
+
     if (isLoading || !beer) {
       return <div class="container"><p> Loading... < /p></div>;
     }
 
     return (
       <div>
-        <Link to={'/beerid/'+this.props.beerId}>
-          <h2>{'⬅'}</h2>
+        <Link to={redirectUrl}>
+          <h2>{'🔙'}</h2>
         </Link>
 
         {fireRedirect && (
-          <Redirect to={'/beerid/'+this.props.beerId}/>
+          <Redirect to={redirectUrl}/>
         )}
 
         <Formik
@@ -101,6 +103,12 @@ class EditBeer extends Component {
             sournessRank: this.state.beer.sournessRank,
             sweetnessRank: this.state.beer.sweetnessRank,
             hoppingRank: this.state.beer.hoppingRank,
+            tapBuyingPricePerLiter: this.state.beer.tapBuyingPricePerLiter,
+            tapPriceBig: this.state.beer.tapPriceBig,
+            tapPriceSmall: this.state.beer.tapPriceSmall,
+            bottleBuyingPrice: this.state.beer.bottleBuyingPrice,
+            bottleSellingPrice: this.state.beer.bottleSellingPrice,
+            bottleVolumeInCl: this.state.beer.bottleVolumeInCl,
           }}
           validationSchema={beerValidator}
           onSubmit={this.handleSubmit}
@@ -161,17 +169,71 @@ class EditBeer extends Component {
                   <StrengthInput name="hoppingRank" label="Houblonnage"/>
                   <br/>
 
+                  <Field
+                    id="tapBuyingPricePerLiter"
+                    type="text"
+                    label="Prix d'achat (CHF/L)"
+                    name="tapBuyingPricePerLiter"
+                    component={ReactstrapInput}
+                    />
+                  <ErrorMessage name="tapBuyingPricePerLiter" />
+
+                  <Field
+                    id="tapPriceBig"
+                    type="text"
+                    label="Prix de vente (50cl)"
+                    name="tapPriceBig"
+                    component={ReactstrapInput}
+                    />
+                  <ErrorMessage name="tapPriceBig" />
+
+                  <Field
+                    id="tapPriceSmall"
+                    type="text"
+                    label="Prix de vente (25cL)"
+                    name="tapPriceSmall"
+                    component={ReactstrapInput}
+                    />
+                  <ErrorMessage name="tapPriceSmall" />
+
+                  <Field
+                    id="bottleBuyingPrice"
+                    type="text"
+                    label="Prix d'achat bouteille"
+                    name="bottleBuyingPrice"
+                    component={ReactstrapInput}
+                    />
+                  <ErrorMessage name="bottleBuyingPrice" />
+
+                  <Field
+                    id="bottleSellingPrice"
+                    type="text"
+                    label="Prix de vente bouteille"
+                    name="bottleSellingPrice"
+                    component={ReactstrapInput}
+                    />
+                  <ErrorMessage name="bottleSellingPrice" />
+
+                  <Field
+                    id="bottleVolumeInCl"
+                    type="text"
+                    label="Volume bouteille (cL)"
+                    name="bottleVolumeInCl"
+                    component={ReactstrapInput}
+                    />
+                  <ErrorMessage name="bottleVolumeInCl" />
+
                   <button
                       type="button"
                       className="outline"
                       onClick={handleReset}
                       disabled={!dirty || isSubmitting}>
-                      Annuler
+                      ✖ Annuler
                     </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}>
-                       Sauver
+                       💾 Sauver
                   </button>
                 </Form>
          )}
@@ -188,6 +250,7 @@ const beerValidator = yup.object().shape({
     .required("Le nom est obligatoire"),
   comment: yup
     .string()
+    .nullable()
     .trim()
     .max(255, "Description trop longue"),
   abv: yup

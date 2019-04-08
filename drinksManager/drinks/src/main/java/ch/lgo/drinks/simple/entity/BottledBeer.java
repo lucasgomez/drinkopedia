@@ -30,7 +30,14 @@ public class BottledBeer implements HasId {
 	private static Comparator<BottledBeer> byColor = comparing(bottle -> bottle.getBeer().getColor().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<BottledBeer> byProducer = comparing(bottle -> bottle.getBeer().getProducer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
 	
-	@Override
+	public BottledBeer() {
+	}
+	
+	public BottledBeer(Beer beerToUpdate) {
+        this.beer = beerToUpdate;
+    }
+	
+    @Override
 	@Id
 	public Long getId() {
 		return id;

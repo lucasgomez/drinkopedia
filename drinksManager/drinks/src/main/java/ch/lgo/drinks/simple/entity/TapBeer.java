@@ -30,7 +30,14 @@ public class TapBeer implements HasId {
 	private static Comparator<TapBeer> byPrice = comparing(TapBeer::getPriceBig, Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<TapBeer> byName = comparing(tap -> tap.getBeer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
 	
-	@Override
+	public TapBeer(Beer beer) {
+	    this.setBeer(beer);
+	}
+	
+    public TapBeer() {
+    }
+
+    @Override
 	@Id
 	public Long getId() {
 		return id;

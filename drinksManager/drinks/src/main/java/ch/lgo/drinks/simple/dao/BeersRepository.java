@@ -156,11 +156,13 @@ public class BeersRepository {
 	}
 
 	public TapBeer save(TapBeer tap) {
-		return em.merge(tap);
+	    em.persist(tap);
+	    return tap;
 	}
 
 	public BottledBeer save(BottledBeer tap) {
-		return em.merge(tap);
+	    em.persist(tap);
+	    return tap;
 	}
 
     public List<Beer> findByStyle(long styleId) {
@@ -237,7 +239,7 @@ public class BeersRepository {
         }
     }
 
-    public void detachForeignReferences(Beer beerToUpdate, Collection<EntityManipulator<? extends HasId>> manipulators) {
+    public void detachThenUpdateForeignReferences(Beer beerToUpdate, Collection<EntityManipulator<? extends HasId>> manipulators) {
         //Detach all foreign entities to update
         manipulators.stream()
             .map(manipulator -> manipulator.getForeignEntityGetter().apply(beerToUpdate))

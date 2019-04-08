@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.BeerDTO;
-import ch.lgo.drinks.simple.dto.DetailedBeerDto;
+import ch.lgo.drinks.simple.dto.VeryDetailedBeerDto;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BeersService;
@@ -33,6 +34,13 @@ public class BeersResource {
     @Context
     UriInfo uriInfo;
 
+    @GetMapping("/{beer_id}")
+    public ResponseEntity<?> getBeer(@PathVariable("beer_id") long beerId) {
+        return beersService.loadByIdForEdit(beerId)
+                .map(beer -> ResponseEntity.ok().body(beer))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+    
     @PostMapping
     public ResponseEntity<?> createBeer(BeerDTO newBeer) throws BadCreationRequestException {
 //        Beer createdBeer = beersService.create(convertToEntity(newBeer));
@@ -44,7 +52,7 @@ public class BeersResource {
     }
 
     @PutMapping("{beer_id}")
-    public ResponseEntity<?> updateBeer(@PathVariable("beer_id") long beerId, @RequestBody DetailedBeerDto beerToUpdate) {
+    public ResponseEntity<?> updateBeer(@PathVariable("beer_id") long beerId, @RequestBody VeryDetailedBeerDto beerToUpdate) {
         try {
             return ResponseEntity
                     .ok()
