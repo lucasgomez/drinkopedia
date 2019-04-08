@@ -141,7 +141,7 @@ const PriceDisplay = (props) => {
     return (
       <Table striped>
         <Row>
-          <Col xs={6}><h5>{"30cl"}</h5></Col>
+          <Col xs={6}><h5>{"25cl"}</h5></Col>
           <Col xs={6}><h5>{props.beer.tapPriceSmall+".-"}</h5></Col>
         </Row>
         <Row>

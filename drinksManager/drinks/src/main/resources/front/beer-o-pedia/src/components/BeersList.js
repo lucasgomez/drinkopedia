@@ -81,7 +81,7 @@ class BeersList extends Component {
               <th>Alc. (%)</th>
               <th>Type</th>
               <th>Couleur</th>
-              <th>Prix</th>
+              <th>Prix (25/50 cl)</th>
             </tr>
           </thead>
           <tbody>
@@ -154,7 +154,7 @@ class BeersList extends Component {
       let priceBig = Number(beer.tapPriceBig).toFixed(2);
       pricesList.push(priceSmall + ".-");
       pricesList.push(priceBig + ".-");
-      detailsList.push("30 cl " + priceSmall + ".-");
+      detailsList.push("25 cl " + priceSmall + ".-");
       detailsList.push("50 cl " + priceBig + ".-");
     }
 
