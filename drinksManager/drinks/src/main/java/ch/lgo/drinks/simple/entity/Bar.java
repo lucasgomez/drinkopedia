@@ -13,7 +13,6 @@ import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 
 @Entity
 public class Bar implements HasId, DescriptiveLabel, Comparable<Bar> {
-	//TODO Correct naming of bottledBeer and remove unused tables and columns from DB 
 	private Long id;
 	private String name;
 	private Set<TapBeer> tapBeers = new HashSet<>();

@@ -19,6 +19,8 @@ public class BeerDTO {
     private Double bottleSellingPrice;
     private Double tapPriceSmall;
     private Double tapPriceBig;
+    private String tapAssortment;
+    private String tapAvailability;
     private Boolean active;
     private LocalDateTime activationDate;
     
@@ -125,6 +127,20 @@ public class BeerDTO {
     }
     public void setTapPriceBig(Double tapPriceBig) {
         this.tapPriceBig = tapPriceBig;
+    }
+    
+    public String getTapAssortment() {
+        return tapAssortment;
+    }
+    public void setTapAssortment(String tapAssortment) {
+        this.tapAssortment = tapAssortment;
+    }
+    
+    public String getTapAvailability() {
+        return tapAvailability;
+    }
+    public void setTapAvailability(String tapAvailability) {
+        this.tapAvailability = tapAvailability;
     }
     
     public Boolean isActive() {

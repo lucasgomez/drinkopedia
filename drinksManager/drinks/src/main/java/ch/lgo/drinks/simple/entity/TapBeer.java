@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -25,7 +27,9 @@ public class TapBeer implements HasId {
 	private Double priceBig;
 	private Double buyingPricePerLiter;
 	private Boolean pricesUpToDate;
-	private Set<Bar> bars = new HashSet<>();
+	private Availability availability;
+	private AssortmentCategory assortment;
+    private Set<Bar> bars = new HashSet<>();
 	
 	private static Comparator<TapBeer> byPrice = comparing(TapBeer::getPriceBig, Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<TapBeer> byName = comparing(tap -> tap.getBeer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
@@ -81,6 +85,22 @@ public class TapBeer implements HasId {
 		this.buyingPricePerLiter = buyingPricePerLiter;
 		return this;
 	}
+
+	@Enumerated(EnumType.STRING)
+    public Availability getAvailability() {
+        return availability;
+    }
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
+    }
+    
+    @Enumerated(EnumType.STRING)
+    public AssortmentCategory getAssortment() {
+        return assortment;
+    }
+    public void setAssortment(AssortmentCategory assortment) {
+        this.assortment = assortment;
+    }
 
 	@ManyToMany(fetch=FetchType.LAZY, mappedBy="tapBeers")
 	public Set<Bar> getBars() {
