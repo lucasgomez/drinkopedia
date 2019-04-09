@@ -1,7 +1,5 @@
 package ch.lgo.drinks.simple.entity;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -35,9 +33,6 @@ public class Beer implements HasId, DescriptiveLabel {
 	private BottledBeer bottle;
 	private TapBeer tap;
 	private Boolean active;
-    private LocalDateTime activationDate;
-	private Boolean detailsUpToDate;
-	private LocalDateTime modificationDate;
 	
 	@Id
 	@GeneratedValue
@@ -201,32 +196,9 @@ public class Beer implements HasId, DescriptiveLabel {
     public void setActive(Boolean active) {
         this.active = active;
     }
-    
-    public LocalDateTime getActivationDate() {
-        return activationDate;
-    }
-    public void setActivationDate(LocalDateTime activationDate) {
-        this.activationDate = activationDate;
-    }
-    
-    public Boolean isDetailsUpToDate() {
-        return detailsUpToDate;
-    }
-    public void setDetailsUpToDate(Boolean detailsUpToDate) {
-        this.detailsUpToDate = detailsUpToDate;
-    }
-    
-    public LocalDateTime getModificationDate() {
-        return modificationDate;
-    }
-    public void setModificationDate(LocalDateTime modificationDate) {
-        this.modificationDate = modificationDate;
-    }
 
 	public Beer() {
 	    this.active = false;
-	    this.detailsUpToDate = false;
-	    this.modificationDate = LocalDateTime.now();
 	}
     
     public String toString() {

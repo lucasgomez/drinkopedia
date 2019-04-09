@@ -11,10 +11,6 @@ public class DetailedBeerDto extends BeerDTO {
     private String sweetnessRank;
     private String hoppingRank;
     private String comment;
-    private Long bottleVolumeInCl;
-    private Double bottleSellingPrice;
-    private Double tapPriceSmall;
-    private Double tapPriceBig;
     private List<BarDTO> tapBars;
     private List<BarDTO> bottleBars;
 	
@@ -66,34 +62,6 @@ public class DetailedBeerDto extends BeerDTO {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-	
-    public Long getBottleVolumeInCl() {
-        return bottleVolumeInCl;
-    }
-    public void setBottleVolumeInCl(Long bottleVolumeInCl) {
-        this.bottleVolumeInCl = bottleVolumeInCl;
-    }
-    
-    public Double getBottleSellingPrice() {
-        return bottleSellingPrice;
-    }
-    public void setBottleSellingPrice(Double bottleSellingPrice) {
-        this.bottleSellingPrice = bottleSellingPrice;
-    }
-    
-    public Double getTapPriceSmall() {
-        return tapPriceSmall;
-    }
-    public void setTapPriceSmall(Double tapPriceSmall) {
-        this.tapPriceSmall = tapPriceSmall;
-    }
-    
-    public Double getTapPriceBig() {
-        return tapPriceBig;
-    }
-    public void setTapPriceBig(Double tapPriceBig) {
-        this.tapPriceBig = tapPriceBig;
-    }
 
     public List<BarDTO> getTapBars() {
         return tapBars;

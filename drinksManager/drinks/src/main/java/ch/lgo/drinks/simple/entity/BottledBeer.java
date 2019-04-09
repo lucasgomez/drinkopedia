@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -21,8 +23,8 @@ public class BottledBeer implements HasId {
 	private Long volumeInCl;
 	private Double sellingPrice;
 	private Double buyingPrice;
-	private Boolean priceUpToDate;
-	private Set<Bar> bars = new HashSet<>();
+    private Availability availability;
+    private Set<Bar> bars = new HashSet<>();
 	
 	private static Comparator<BottledBeer> byPrice = comparing(BottledBeer::getSellingPrice, Comparator.nullsLast(Comparator.naturalOrder()));
 	private static Comparator<BottledBeer> byName = comparing(bottle -> bottle.getBeer().getName(), Comparator.nullsLast(Comparator.naturalOrder()));
@@ -82,6 +84,14 @@ public class BottledBeer implements HasId {
 		return this;
 	}
 
+    @Enumerated(EnumType.STRING)	
+    public Availability getAvailability() {
+        return availability;
+    }
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
+    }
+
 	@ManyToMany(fetch=FetchType.LAZY, mappedBy="bottledBeer")
 	public Set<Bar> getBars() {
 		return bars;
@@ -89,13 +99,6 @@ public class BottledBeer implements HasId {
 	public BottledBeer setBars(Set<Bar> bars) {
 		this.bars = bars;
 		return this;
-	}
-
-	public Boolean isPriceUpToDate() {
-	    return priceUpToDate;
-	}
-	public void setPriceUpToDate(Boolean priceUpToDate) {
-	    this.priceUpToDate = priceUpToDate;
 	}
 	
 	public static Comparator<BottledBeer> byPrice() {

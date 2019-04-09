@@ -161,8 +161,7 @@ public class BeersRepository {
 	}
 
 	public BottledBeer save(BottledBeer tap) {
-	    em.persist(tap);
-	    return tap;
+		return em.merge(tap);
 	}
 
     public List<Beer> findByStyle(long styleId) {

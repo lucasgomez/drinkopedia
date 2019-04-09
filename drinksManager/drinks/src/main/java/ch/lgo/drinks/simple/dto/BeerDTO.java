@@ -15,8 +15,11 @@ public class BeerDTO {
     private String colorName;
     private Long styleId;
     private String styleName;
+    //Bottle fields
     private Long bottleVolumeInCl;
     private Double bottleSellingPrice;
+    private String bottleAvailability;
+    //Tap fields
     private Double tapPriceSmall;
     private Double tapPriceBig;
     private String tapAssortment;
@@ -113,6 +116,13 @@ public class BeerDTO {
     }
     public void setBottleSellingPrice(Double bottleSellingPrice) {
         this.bottleSellingPrice = bottleSellingPrice;
+    }
+
+    public String getBottleAvailability() {
+        return bottleAvailability;
+    }
+    public void setBottleAvailability(String bottleAvailability) {
+        this.bottleAvailability = bottleAvailability;
     }
     
     public Double getTapPriceSmall() {
