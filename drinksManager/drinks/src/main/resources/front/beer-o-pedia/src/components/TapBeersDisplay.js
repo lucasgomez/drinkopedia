@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import {
-  Table,
   Row, Col, Card, Container,
-  Tooltip,
-  OverlayTrigger
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import Emoji from './Emoji';
 import { API_ROOT } from '../data/apiConfig';
 
 
@@ -67,21 +64,17 @@ class TapBeersDisplay extends Component {
   renderAvailibity = (beer) => {
     switch (beer.tapAvailability) {
       case "NOT_YET_AVAILABLE":
-        return "🕘";
-        break;
+        return <Emoji symbol="🕘" label="Pas encore disponible"/>;
       case "AVAILABLE":
         return beer.tapAssortment=="FIXED"?
-          "🌟":
-          "⏱";
-        break;
+          <Emoji symbol="🌟" label="Assortiment fixe"/>:
+          <Emoji symbol="⏱" label="Assortiment temporaire"/>;
       case "NEARLY_OUT_OF_STOCK":
         return beer.tapAssortment=="FIXED"?
-          "🌟":
-          "⏳";
-        break;
+          <Emoji symbol="🌟" label="Bientôt épuisée"/>:
+          <Emoji symbol="⏳" label="Bientôt épuisée"/>;
       case "OUT_OF_STOCK":
-        return "💀";
-        break;
+        return <Emoji symbol="💀" label="Epuisée"/>;
       default:
         return null;
     }
@@ -127,7 +120,6 @@ class TapBeersDisplay extends Component {
   render() {
     const {
       items,
-      title,
       isLoading
     } = this.state;
 
@@ -137,17 +129,17 @@ class TapBeersDisplay extends Component {
     return (
       <Container fluid="true">
         <Row>
-          <h1 class="col text-center">🍺 Pressions - Liste de prix (25 / 50 cL) 🍻</h1>
+          <h1 class="col text-center"><Emoji symbol="🍺" label="Choppe"/> Pressions - Liste de prix (25 / 50 cL) <Emoji symbol="🍻" label="Choppes faisant santé"/></h1>
         </Row>
 
         {this.createTable(items, 4)}
 
         <div>.</div>
     		<Row className="text-center">
-    			<h5 class="col">🌟 - Assortiment fixe</h5>
-    			<h5 class="col">🚨 - Nouvellement ajoutée</h5>
-    			<h5 class="col">⏱ - Assortiment temporaire</h5>
-    			<h5 class="col">⏳ - Bientôt épuisée</h5>
+    			<h5 class="col"><Emoji symbol="🌟" label="Assortiment fixe"/> - Assortiment fixe</h5>
+    			<h5 class="col"><Emoji symbol="🚨" label="Nouvellement ajoutée"/> - Nouvellement ajoutée</h5>
+    			<h5 class="col"><Emoji symbol="⏱" label="Assortiment temporaire"/> - Assortiment temporaire</h5>
+    			<h5 class="col"><Emoji symbol="⏳" label="Bientôt épuisée"/> - Bientôt épuisée</h5>
     		</Row>
       </Container>
     );

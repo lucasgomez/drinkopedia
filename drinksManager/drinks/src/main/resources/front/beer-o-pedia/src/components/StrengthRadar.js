@@ -1,12 +1,6 @@
 import React, {
   Component
 } from 'react';
-import {
-  ReactstrapRadio
-} from "reactstrap-formik";
-import {
-  Field
-} from 'formik';
 
 class StrengthRadar extends Component {
   componentDidMount() {

@@ -5,8 +5,8 @@ import { ReactstrapInput } from "reactstrap-formik";
 import SelectList from './edit/SelectList';
 import StrengthInput from './edit/StrengthInput';
 import { API_ROOT } from '../data/apiConfig';
-import {Button} from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
+import Emoji from './Emoji';
 import axios from 'axios';
 
 class EditBeer extends Component {
@@ -109,6 +109,7 @@ class EditBeer extends Component {
             bottleBuyingPrice: this.state.beer.bottleBuyingPrice,
             bottleSellingPrice: this.state.beer.bottleSellingPrice,
             bottleVolumeInCl: this.state.beer.bottleVolumeInCl,
+            bottleBars: this.state.beer.bottleBars,
           }}
           validationSchema={beerValidator}
           onSubmit={this.handleSubmit}
@@ -233,7 +234,7 @@ class EditBeer extends Component {
                   <button
                     type="submit"
                     disabled={isSubmitting}>
-                       💾 Sauver
+                       <Emoji symbol="💾" label="Sauver"/> Sauver
                   </button>
                 </Form>
          )}
