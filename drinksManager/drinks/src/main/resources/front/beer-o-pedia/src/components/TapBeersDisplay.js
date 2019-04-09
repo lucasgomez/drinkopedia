@@ -58,8 +58,8 @@ class TapBeersDisplay extends Component {
 
   renderProducer = (beer) => {
     let producerString = beer.producerName
-    if (beer.producerOriginName)
-      producerString += " ("+beer.producerOriginName+")"
+    if (beer.producerOriginShortName)
+      producerString += " ("+beer.producerOriginShortName+")"
 
     return producerString
   }
@@ -72,12 +72,12 @@ class TapBeersDisplay extends Component {
       case "AVAILABLE":
         return beer.tapAssortment=="FIXED"?
           "🌟":
-          "⏳";
+          "⏱";
         break;
       case "NEARLY_OUT_OF_STOCK":
         return beer.tapAssortment=="FIXED"?
           "🌟":
-          "⌛";
+          "⏳";
         break;
       case "OUT_OF_STOCK":
         return "💀";
@@ -137,7 +137,7 @@ class TapBeersDisplay extends Component {
     return (
       <Container fluid="true">
         <Row>
-          <h1 class="col text-center">🍺 Pressions - Liste de prix (0.25 / 0.5 cL) 🍻</h1>
+          <h1 class="col text-center">🍺 Pressions - Liste de prix (25 / 50 cL) 🍻</h1>
         </Row>
 
         {this.createTable(items, 4)}
@@ -145,9 +145,9 @@ class TapBeersDisplay extends Component {
         <div>.</div>
     		<Row className="text-center">
     			<h5 class="col">🌟 - Assortiment fixe</h5>
-    			<h5 class="col">🎇 - Nouvellement ajoutée</h5>
-    			<h5 class="col">⏳ - Assortiment temporaire</h5>
-    			<h5 class="col">⌛ - Bientôt épuisée</h5>
+    			<h5 class="col">🚨 - Nouvellement ajoutée</h5>
+    			<h5 class="col">⏱ - Assortiment temporaire</h5>
+    			<h5 class="col">⏳ - Bientôt épuisée</h5>
     		</Row>
       </Container>
     );
