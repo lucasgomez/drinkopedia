@@ -7,6 +7,7 @@ import StrengthInput from './edit/StrengthInput';
 import { API_ROOT } from '../data/apiConfig';
 import { Link, Redirect } from 'react-router-dom';
 import Emoji from './Emoji';
+import BarsCheckboxes from './edit/BarsCheckboxes';
 import axios from 'axios';
 
 class EditBeer extends Component {
@@ -67,34 +68,6 @@ class EditBeer extends Component {
 
   }
 
-renderCheckbox = (name, value) => {
-  return (
-    <Field name={name}>
-      {({ field, form }) => (
-        <label>
-          <input
-            type="checkbox"
-            checked={field.value.includes(value)}
-            onChange={() => {
-              if (field.value.includes(value)) {
-                const nextValue = field.value.filter(
-                  value => value !== value
-                );
-                form.setFieldValue(name, nextValue);
-              } else {
-                const nextValue = field.value.concat(value);
-                form.setFieldValue(name, nextValue);
-              }
-            }}
-          />
-          {value}
-        </label>
-      )}
-    </Field>
-  );
-}
-
-
   render() {
 
     const {
@@ -137,7 +110,7 @@ renderCheckbox = (name, value) => {
             bottleBuyingPrice: this.state.beer.bottleBuyingPrice,
             bottleSellingPrice: this.state.beer.bottleSellingPrice,
             bottleVolumeInCl: this.state.beer.bottleVolumeInCl,
-            bottleBars: this.state.beer.bottleBars,
+            bottleBars: this.state.beer.bottleBars.map((bar: any) => bar.id),
           }}
           validationSchema={beerValidator}
           onSubmit={this.handleSubmit}
@@ -252,7 +225,7 @@ renderCheckbox = (name, value) => {
                     />
                   <ErrorMessage name="bottleVolumeInCl" />
 
-                  {this.renderCheckbox("bottleBars", "admin")}
+                  <BarsCheckboxes groupName="bottleBars"/>
 
                   <button
                       type="button"

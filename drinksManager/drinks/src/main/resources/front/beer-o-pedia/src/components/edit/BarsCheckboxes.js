@@ -30,9 +30,9 @@ class BarsCheckboxes extends Component {
       );
   }
 
-  renderCheckbox = (name, value, label) => {
+  renderCheckbox = (groupName, value, label) => {
     return (
-      <Field name={name}>
+      <Field name={groupName}>
         {({ field, form }) => (
           <label>
             <input
@@ -43,10 +43,10 @@ class BarsCheckboxes extends Component {
                   const nextValue = field.value.filter(
                     value => value !== value
                   );
-                  form.setFieldValue(name, nextValue);
+                  form.setFieldValue(groupName, nextValue);
                 } else {
                   const nextValue = field.value.concat(value);
-                  form.setFieldValue(name, nextValue);
+                  form.setFieldValue(groupName, nextValue);
                 }
               }}
             />
@@ -62,8 +62,9 @@ class BarsCheckboxes extends Component {
       items,
       isLoading
     } = this.state;
-    // const name = this.props.name;
-    // const label = this.props.label;
+
+    const groupName = this.props.groupName;
+
     debugger;
     if (isLoading || !items || items.length == 0) {
       return (
@@ -73,9 +74,9 @@ class BarsCheckboxes extends Component {
 
     return (
       <div>
-      {items.map((item: any) =>
-        this.renderCheckbox("bottleBars", item.id, item.name)
-      )}
+        {items.map((item: any) =>
+          this.renderCheckbox(groupName, item.id, item.name)
+        )}
       </div>
     );
   }
