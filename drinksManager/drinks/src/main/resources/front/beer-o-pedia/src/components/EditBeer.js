@@ -67,6 +67,34 @@ class EditBeer extends Component {
 
   }
 
+renderCheckbox = (name, value) => {
+  return (
+    <Field name={name}>
+      {({ field, form }) => (
+        <label>
+          <input
+            type="checkbox"
+            checked={field.value.includes(value)}
+            onChange={() => {
+              if (field.value.includes(value)) {
+                const nextValue = field.value.filter(
+                  value => value !== value
+                );
+                form.setFieldValue(name, nextValue);
+              } else {
+                const nextValue = field.value.concat(value);
+                form.setFieldValue(name, nextValue);
+              }
+            }}
+          />
+          {value}
+        </label>
+      )}
+    </Field>
+  );
+}
+
+
   render() {
 
     const {
@@ -223,6 +251,8 @@ class EditBeer extends Component {
                     component={ReactstrapInput}
                     />
                   <ErrorMessage name="bottleVolumeInCl" />
+
+                  {this.renderCheckbox("bottleBars", "admin")}
 
                   <button
                       type="button"
