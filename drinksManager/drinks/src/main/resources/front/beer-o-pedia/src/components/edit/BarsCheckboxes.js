@@ -14,7 +14,6 @@ class BarsCheckboxes extends Component {
   }
 
   componentDidMount() {
-    debugger;
     this.setState({
       isLoading: true
     });
@@ -39,9 +38,10 @@ class BarsCheckboxes extends Component {
               type="checkbox"
               checked={field.value.includes(value)}
               onChange={() => {
+                debugger;
                 if (field.value.includes(value)) {
                   const nextValue = field.value.filter(
-                    value => value !== value
+                    value2 => value2 !== value
                   );
                   form.setFieldValue(groupName, nextValue);
                 } else {
@@ -65,7 +65,6 @@ class BarsCheckboxes extends Component {
 
     const groupName = this.props.groupName;
 
-    debugger;
     if (isLoading || !items || items.length == 0) {
       return (
         <div>Loading...</div>
