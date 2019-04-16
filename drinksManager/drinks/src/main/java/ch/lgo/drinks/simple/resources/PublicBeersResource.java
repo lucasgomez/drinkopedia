@@ -3,10 +3,6 @@ package ch.lgo.drinks.simple.resources;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
-
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +23,6 @@ public class PublicBeersResource {
     @Autowired
     private BeersService beersService;
     
-    @Context
-    UriInfo uriInfo;
-
-    @Autowired
-    ModelMapper modelMapper;
-
     @GetMapping("/")
     public BeersDTOList getBeers() {
         return beersService.getAll();

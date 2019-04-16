@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,9 +16,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 @Entity
-public class TapBeer implements HasId {
+public class TapBeer implements HasId, HasBar<TapBeer> {
 
     public static Long VOLUME_SMALL_CL = 25L;
     public static Long VOLUME_BIG_CL = 50L;
@@ -127,5 +129,10 @@ public class TapBeer implements HasId {
     }
     public static Comparator<TapBeer> byName() {
         return byName;
+    }
+    
+    @Transient
+    public Set<Long> getBarsIds() {
+        return bars.stream().map(Bar::getId).collect(Collectors.toSet());
     }
 }

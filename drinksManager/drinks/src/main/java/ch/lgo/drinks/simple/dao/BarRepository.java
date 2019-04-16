@@ -154,4 +154,8 @@ public class BarRepository implements ICrudRepository<Bar> {
         new JPADeleteClause(em, qBar).execute();
         
     }
+    
+    public Bar getBarReference(long id) {
+        return em.getReference(Bar.class, id);
+    }
 }

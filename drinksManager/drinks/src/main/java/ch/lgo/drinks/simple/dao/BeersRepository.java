@@ -160,8 +160,8 @@ public class BeersRepository {
 	    return tap;
 	}
 
-	public BottledBeer save(BottledBeer tap) {
-		return em.merge(tap);
+	public BottledBeer save(BottledBeer bottle) {
+		return em.merge(bottle);
 	}
 
     public List<Beer> findByStyle(long styleId) {

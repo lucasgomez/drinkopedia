@@ -14,13 +14,29 @@ public class MapperConfig {
     @Bean(name = "beerFieldsMapper")
     public ModelMapper getBeerFieldsMapper() {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.addMappings(skipPrices);
-        modelMapper.addMappings(skipForeignEntities);
-        modelMapper.addMappings(addStrength);
+        modelMapper.getConfiguration().setAmbiguityIgnored(true);
+        modelMapper.createTypeMap(VeryDetailedBeerDto.class, Beer.class)
+            .addMappings(mapper -> mapper.skip(Beer::setTap))
+            .addMappings(mapper -> mapper.skip(Beer::setStyle))
+            .addMappings(mapper -> mapper.skip(Beer::setColor))
+            .addMappings(mapper -> mapper.skip(Beer::setProducer))
+            .addMappings(mapper -> mapper.skip(Beer::setBottle));
+        
+        modelMapper.createTypeMap(Beer.class, VeryDetailedBeerDto.class);
+//            .addMappings(mapper -> mapper
+//                    .when(ctx -> ((Beer) ctx.getSource()).getTap() == null)
+//                    .map(beer -> new HashSet<Long>(), VeryDetailedBeerDto::setTapBarsIds))
+//            .addMappings(mapper -> mapper
+//                    .when(ctx -> ((Beer) ctx.getSource()).getBottle() == null)
+//                    .map(beer -> new HashSet<Long>(), VeryDetailedBeerDto::setBottleBarsIds));
+
+//        modelMapper.addMappings(skipPrices);
+//        modelMapper.addMappings(skipForeignEntities);
+//        modelMapper.addMappings(addStrength);
         return modelMapper;
     }
     
-    private PropertyMap<DetailedBeerDto, Beer> skipPrices = new PropertyMap<DetailedBeerDto, Beer>() {
+    private PropertyMap<VeryDetailedBeerDto, Beer> skipPrices = new PropertyMap<VeryDetailedBeerDto, Beer>() {
         @Override
         protected void configure() {
             skip().setBottle(null);
@@ -28,7 +44,7 @@ public class MapperConfig {
         }
     };
     
-    private PropertyMap<DetailedBeerDto, Beer> skipForeignEntities = new PropertyMap<DetailedBeerDto, Beer>() {
+    private PropertyMap<VeryDetailedBeerDto, Beer> skipForeignEntities = new PropertyMap<VeryDetailedBeerDto, Beer>() {
         @Override
         protected void configure() {
             skip().setProducer(null);
@@ -37,7 +53,7 @@ public class MapperConfig {
         }
     };
     
-    PropertyMap<DetailedBeerDto, Beer> addStrength = new PropertyMap<DetailedBeerDto, Beer>() {
+    PropertyMap<VeryDetailedBeerDto, Beer> addStrength = new PropertyMap<VeryDetailedBeerDto, Beer>() {
         @Override
         protected void configure() {
             map(source).setBitterness(StrengthEnum.getStrengthByRank(source.getBitternessRank()));

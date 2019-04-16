@@ -5,6 +5,7 @@ import static java.util.Comparator.comparing;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,9 +15,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 @Entity
-public class BottledBeer implements HasId {
+public class BottledBeer implements HasId, HasBar<BottledBeer> {
 
 	private Long id;
 	private Beer beer;
@@ -100,6 +102,10 @@ public class BottledBeer implements HasId {
 		this.bars = bars;
 		return this;
 	}
+    @Transient
+    public Set<Long> getBarsIds() {
+        return bars.stream().map(Bar::getId).collect(Collectors.toSet());
+    }
 	
 	public static Comparator<BottledBeer> byPrice() {
 		return byPrice;

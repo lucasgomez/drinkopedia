@@ -8,6 +8,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
 
 import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 
@@ -65,4 +66,20 @@ public class Bar implements HasId, DescriptiveLabel, Comparable<Bar> {
 	public int compareTo(Bar o) {
 		return DescriptiveLabel.byName.compare(this, o);
 	}
+	
+	@Transient
+	public Bar addBottledBeer(BottledBeer bottledBeer) {
+	    this.bottledBeer.add(bottledBeer);
+	    return this;
+	}
+	
+	@Transient
+	public Bar addTapBeer(TapBeer tapBeer) {
+	    this.tapBeers.add(tapBeer);
+	    return this;
+	}
+    
+    public String toString() {
+        return String.format("Id: %s, name: %s", getId(), getName());
+    }
 }
