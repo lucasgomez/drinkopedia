@@ -127,7 +127,9 @@ public class BarRepository implements ICrudRepository<Bar> {
     }
 
 	public Bar save(Bar bottleBar) {
-		return em.merge(bottleBar);
+		Bar mergedBar = em.merge(bottleBar);
+		em.flush();
+        return mergedBar;
 	}
 
     @Override

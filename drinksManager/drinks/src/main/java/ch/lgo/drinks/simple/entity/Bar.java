@@ -74,8 +74,20 @@ public class Bar implements HasId, DescriptiveLabel, Comparable<Bar> {
 	}
 	
 	@Transient
+	public Bar removeBottledBeer(BottledBeer bottledBeer) {
+	    this.bottledBeer.remove(bottledBeer);
+	    return this;
+	}
+	
+	@Transient
 	public Bar addTapBeer(TapBeer tapBeer) {
 	    this.tapBeers.add(tapBeer);
+	    return this;
+	}
+	
+	@Transient
+	public Bar removeTapBeer(TapBeer tapBeer) {
+	    this.tapBeers.remove(tapBeer);
 	    return this;
 	}
     
