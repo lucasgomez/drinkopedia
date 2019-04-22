@@ -95,22 +95,15 @@ class EditBeer extends Component {
         <Formik
           initialValues={{
             name: this.state.beer.name,
-            producerId: this.state.beer.producerId,
+            comment: this.state.beer.comment,
             abv: this.state.beer.abv,
+            producerId: this.state.beer.producerId,
             styleId: this.state.beer.styleId,
             colorId: this.state.beer.colorId,
-            comment: this.state.beer.comment,
             bitternessRank: this.state.beer.bitternessRank,
             sournessRank: this.state.beer.sournessRank,
             sweetnessRank: this.state.beer.sweetnessRank,
             hoppingRank: this.state.beer.hoppingRank,
-            tapBuyingPricePerLiter: this.state.beer.tapBuyingPricePerLiter,
-            tapPriceBig: this.state.beer.tapPriceBig,
-            tapPriceSmall: this.state.beer.tapPriceSmall,
-            bottleBuyingPrice: this.state.beer.bottleBuyingPrice,
-            bottleSellingPrice: this.state.beer.bottleSellingPrice,
-            bottleVolumeInCl: this.state.beer.bottleVolumeInCl,
-            bottleBars: this.state.beer.bottleBars.map((bar: any) => bar.id),
           }}
           validationSchema={beerValidator}
           onSubmit={this.handleSubmit}
@@ -170,62 +163,6 @@ class EditBeer extends Component {
 
                   <StrengthInput name="hoppingRank" label="Houblonnage"/>
                   <br/>
-
-                  <Field
-                    id="tapBuyingPricePerLiter"
-                    type="text"
-                    label="Prix d'achat (CHF/L)"
-                    name="tapBuyingPricePerLiter"
-                    component={ReactstrapInput}
-                    />
-                  <ErrorMessage name="tapBuyingPricePerLiter" />
-
-                  <Field
-                    id="tapPriceBig"
-                    type="text"
-                    label="Prix de vente (50cl)"
-                    name="tapPriceBig"
-                    component={ReactstrapInput}
-                    />
-                  <ErrorMessage name="tapPriceBig" />
-
-                  <Field
-                    id="tapPriceSmall"
-                    type="text"
-                    label="Prix de vente (25cL)"
-                    name="tapPriceSmall"
-                    component={ReactstrapInput}
-                    />
-                  <ErrorMessage name="tapPriceSmall" />
-
-                  <Field
-                    id="bottleBuyingPrice"
-                    type="text"
-                    label="Prix d'achat bouteille"
-                    name="bottleBuyingPrice"
-                    component={ReactstrapInput}
-                    />
-                  <ErrorMessage name="bottleBuyingPrice" />
-
-                  <Field
-                    id="bottleSellingPrice"
-                    type="text"
-                    label="Prix de vente bouteille"
-                    name="bottleSellingPrice"
-                    component={ReactstrapInput}
-                    />
-                  <ErrorMessage name="bottleSellingPrice" />
-
-                  <Field
-                    id="bottleVolumeInCl"
-                    type="text"
-                    label="Volume bouteille (cL)"
-                    name="bottleVolumeInCl"
-                    component={ReactstrapInput}
-                    />
-                  <ErrorMessage name="bottleVolumeInCl" />
-
-                  <BarsCheckboxes groupName="bottleBars"/>
 
                   <button
                       type="button"

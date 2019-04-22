@@ -1,7 +1,9 @@
 package ch.lgo.drinks.simple.dto;
 
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,41 +18,26 @@ public class MapperConfig {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
         modelMapper.createTypeMap(BeerDataForEditDto.class, Beer.class)
-            .addMappings(mapper -> mapper.skip(Beer::setTap))
             .addMappings(mapper -> mapper.skip(Beer::setStyle))
             .addMappings(mapper -> mapper.skip(Beer::setColor))
             .addMappings(mapper -> mapper.skip(Beer::setProducer))
-            .addMappings(mapper -> mapper.skip(Beer::setBottle));
+            .addMappings(mapper -> mapper.using(strengthValueToEnum).map(BeerDataForEditDto::getBitternessRank, Beer::setBitterness))
+            .addMappings(mapper -> mapper.using(strengthValueToEnum).map(BeerDataForEditDto::getHoppingRank, Beer::setHopping))
+            .addMappings(mapper -> mapper.using(strengthValueToEnum).map(BeerDataForEditDto::getSweetnessRank, Beer::setSweetness))
+            .addMappings(mapper -> mapper.using(strengthValueToEnum).map(BeerDataForEditDto::getSournessRank, Beer::setSourness));
         
         modelMapper.createTypeMap(Beer.class, BeerDataForEditDto.class);
-//            .addMappings(mapper -> mapper
-//                    .when(ctx -> ((Beer) ctx.getSource()).getTap() == null)
-//                    .map(beer -> new HashSet<Long>(), VeryDetailedBeerDto::setTapBarsIds))
-//            .addMappings(mapper -> mapper
-//                    .when(ctx -> ((Beer) ctx.getSource()).getBottle() == null)
-//                    .map(beer -> new HashSet<Long>(), VeryDetailedBeerDto::setBottleBarsIds));
-
-//        modelMapper.addMappings(skipPrices);
-//        modelMapper.addMappings(skipForeignEntities);
-//        modelMapper.addMappings(addStrength);
         return modelMapper;
     }
     
-    private PropertyMap<BeerDataForEditDto, Beer> skipPrices = new PropertyMap<BeerDataForEditDto, Beer>() {
-        @Override
-        protected void configure() {
-            skip().setBottle(null);
-            skip().setTap(null);
-        }
-    };
     
-    private PropertyMap<BeerDataForEditDto, Beer> skipForeignEntities = new PropertyMap<BeerDataForEditDto, Beer>() {
+    private Converter<String, StrengthEnum> strengthValueToEnum = new Converter<String, StrengthEnum>() {
+
         @Override
-        protected void configure() {
-            skip().setProducer(null);
-            skip().setColor(null);
-            skip().setStyle(null);
+        public StrengthEnum convert(MappingContext<String, StrengthEnum> context) {
+            return StrengthEnum.getStrengthByRank(context.getSource());
         }
+        
     };
     
     PropertyMap<BeerDataForEditDto, Beer> addStrength = new PropertyMap<BeerDataForEditDto, Beer>() {

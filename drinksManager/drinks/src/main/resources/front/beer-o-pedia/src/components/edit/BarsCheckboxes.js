@@ -38,7 +38,6 @@ class BarsCheckboxes extends Component {
               type="checkbox"
               checked={field.value.includes(value)}
               onChange={() => {
-                debugger;
                 if (field.value.includes(value)) {
                   const nextValue = field.value.filter(
                     value2 => value2 !== value
