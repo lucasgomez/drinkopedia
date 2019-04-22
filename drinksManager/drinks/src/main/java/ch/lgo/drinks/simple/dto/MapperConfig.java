@@ -27,6 +27,15 @@ public class MapperConfig {
             .addMappings(mapper -> mapper.using(strengthValueToEnum).map(BeerDataForEditDto::getSournessRank, Beer::setSourness));
         
         modelMapper.createTypeMap(Beer.class, BeerDataForEditDto.class);
+        
+//        modelMapper.createTypeMap(TapBeer.class, TapBeerDto.class)
+//            .addMappings(mapper -> mapper.when(ctx -> 
+//                                            Optional.ofNullable(((TapBeer) ctx.getSource()).getBars())
+//                                                .map(Set::isEmpty)
+//                                                .orElse(false))
+//                                         .map(TapBeer::getBars,
+//                                              (tap, mu) -> tap.setBarsId(Collections.emptySet())));
+            
         return modelMapper;
     }
     

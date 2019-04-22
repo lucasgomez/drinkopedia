@@ -220,7 +220,10 @@ public class BeersService {
     }
     
     private Optional<TapBeerDto> toTapBeerDto(Optional<TapBeer> beer) {
-        return beer.map(beerToMap -> beerFieldsMapper.map(beerToMap, TapBeerDto.class));
+        Optional<TapBeerDto> dto = beer.map(beerToMap -> beerFieldsMapper.map(beerToMap, TapBeerDto.class));
+        if (dto.map(dto1 -> dto1.getBarsId() == null).orElse(false))
+            dto.get().setBarsId(Collections.emptySet());
+        return dto;
     }
 
     private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {

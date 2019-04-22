@@ -81,7 +81,7 @@ class EditBeer extends Component {
      }).catch(function (error) {
        setSubmitting(false);
        console.log(error);
-       alert("Erreur pas spécialement attendue, voir console pour détails");
+       alert("Ebriété assumée, erreur assurée");
      }
     );
 
@@ -199,6 +199,71 @@ class EditBeer extends Component {
                   </button>
                 </Form>
          )}
+       />
+
+       <Formik
+           initialValues={{
+            tapBuyingPricePerLiter: this.state.tap.buyingPricePerLiter,
+            tapPriceBig: this.state.tap.priceBig,
+            tapPriceSmall: this.state.tap.priceSmall,
+            tapBarsId: this.state.tap.barsId,
+           }}
+           onSubmit={this.handleTapSubmit}
+
+           render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
+
+                 <Form>
+                  < Field
+                  id = "tapBuyingPricePerLiter"
+                  type = "text"
+                  label = "Prix d'achat (CHF/L)"
+                  name = "tapBuyingPricePerLiter"
+                  component = {
+                    ReactstrapInput
+                  }
+                  /> <
+                  ErrorMessage name = "tapBuyingPricePerLiter" / >
+
+                    <
+                    Field
+                  id = "tapPriceBig"
+                  type = "text"
+                  label = "Prix de vente (50cl)"
+                  name = "tapPriceBig"
+                  component = {
+                    ReactstrapInput
+                  }
+                  /> <
+                  ErrorMessage name = "tapPriceBig" / >
+
+                    <
+                    Field
+                  id = "tapPriceSmall"
+                  type = "text"
+                  label = "Prix de vente (25cL)"
+                  name = "tapPriceSmall"
+                  component = {
+                    ReactstrapInput
+                  }
+                  />
+                  <ErrorMessage name = "tapPriceSmall" / >
+
+                  <BarsCheckboxes groupName="tapBarsId"/>
+
+                   <button
+                       type="button"
+                       className="outline"
+                       onClick={handleReset}
+                       disabled={!dirty || isSubmitting}>
+                       ✖ Annuler
+                     </button>
+                   <button
+                     type="submit"
+                     disabled={isSubmitting}>
+                        <Emoji symbol="💾" label="Sauver"/> Sauver
+                   </button>
+                 </Form>
+          )}
         />
 
       </div>
