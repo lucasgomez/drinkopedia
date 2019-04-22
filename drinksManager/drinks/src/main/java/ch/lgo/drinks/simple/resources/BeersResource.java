@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.BeerDTO;
-import ch.lgo.drinks.simple.dto.VeryDetailedBeerDto;
+import ch.lgo.drinks.simple.dto.BeerDataForEditDto;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BeersService;
@@ -52,7 +52,7 @@ public class BeersResource {
     }
 
     @PutMapping("{beer_id}")
-    public ResponseEntity<?> updateBeer(@PathVariable("beer_id") long beerId, @RequestBody VeryDetailedBeerDto beerToUpdate) {
+    public ResponseEntity<?> updateBeer(@PathVariable("beer_id") long beerId, @RequestBody BeerDataForEditDto beerToUpdate) {
         try {
             return ResponseEntity
                     .ok()

@@ -22,15 +22,13 @@ import ch.lgo.drinks.simple.dao.DescriptiveLabel;
 import ch.lgo.drinks.simple.dao.PlaceRepository;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.BeerDTO;
+import ch.lgo.drinks.simple.dto.BeerDataForEditDto;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
-import ch.lgo.drinks.simple.dto.VeryDetailedBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
-import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
-import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.HasBar;
-import ch.lgo.drinks.simple.entity.TapBeer;
+import ch.lgo.drinks.simple.entity.HasId;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 
@@ -60,33 +58,17 @@ public class BeersService {
     {
         converters = new HashSet<>();
         converters.add(new ForeignRelationConverter(
-                beerDto -> Optional.ofNullable(beerDto.getColorId()), 
+                beerDto -> Optional.ofNullable(beerDto.getColorId()),
+                Beer::getColor,
                 (beerEntity, newId) -> beersRepository.updateColorReference(beerEntity, newId)));
         converters.add(new ForeignRelationConverter(
-                beerDto -> Optional.ofNullable(beerDto.getStyleId()), 
+                beerDto -> Optional.ofNullable(beerDto.getStyleId()),
+                Beer::getStyle,
                 (beerEntity, newId) -> beersRepository.updateStyleReference(beerEntity, newId)));
         converters.add(new ForeignRelationConverter(
                 beerDto -> Optional.ofNullable(beerDto.getProducerId()), 
+                Beer::getColor,
                 (beerEntity, newId) -> beersRepository.updateProducerReference(beerEntity, newId)));
-    }
-    private static Set<Function<VeryDetailedBeerDto, ?>> dtoTapFieldsGetters;
-    {
-        dtoTapFieldsGetters = new HashSet<>();
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapBuyingPricePerLiter);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapPriceBig);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapPriceSmall);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapBarsIds);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapAssortment);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getTapAvailability);
-    }
-    private static Set<Function<VeryDetailedBeerDto, ?>> dtoBottleFieldsGetters;
-    {
-        dtoTapFieldsGetters = new HashSet<>();
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleBuyingPrice);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleSellingPrice);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleVolumeInCl);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleBarsIds);
-        dtoTapFieldsGetters.add(VeryDetailedBeerDto::getBottleAvailability);
     }
 
     public Beer create(Beer newBeer) throws BadCreationRequestException {
@@ -94,23 +76,11 @@ public class BeersService {
         return beersRepository.save(newBeer);
     }
 
-    public VeryDetailedBeerDto update(long beerId, VeryDetailedBeerDto updatedBeer) throws ResourceNotFoundException {
+    public BeerDataForEditDto update(long beerId, BeerDataForEditDto updatedBeer) throws ResourceNotFoundException {
         //Load original entity
         // if empty : return 404
         Beer beerToUpdate = beersRepository.loadById(beerId)
                 .orElseThrow(ResourceNotFoundException::new);
-        
-        if (fieldNeedsCreation(beerToUpdate, updatedBeer, Beer::getTap, dtoTapFieldsGetters)) {
-            beerToUpdate.setTap(new TapBeer(beerToUpdate));
-            beersRepository.save(beerToUpdate.getTap());
-        }
-        if (fieldNeedsCreation(beerToUpdate, updatedBeer, Beer::getBottle, dtoBottleFieldsGetters)) {
-            beerToUpdate.setBottle(new BottledBeer(beerToUpdate));
-            beersRepository.save(beerToUpdate.getBottle());
-        }
-        updateReferencedBars(updatedBeer, beerToUpdate);
-
-        beerToUpdate = beersRepository.loadById(beerId).get();
         
         //Replace all "simple values" by those from dto
         beerFieldsMapper.map(updatedBeer, beerToUpdate);
@@ -118,55 +88,43 @@ public class BeersService {
         updateForeignRelations(updatedBeer, beerToUpdate);
         
         //Persist
-        return beerFieldsMapper.map(beersRepository.save(beerToUpdate), VeryDetailedBeerDto.class);
+        return beerFieldsMapper.map(beersRepository.save(beerToUpdate), BeerDataForEditDto.class);
     }
 
-    private void updateForeignRelations(VeryDetailedBeerDto updatedBeer, Beer beerToUpdate) {
+    private void updateForeignRelations(BeerDataForEditDto updatedBeer, Beer beerToUpdate) {
+        //Detach all foreign relations to prevent stale id
+        beersRepository.detachForeignRelations(beerToUpdate,
+                converters.stream()
+                    .map(ForeignRelationConverter::getEntityForeignEntityGetter)
+                    .collect(Collectors.toSet()));
+        //Replace actual foreign relations by mocked updated relations
         converters.stream().forEach(converter -> 
             converter.getEntityForeignEntitySetter().apply(beerToUpdate, 
                     converter.getDtoForeignIdGetter().apply(updatedBeer)));
     }
-
-    private void updateReferencedBars(VeryDetailedBeerDto updatedBeer, Beer beerToUpdate) {
-        updateReferencedBars(updatedBeer, beerToUpdate,
-                Beer::getTap, VeryDetailedBeerDto::getTapBarsIds, 
-                (bar, tapBeer) -> bar.addTapBeer((TapBeer) tapBeer), (bar, tapBeer) -> bar.removeTapBeer((TapBeer) tapBeer));
-        updateReferencedBars(updatedBeer, beerToUpdate, 
-                Beer::getBottle, VeryDetailedBeerDto::getBottleBarsIds, 
-                (bar, bottledBeer) -> bar.addBottledBeer((BottledBeer) bottledBeer), (bar, bottledBeer) -> bar.removeBottledBeer((BottledBeer) bottledBeer));
-    }
     
-    private void updateReferencedBars(VeryDetailedBeerDto updatedBeer, Beer beerToUpdate, 
-            Function<Beer, HasBar<?>> servingMethodGetterFromEntity, Function<VeryDetailedBeerDto, Set<Long>> barsIdsGetterFromDto,
-            BiFunction<Bar, HasBar<?>, Bar> serviceAdder, BiFunction<Bar, HasBar<?>, Bar> serviceRemover) {
-        
-        //Remove un-associated bars
-        Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
+    private Set<Long> getUnAssociatedBars(BeerDataForEditDto updatedBeer, Beer beerToUpdate,
+            Function<Beer, HasBar<?>> servingMethodGetterFromEntity, Function<BeerDataForEditDto, Set<Long>> barsIdsGetterFromDto) {
+        return Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
                 .map(HasBar::getBarsIds)
                 .orElse(Collections.emptySet())
             .stream()
             .filter(barId -> !barsIdsGetterFromDto.apply(updatedBeer).contains(barId))
-            .map(barId -> barRepository.loadById(barId, true, true))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(bar -> serviceRemover.apply(bar, servingMethodGetterFromEntity.apply(beerToUpdate)))
-            .forEach(barRepository::save);
-        
-        //Add newly associated bars
-        Optional.of(barsIdsGetterFromDto.apply(updatedBeer)).orElse(Collections.emptySet())
-            .stream()
-            .filter(barId -> !Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
-                        .map(HasBar::getBarsIds)
-                        .orElse(Collections.emptySet())
-                    .contains(barId))
-            .map(barId -> barRepository.loadById(barId, true, true))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(bar -> serviceAdder.apply(bar, servingMethodGetterFromEntity.apply(beerToUpdate)))
-            .forEach(barRepository::save);
+            .collect(Collectors.toSet());
     }
-
-    private boolean fieldNeedsCreation(Beer beerToUpdate, VeryDetailedBeerDto updatedBeer, Function<Beer, ?> entityAttributeGetter, Set<Function<VeryDetailedBeerDto, ?>> dtoGetters) {
+    
+    private Set<Long> getNewlyAssociatedBars(BeerDataForEditDto updatedBeer, Beer beerToUpdate,
+            Function<Beer, HasBar<?>> servingMethodGetterFromEntity, Function<BeerDataForEditDto, Set<Long>> barsIdsGetterFromDto) {
+        return Optional.of(barsIdsGetterFromDto.apply(updatedBeer)).orElse(Collections.emptySet())
+                .stream()
+                .filter(barId -> !Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
+                            .map(HasBar::getBarsIds)
+                            .orElse(Collections.emptySet())
+                        .contains(barId))
+                .collect(Collectors.toSet());
+    }
+    
+    private boolean fieldNeedsCreation(Beer beerToUpdate, BeerDataForEditDto updatedBeer, Function<Beer, ?> entityAttributeGetter, Set<Function<BeerDataForEditDto, ?>> dtoGetters) {
         return entityAttributeGetter.apply(beerToUpdate) == null && dtoGetters.stream().anyMatch(function -> function.apply(updatedBeer) != null); 
     }
 
@@ -202,7 +160,7 @@ public class BeersService {
         return Optional.of(toDetailedDto(beersRepository.loadByIdWithServices(drinkId)));
     }
     
-    public Optional<VeryDetailedBeerDto> loadByIdForEdit(long drinkId) {
+    public Optional<BeerDataForEditDto> loadByIdForEdit(long drinkId) {
         return Optional.of(toVeryDetailedDto(beersRepository.loadByIdWithServices(drinkId)));
     }
 
@@ -253,9 +211,9 @@ public class BeersService {
             return null;
     }
     
-    private VeryDetailedBeerDto toVeryDetailedDto(Beer beer) {
+    private BeerDataForEditDto toVeryDetailedDto(Beer beer) {
         if (beer != null)
-            return beerFieldsMapper.map(beer, VeryDetailedBeerDto.class);
+            return beerFieldsMapper.map(beer, BeerDataForEditDto.class);
         else
             return null;
     }
@@ -289,21 +247,27 @@ public class BeersService {
     }
     
     private static class ForeignRelationConverter {
-        private Function<BeerDTO, Optional<Long>> dtoForeignIdGetter;
+        private Function<BeerDataForEditDto, Optional<Long>> dtoForeignIdGetter;
+        private Function<Beer, HasId> entityForeignEntityGetter;
         private BiFunction<Beer, Optional<Long>, Beer> entityForeignEntitySetter;
         
-        public Function<BeerDTO, Optional<Long>> getDtoForeignIdGetter() {
+        public Function<BeerDataForEditDto, Optional<Long>> getDtoForeignIdGetter() {
             return dtoForeignIdGetter;
+        }
+        public Function<Beer, HasId> getEntityForeignEntityGetter() {
+            return entityForeignEntityGetter;
         }
         public BiFunction<Beer, Optional<Long>, Beer> getEntityForeignEntitySetter() {
             return entityForeignEntitySetter;
         }
         
         public ForeignRelationConverter(
-                Function<BeerDTO, Optional<Long>> dtoForeignIdGetter,
+                Function<BeerDataForEditDto, Optional<Long>> dtoForeignIdGetter,
+                Function<Beer, HasId> entityForeignEntityGetter,
                 BiFunction<Beer, Optional<Long>, Beer> entityForeignEntitySetter) {
             super();
             this.dtoForeignIdGetter = dtoForeignIdGetter;
+            this.entityForeignEntityGetter = entityForeignEntityGetter;
             this.entityForeignEntitySetter = entityForeignEntitySetter;
         }
         

@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -20,6 +22,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BottledBeer;
+import ch.lgo.drinks.simple.entity.HasBar;
 import ch.lgo.drinks.simple.entity.QBar;
 import ch.lgo.drinks.simple.entity.QBeer;
 import ch.lgo.drinks.simple.entity.QBottledBeer;
@@ -127,9 +130,39 @@ public class BarRepository implements ICrudRepository<Bar> {
     }
 
 	public Bar save(Bar bottleBar) {
-		Bar mergedBar = em.merge(bottleBar);
-		em.flush();
-        return mergedBar;
+		return em.merge(bottleBar);
+	}
+	
+	private void associateBeerToBarsAndSave(Beer beer, Set<Long> idBarsAdded, Set<Long> idBarsRemoved,
+	        BiFunction<Bar, HasBar<?>, Bar> serviceAdder, BiFunction<Bar, HasBar<?>, Bar> serviceRemover,
+	        Function<Beer, HasBar<?>> servingMethodGetter) {
+	    
+	    //Remove beer from unassociated bars
+	    idBarsRemoved.stream()
+            .map(barId -> loadById(barId, true, true))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(bar -> serviceRemover.apply(bar, servingMethodGetter.apply(beer)))
+            .forEach(this::save);
+        
+	    //Add beer to newly associated bars
+        idBarsAdded.stream()
+            .map(barId -> loadById(barId, true, true))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(bar -> serviceAdder.apply(bar, servingMethodGetter.apply(beer)))
+            .forEach(this::save);
+	}
+	
+	public void updateBeerToBarsAssociationsAndSave(Beer beer, Set<Long> idBarsAddedForTap, Set<Long> idBarsRemovedForTap, Set<Long> idBarsAddedForBottle, Set<Long> idBarsRemovedForBottle) {
+	    associateBeerToBarsAndSave(beer, idBarsAddedForBottle, idBarsRemovedForBottle, 
+                (bar, bottledBeer) -> bar.addBottledBeer((BottledBeer) bottledBeer), (bar, bottledBeer) -> bar.removeBottledBeer((BottledBeer) bottledBeer),
+                Beer::getBottle);
+	    associateBeerToBarsAndSave(beer, idBarsAddedForTap, idBarsRemovedForTap, 
+               (bar, tapBeer) -> bar.addTapBeer((TapBeer) tapBeer), (bar, tapBeer) -> bar.removeTapBeer((TapBeer) tapBeer),
+               Beer::getTap);
+
+	    em.flush();
 	}
 
     @Override

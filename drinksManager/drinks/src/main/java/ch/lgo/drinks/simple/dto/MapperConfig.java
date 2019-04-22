@@ -15,14 +15,14 @@ public class MapperConfig {
     public ModelMapper getBeerFieldsMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
-        modelMapper.createTypeMap(VeryDetailedBeerDto.class, Beer.class)
+        modelMapper.createTypeMap(BeerDataForEditDto.class, Beer.class)
             .addMappings(mapper -> mapper.skip(Beer::setTap))
             .addMappings(mapper -> mapper.skip(Beer::setStyle))
             .addMappings(mapper -> mapper.skip(Beer::setColor))
             .addMappings(mapper -> mapper.skip(Beer::setProducer))
             .addMappings(mapper -> mapper.skip(Beer::setBottle));
         
-        modelMapper.createTypeMap(Beer.class, VeryDetailedBeerDto.class);
+        modelMapper.createTypeMap(Beer.class, BeerDataForEditDto.class);
 //            .addMappings(mapper -> mapper
 //                    .when(ctx -> ((Beer) ctx.getSource()).getTap() == null)
 //                    .map(beer -> new HashSet<Long>(), VeryDetailedBeerDto::setTapBarsIds))
@@ -36,7 +36,7 @@ public class MapperConfig {
         return modelMapper;
     }
     
-    private PropertyMap<VeryDetailedBeerDto, Beer> skipPrices = new PropertyMap<VeryDetailedBeerDto, Beer>() {
+    private PropertyMap<BeerDataForEditDto, Beer> skipPrices = new PropertyMap<BeerDataForEditDto, Beer>() {
         @Override
         protected void configure() {
             skip().setBottle(null);
@@ -44,7 +44,7 @@ public class MapperConfig {
         }
     };
     
-    private PropertyMap<VeryDetailedBeerDto, Beer> skipForeignEntities = new PropertyMap<VeryDetailedBeerDto, Beer>() {
+    private PropertyMap<BeerDataForEditDto, Beer> skipForeignEntities = new PropertyMap<BeerDataForEditDto, Beer>() {
         @Override
         protected void configure() {
             skip().setProducer(null);
@@ -53,7 +53,7 @@ public class MapperConfig {
         }
     };
     
-    PropertyMap<VeryDetailedBeerDto, Beer> addStrength = new PropertyMap<VeryDetailedBeerDto, Beer>() {
+    PropertyMap<BeerDataForEditDto, Beer> addStrength = new PropertyMap<BeerDataForEditDto, Beer>() {
         @Override
         protected void configure() {
             map(source).setBitterness(StrengthEnum.getStrengthByRank(source.getBitternessRank()));

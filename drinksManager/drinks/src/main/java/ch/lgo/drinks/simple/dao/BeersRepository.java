@@ -249,4 +249,10 @@ public class BeersRepository {
         manipulators.forEach(manipulator -> manipulator.getForeignEntitySetter().apply(beerToUpdate, manipulator.getNewId()));
     }
 
+    public void detachForeignRelations(Beer beer, Collection<Function<Beer, HasId>> foreignRelationsGetters) {
+        foreignRelationsGetters.forEach(
+                func -> Optional.ofNullable(func.apply(beer))
+                    .ifPresent(em::detach));
+    }
+
 }
