@@ -58,17 +58,29 @@ public class BeersRepository {
         		.fetch();
     }
     
-    public Beer loadByIdWithServices(long id) {
+    public Optional<Beer> loadByIdWithServices(long id) {
         JPAQuery<Beer> query = new JPAQuery<>(em);
         QBeer qBeer = QBeer.beer;
         QTapBeer tapBeer = QTapBeer.tapBeer;
         QBottledBeer bottledBeer = QBottledBeer.bottledBeer;
-        return query
+        return Optional.ofNullable(query
                 .from(qBeer)
                 .leftJoin(qBeer.tap, tapBeer)
                 .leftJoin(qBeer.bottle, bottledBeer)
                 .where(qBeer.id.eq(id))
-                .fetchOne(); 
+                .fetchOne()); 
+    }
+
+    public Optional<TapBeer> loadTapByIdWithServices(long drinkId) {
+        JPAQuery<TapBeer> query = new JPAQuery<>(em);
+        QBeer beer = QBeer.beer;
+        QTapBeer tapBeer = QTapBeer.tapBeer;
+        return Optional.ofNullable(query
+                .from(tapBeer)
+                .join(tapBeer.beer, beer)
+                .where(beer.id.eq(drinkId))
+                .fetchOne()
+                );
     }
 
 	public List<Beer> findAllWithServices() {

@@ -41,6 +41,13 @@ public class BeersResource {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
     
+    @GetMapping("/{beer_id}/tap")
+    public ResponseEntity<?> getTapBeer(@PathVariable("beer_id") long beerId) {
+        return beersService.loadTapByIdForEdit(beerId)
+                .map(beer -> ResponseEntity.ok().body(beer))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+    
     @PostMapping
     public ResponseEntity<?> createBeer(BeerDTO newBeer) throws BadCreationRequestException {
 //        Beer createdBeer = beersService.create(convertToEntity(newBeer));

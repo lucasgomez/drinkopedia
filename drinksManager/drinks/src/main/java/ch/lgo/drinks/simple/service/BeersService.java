@@ -25,10 +25,12 @@ import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.BeerDataForEditDto;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
+import ch.lgo.drinks.simple.dto.TapBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.HasBar;
 import ch.lgo.drinks.simple.entity.HasId;
+import ch.lgo.drinks.simple.entity.TapBeer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 
@@ -85,6 +87,7 @@ public class BeersService {
         //Replace all "simple values" by those from dto
         beerFieldsMapper.map(updatedBeer, beerToUpdate);
         
+        //Replace foreign relations by new values "mocked"
         updateForeignRelations(updatedBeer, beerToUpdate);
         
         //Persist
@@ -157,11 +160,15 @@ public class BeersService {
 	}
 
     public Optional<DetailedBeerDto> loadById(long drinkId) {
-        return Optional.of(toDetailedDto(beersRepository.loadByIdWithServices(drinkId)));
+        return toDetailedDto(beersRepository.loadByIdWithServices(drinkId));
     }
     
     public Optional<BeerDataForEditDto> loadByIdForEdit(long drinkId) {
-        return Optional.of(toVeryDetailedDto(beersRepository.loadByIdWithServices(drinkId)));
+        return toVeryDetailedDto(beersRepository.loadById(drinkId));
+    }
+    
+    public Optional<TapBeerDto> loadTapByIdForEdit(long drinkId) {
+        return toTapBeerDto(beersRepository.loadTapByIdWithServices(drinkId));
     }
 
     public void delete(long beerId) throws ResourceNotFoundException {
@@ -204,18 +211,16 @@ public class BeersService {
             return Optional.empty();
     }
     
-    private DetailedBeerDto toDetailedDto(Beer beer) {
-        if (beer != null)
-            return beerFieldsMapper.map(beer, DetailedBeerDto.class);
-        else
-            return null;
+    private Optional<DetailedBeerDto> toDetailedDto(Optional<Beer> beer) {
+        return beer.map(beerToMap -> beerFieldsMapper.map(beerToMap, DetailedBeerDto.class));
     }
     
-    private BeerDataForEditDto toVeryDetailedDto(Beer beer) {
-        if (beer != null)
-            return beerFieldsMapper.map(beer, BeerDataForEditDto.class);
-        else
-            return null;
+    private Optional<BeerDataForEditDto> toVeryDetailedDto(Optional<Beer> beer) {
+        return beer.map(beerToMap -> beerFieldsMapper.map(beerToMap, BeerDataForEditDto.class));
+    }
+    
+    private Optional<TapBeerDto> toTapBeerDto(Optional<TapBeer> beer) {
+        return beer.map(beerToMap -> beerFieldsMapper.map(beerToMap, TapBeerDto.class));
     }
 
     private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {

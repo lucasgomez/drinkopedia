@@ -18,7 +18,9 @@ class EditBeer extends Component {
     this.state = {
       beer: null,
       fireRedirect: false,
-      isLoading: false,
+      isLoadingBeer: false,
+      isLoadingTap: false,
+      isLoadingBottle: false,
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -30,22 +32,39 @@ class EditBeer extends Component {
 
   fetchData = (beerId) => {
     this.setState({
-      isLoading: true
+      isLoadingBeer: true,
+      isLoadingTap: true
     });
 
     let beerUrl = `${API_ROOT}/private/beers/` + beerId;
+    let tapBeerUrl = beerUrl + '/tap';
 
     var self = this;
+
+    //Fetch "basic" beer data
     axios.get(beerUrl)
      .then(function (response) {
        self.setState({
          beer: response.data,
-         isLoading: false
+         isLoadingBeer: false
        })
      })
     .catch(function (error) {
        console.log(error);
     });
+
+    //Fetch "tap" data
+    axios.get(tapBeerUrl)
+    .then(function (response) {
+      self.setState({
+        tap: response.data,
+        isLoadingTap: false
+      })
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
   }
 
   handleSubmit(values, {setSubmitting}) {
@@ -72,13 +91,15 @@ class EditBeer extends Component {
 
     const {
       beer,
-      isLoading,
+      isLoadingBeer,
+      isLoadingTap,
+      isLoadingBottle,
       fireRedirect
     } = this.state;
 
     const redirectUrl = '/beerid/'+this.props.beerId;
 
-    if (isLoading || !beer) {
+    if (isLoadingBeer || isLoadingTap || isLoadingBottle  || !beer) {
       return <div class="container"><p> Loading... < /p></div>;
     }
 
@@ -179,6 +200,7 @@ class EditBeer extends Component {
                 </Form>
          )}
         />
+
       </div>
     );
   }
