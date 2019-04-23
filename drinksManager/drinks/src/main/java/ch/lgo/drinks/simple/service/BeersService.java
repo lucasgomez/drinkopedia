@@ -99,11 +99,13 @@ public class BeersService {
     }
 
     public TapBeerDto updateTap(long beerId, TapBeerDto updatedTap) throws ResourceNotFoundException {
+        updatedTap.setBeerId(beerId);
+        
         //Find referenced beer or else 404
         Beer beer = beersRepository.loadById(beerId).orElseThrow(ResourceNotFoundException::new);
         
         TapBeer tapToUpdate = beersRepository.loadTapByIdWithServices(beerId)
-            .orElseGet(() -> new TapBeer(beer));
+            .orElseGet(() -> beersRepository.save(new TapBeer(beer)));
         
         beerFieldsMapper.map(updatedTap, tapToUpdate);
         
@@ -114,11 +116,13 @@ public class BeersService {
     }
     
     public BottleBeerDto updateBottle(long beerId, BottleBeerDto updatedBottle) throws ResourceNotFoundException {
+        updatedBottle.setBeerId(beerId);
+        
         //Find referenced beer or else 404
         Beer beer = beersRepository.loadById(beerId).orElseThrow(ResourceNotFoundException::new);
         
         BottledBeer bottleToUpdate = beersRepository.loadBottleByIdWithServices(beerId)
-                .orElseGet(() -> new BottledBeer(beer));
+                .orElseGet(() -> beersRepository.save(new BottledBeer(beer)));
         
         beerFieldsMapper.map(updatedBottle, bottleToUpdate);
         
@@ -131,18 +135,6 @@ public class BeersService {
     private <D extends HasBar<D>> void updateReferencedBars(HasBarsId updatedServingMethod, D servingMethodToUpdate, 
             BiFunction<Bar, D, Bar> servingMethodAdder, BiFunction<Bar, D, Bar> servingMethodRemover) {
 
-        Set<String> collect = servingMethodToUpdate.getBarsIds()
-        .stream()
-        .filter(barId -> !updatedServingMethod.getBarsIds().contains(barId))
-        .map(barId -> barRepository.loadById(barId, true, true))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .map(Bar::toString)
-        .collect(Collectors.toSet());
-        Set<Long> collect2 = servingMethodToUpdate.getBarsIds()
-                .stream()
-                .filter(barId -> !updatedServingMethod.getBarsIds().contains(barId))
-                .collect(Collectors.toSet());
         //Remove un-associated bars
         servingMethodToUpdate.getBarsIds()
             .stream()

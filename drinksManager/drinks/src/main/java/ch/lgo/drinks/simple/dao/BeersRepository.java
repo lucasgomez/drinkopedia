@@ -178,8 +178,7 @@ public class BeersRepository {
 	}
 
 	public TapBeer save(TapBeer tap) {
-	    em.persist(tap);
-	    return tap;
+	    return em.merge(tap);
 	}
 
 	public BottledBeer save(BottledBeer bottle) {

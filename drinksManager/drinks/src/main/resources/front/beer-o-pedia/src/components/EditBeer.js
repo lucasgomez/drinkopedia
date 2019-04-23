@@ -108,7 +108,7 @@ class EditBeer extends Component {
 
   handleTapSubmit(values, {setSubmitting}) {
     let updatedTap = Object.assign(this.state.tap, values);
-    let postTapUrl = `${API_ROOT}/private/beers/` + updatedTap.beerId + '/tap';
+    let postTapUrl = `${API_ROOT}/private/beers/` + this.state.beer.id + '/tap';
 
     var self = this;
     axios.put(postTapUrl, updatedTap)
@@ -128,7 +128,7 @@ class EditBeer extends Component {
 
   handleBottleSubmit(values, {setSubmitting}) {
     let updatedBottle = Object.assign(this.state.bottle, values);
-    let postBottleUrl = `${API_ROOT}/private/beers/` + updatedBottle.beerId + '/bottle';
+    let postBottleUrl = `${API_ROOT}/private/beers/` + this.state.beer.id + '/bottle';
 
     var self = this;
     axios.put(postBottleUrl, updatedBottle)

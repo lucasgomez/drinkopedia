@@ -31,10 +31,12 @@ public class MapperConfig {
         modelMapper.createTypeMap(Beer.class, BeerDataForEditDto.class);
         
         modelMapper.createTypeMap(TapBeerDto.class, TapBeer.class)
-            .addMappings(mapper -> mapper.skip(TapBeer::setBars));
+            .addMappings(mapper -> mapper.skip(TapBeer::setBars))
+            .addMappings(mapper -> mapper.skip(TapBeer::setBeer));
 
         modelMapper.createTypeMap(BottleBeerDto.class, BottledBeer.class)
-            .addMappings(mapper -> mapper.skip(BottledBeer::setBars));
+            .addMappings(mapper -> mapper.skip(BottledBeer::setBars))
+            .addMappings(mapper -> mapper.skip(BottledBeer::setBeer));
             
 //            .addMappings(mapper -> mapper.when(ctx -> 
 //                                            Optional.ofNullable(((TapBeer) ctx.getSource()).getBars())
