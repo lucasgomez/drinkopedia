@@ -4,6 +4,7 @@ import static java.util.Comparator.comparing;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -104,7 +105,10 @@ public class BottledBeer implements HasId, HasBar<BottledBeer> {
 	}
     @Transient
     public Set<Long> getBarsIds() {
-        return bars.stream().map(Bar::getId).collect(Collectors.toSet());
+        return getBars().stream()
+                .filter(Objects::nonNull)
+                .map(Bar::getId)
+                .collect(Collectors.toSet());
     }
 	
 	public static Comparator<BottledBeer> byPrice() {

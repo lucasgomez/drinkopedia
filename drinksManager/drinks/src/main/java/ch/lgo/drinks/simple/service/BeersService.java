@@ -23,12 +23,14 @@ import ch.lgo.drinks.simple.dao.PlaceRepository;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.BeerDataForEditDto;
+import ch.lgo.drinks.simple.dto.BottleBeerDto;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.TapBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
+import ch.lgo.drinks.simple.entity.BottledBeer;
 import ch.lgo.drinks.simple.entity.HasBar;
 import ch.lgo.drinks.simple.entity.HasBarsId;
 import ch.lgo.drinks.simple.entity.HasId;
@@ -106,35 +108,62 @@ public class BeersService {
         beerFieldsMapper.map(updatedTap, tapToUpdate);
         
         updateReferencedBars(updatedTap, tapToUpdate,
-                (bar, tapBeer) -> bar.addTapBeer((TapBeer) tapBeer), (bar, tapBeer) -> bar.removeTapBeer((TapBeer) tapBeer));
+                (bar, tapBeer) -> bar.addTapBeer(tapBeer), (bar, tapBeer) -> bar.removeTapBeer(tapBeer));
         
         return beerFieldsMapper.map(beersRepository.save(tapToUpdate), TapBeerDto.class);
     }
-
-    private void updateReferencedBars(HasBarsId updatedBeer, TapBeer tapToUpdate, 
-            BiFunction<Bar, HasBar<?>, Bar> serviceAdder, BiFunction<Bar, HasBar<?>, Bar> serviceRemover) {
+    
+    public BottleBeerDto updateBottle(long beerId, BottleBeerDto updatedBottle) throws ResourceNotFoundException {
+        //Find referenced beer or else 404
+        Beer beer = beersRepository.loadById(beerId).orElseThrow(ResourceNotFoundException::new);
         
+        BottledBeer bottleToUpdate = beersRepository.loadBottleByIdWithServices(beerId)
+                .orElseGet(() -> new BottledBeer(beer));
+        
+        beerFieldsMapper.map(updatedBottle, bottleToUpdate);
+        
+        updateReferencedBars(updatedBottle, bottleToUpdate,
+                (bar, bottleBeer) -> bar.addBottledBeer(bottleBeer), (bar, bottleBeer) -> bar.removeBottledBeer(bottleBeer));
+        
+        return beerFieldsMapper.map(beersRepository.save(bottleToUpdate), BottleBeerDto.class);
+    }
+
+    private <D extends HasBar<D>> void updateReferencedBars(HasBarsId updatedServingMethod, D servingMethodToUpdate, 
+            BiFunction<Bar, D, Bar> servingMethodAdder, BiFunction<Bar, D, Bar> servingMethodRemover) {
+
+        Set<String> collect = servingMethodToUpdate.getBarsIds()
+        .stream()
+        .filter(barId -> !updatedServingMethod.getBarsIds().contains(barId))
+        .map(barId -> barRepository.loadById(barId, true, true))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(Bar::toString)
+        .collect(Collectors.toSet());
+        Set<Long> collect2 = servingMethodToUpdate.getBarsIds()
+                .stream()
+                .filter(barId -> !updatedServingMethod.getBarsIds().contains(barId))
+                .collect(Collectors.toSet());
         //Remove un-associated bars
-        tapToUpdate.getBarsIds()
+        servingMethodToUpdate.getBarsIds()
             .stream()
-            .filter(barId -> !updatedBeer.getBarsIds().contains(barId))
+            .filter(barId -> !updatedServingMethod.getBarsIds().contains(barId))
             .map(barId -> barRepository.loadById(barId, true, true))
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .map(bar -> serviceRemover.apply(bar, tapToUpdate))
+            .map(bar -> servingMethodRemover.apply(bar, servingMethodToUpdate))
             .forEach(barRepository::save);
         
         //Add newly associated bars
-        Optional.of(updatedBeer.getBarsIds()).orElse(Collections.emptySet())
+        Optional.of(updatedServingMethod.getBarsIds()).orElse(Collections.emptySet())
             .stream()
-            .filter(barId -> !Optional.ofNullable(tapToUpdate)
+            .filter(barId -> !Optional.ofNullable(servingMethodToUpdate)
                         .map(HasBar::getBarsIds)
                         .orElse(Collections.emptySet())
                     .contains(barId))
             .map(barId -> barRepository.loadById(barId, true, true))
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .map(bar -> serviceAdder.apply(bar, tapToUpdate))
+            .map(bar -> servingMethodAdder.apply(bar, servingMethodToUpdate))
             .forEach(barRepository::save);
     }
     
@@ -188,6 +217,10 @@ public class BeersService {
     
     public TapBeerDto loadTapByIdForEdit(long drinkId) {
         return beerFieldsMapper.map(beersRepository.loadTapByIdWithServices(drinkId).orElseGet(() -> new TapBeer()), TapBeerDto.class);
+    }
+    
+    public BottleBeerDto loadBottleByIdForEdit(long drinkId) {
+        return beerFieldsMapper.map(beersRepository.loadBottleByIdWithServices(drinkId).orElseGet(() -> new BottledBeer()), BottleBeerDto.class);
     }
 
     public void delete(long beerId) throws ResourceNotFoundException {

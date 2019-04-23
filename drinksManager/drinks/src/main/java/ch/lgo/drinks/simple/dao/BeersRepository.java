@@ -79,8 +79,18 @@ public class BeersRepository {
                 .from(tapBeer)
                 .join(tapBeer.beer, beer)
                 .where(beer.id.eq(drinkId))
-                .fetchOne()
-                );
+                .fetchOne());
+    }
+    
+    public Optional<BottledBeer> loadBottleByIdWithServices(long drinkId) {
+        JPAQuery<BottledBeer> query = new JPAQuery<>(em);
+        QBeer beer = QBeer.beer;
+        QBottledBeer bottleBeer = QBottledBeer.bottledBeer;
+        return Optional.ofNullable(query
+                .from(bottleBeer)
+                .join(bottleBeer.beer, beer)
+                .where(beer.id.eq(drinkId))
+                .fetchOne());
     }
 
 	public List<Beer> findAllWithServices() {

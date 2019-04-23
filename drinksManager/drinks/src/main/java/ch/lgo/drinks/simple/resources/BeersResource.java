@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.BeerDataForEditDto;
+import ch.lgo.drinks.simple.dto.BottleBeerDto;
 import ch.lgo.drinks.simple.dto.TapBeerDto;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
@@ -48,6 +49,12 @@ public class BeersResource {
                 .body(beersService.loadTapByIdForEdit(beerId));
     }
     
+    @GetMapping("/{beer_id}/bottle")
+    public ResponseEntity<?> getBottleBeer(@PathVariable("beer_id") long beerId) {
+        return ResponseEntity.ok()
+                .body(beersService.loadBottleByIdForEdit(beerId));
+    }
+    
     @PostMapping
     public ResponseEntity<?> createBeer(BeerDTO newBeer) throws BadCreationRequestException {
 //        Beer createdBeer = beersService.create(convertToEntity(newBeer));
@@ -75,6 +82,17 @@ public class BeersResource {
             return ResponseEntity
                     .ok()
                     .body(beersService.updateTap(beerId, beerToUpdate));
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    @PutMapping("{beer_id}/bottle")
+    public ResponseEntity<?> updateBottleBeer(@PathVariable("beer_id") long beerId, @RequestBody BottleBeerDto beerToUpdate) {
+        try {
+            return ResponseEntity
+                    .ok()
+                    .body(beersService.updateBottle(beerId, beerToUpdate));
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

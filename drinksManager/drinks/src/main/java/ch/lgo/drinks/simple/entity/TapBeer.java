@@ -125,18 +125,18 @@ public class TapBeer implements HasId, HasBar<TapBeer> {
         return this;
     }
 
+    @Transient
+    public Set<Long> getBarsIds() {
+        return getBars().stream()
+                .filter(Objects::nonNull)
+                .map(Bar::getId)
+                .collect(Collectors.toSet());
+    }
+    
     public static Comparator<TapBeer> byPrice() {
         return byPrice;
     }
     public static Comparator<TapBeer> byName() {
         return byName;
-    }
-    
-    @Transient
-    public Set<Long> getBarsIds() {
-        return bars.stream()
-                    .filter(Objects::nonNull)
-                    .map(Bar::getId)
-                    .collect(Collectors.toSet());
     }
 }

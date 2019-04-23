@@ -18,6 +18,7 @@ class EditBeer extends Component {
     this.state = {
       beer: null,
       tap: null,
+      bottle: null,
       fireRedirect: false,
       isLoadingBeer: false,
       isLoadingTap: false,
@@ -26,6 +27,7 @@ class EditBeer extends Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleTapSubmit = this.handleTapSubmit.bind(this);
+    this.handleBottleSubmit = this.handleBottleSubmit.bind(this);
   }
 
   componentDidMount() {
@@ -35,11 +37,13 @@ class EditBeer extends Component {
   fetchData = (beerId) => {
     this.setState({
       isLoadingBeer: true,
-      isLoadingTap: true
+      isLoadingTap: true,
+      isLoadingBottle: true,
     });
 
     let beerUrl = `${API_ROOT}/private/beers/` + beerId;
     let tapBeerUrl = beerUrl + '/tap';
+    let bottleBeerUrl = beerUrl + '/bottle';
 
     var self = this;
 
@@ -67,8 +71,21 @@ class EditBeer extends Component {
       console.log(error);
     });
 
+    //Fetch "bottle" data
+    axios.get(bottleBeerUrl)
+    .then(function (response) {
+      self.setState({
+        bottle: response.data,
+        isLoadingBottle: false
+      })
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
   }
 
+//TODO 3x duplicated submit function
   handleSubmit(values, {setSubmitting}) {
     let updatedBeer = Object.assign(this.state.beer, values);
     let postBeerUrl = `${API_ROOT}/private/beers/` + updatedBeer.id;
@@ -89,25 +106,45 @@ class EditBeer extends Component {
 
   }
 
-    handleTapSubmit(values, {setSubmitting}) {
-      let updatedTap = Object.assign(this.state.tap, values);
-      let postTapUrl = `${API_ROOT}/private/beers/` + updatedTap.beerId + '/tap';
+  handleTapSubmit(values, {setSubmitting}) {
+    let updatedTap = Object.assign(this.state.tap, values);
+    let postTapUrl = `${API_ROOT}/private/beers/` + updatedTap.beerId + '/tap';
 
-      var self = this;
-      axios.put(postTapUrl, updatedTap)
-       .then(function (response){
-         setSubmitting(false);
-         self.setState({
-           fireRedirect: true
-         });
-       }).catch(function (error) {
-         setSubmitting(false);
-         console.log(error);
-         alert("Ebriété assumée, erreur assurée");
-       }
-      );
+    var self = this;
+    axios.put(postTapUrl, updatedTap)
+     .then(function (response){
+       setSubmitting(false);
+       self.setState({
+         fireRedirect: true
+       });
+     }).catch(function (error) {
+       setSubmitting(false);
+       console.log(error);
+       alert("Ebriété assumée, erreur assurée");
+     }
+    );
 
-    }
+  }
+
+  handleBottleSubmit(values, {setSubmitting}) {
+    let updatedBottle = Object.assign(this.state.bottle, values);
+    let postBottleUrl = `${API_ROOT}/private/beers/` + updatedBottle.beerId + '/bottle';
+
+    var self = this;
+    axios.put(postBottleUrl, updatedBottle)
+     .then(function (response){
+       setSubmitting(false);
+       self.setState({
+         fireRedirect: true
+       });
+     }).catch(function (error) {
+       setSubmitting(false);
+       console.log(error);
+       alert("Ebriété assumée, erreur assurée");
+     }
+    );
+
+  }
 
   render() {
 
@@ -285,6 +322,63 @@ class EditBeer extends Component {
                         <Emoji symbol="💾" label="Sauver"/> Sauver
                    </button>
                  </Form>
+          )}
+        />
+
+       <Formik
+           initialValues={{
+             buyingPrice: this.state.bottle.buyingPrice,
+             sellingPrice: this.state.bottle.sellingPrice,
+             volumeInCl: this.state.bottle.volumeInCl,
+             barsIds: this.state.bottle.barsIds,
+           }}
+           onSubmit={this.handleBottleSubmit}
+
+           render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
+
+              <Form>
+                <Field
+                id="bottleBuyingPrice"
+                type="text"
+                label="Prix d'achat bouteille"
+                name="buyingPrice"
+                component={ReactstrapInput}
+                />
+                <ErrorMessage name="buyingPrice" />
+
+                <Field
+                id="bottleSellingPrice"
+                type="text"
+                label="Prix de vente bouteille"
+                name="sellingPrice"
+                component={ReactstrapInput}
+                />
+                <ErrorMessage name="sellingPrice" />
+
+                <Field
+                id="bottleVolumeInCl"
+                type="text"
+                label="Volume bouteille (cL)"
+                name="volumeInCl"
+                component={ReactstrapInput}
+                />
+                <ErrorMessage name="volumeInCl" />
+
+                <BarsCheckboxes groupName="barsIds"/>
+
+                 <button
+                     type="button"
+                     className="outline"
+                     onClick={handleReset}
+                     disabled={!dirty || isSubmitting}>
+                     ✖ Annuler
+                   </button>
+                 <button
+                   type="submit"
+                   disabled={isSubmitting}>
+                      <Emoji symbol="💾" label="Sauver"/> Sauver
+                 </button>
+               </Form>
           )}
         />
 
