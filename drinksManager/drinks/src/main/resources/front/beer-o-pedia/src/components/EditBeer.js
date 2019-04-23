@@ -17,6 +17,7 @@ class EditBeer extends Component {
 
     this.state = {
       beer: null,
+      tap: null,
       fireRedirect: false,
       isLoadingBeer: false,
       isLoadingTap: false,
@@ -24,6 +25,7 @@ class EditBeer extends Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleTapSubmit = this.handleTapSubmit.bind(this);
   }
 
   componentDidMount() {
@@ -86,6 +88,27 @@ class EditBeer extends Component {
     );
 
   }
+
+    handleTapSubmit(values, {setSubmitting}) {
+      debugger;
+      let updatedTap = Object.assign(this.state.tap, values);
+      let postTapUrl = `${API_ROOT}/private/beers/` + updatedTap.beerId + '/tap';
+
+      var self = this;
+      axios.put(postTapUrl, updatedTap)
+       .then(function (response){
+         setSubmitting(false);
+         self.setState({
+           fireRedirect: true
+         });
+       }).catch(function (error) {
+         setSubmitting(false);
+         console.log(error);
+         alert("Ebriété assumée, erreur assurée");
+       }
+      );
+
+    }
 
   render() {
 
@@ -203,10 +226,10 @@ class EditBeer extends Component {
 
        <Formik
            initialValues={{
-            tapBuyingPricePerLiter: this.state.tap.buyingPricePerLiter,
-            tapPriceBig: this.state.tap.priceBig,
-            tapPriceSmall: this.state.tap.priceSmall,
-            tapBarsId: this.state.tap.barsId,
+            buyingPricePerLiter: this.state.tap.buyingPricePerLiter,
+            priceBig: this.state.tap.priceBig,
+            priceSmall: this.state.tap.priceSmall,
+            barsId: this.state.tap.barsId,
            }}
            onSubmit={this.handleTapSubmit}
 
@@ -217,38 +240,38 @@ class EditBeer extends Component {
                   id = "tapBuyingPricePerLiter"
                   type = "text"
                   label = "Prix d'achat (CHF/L)"
-                  name = "tapBuyingPricePerLiter"
+                  name = "buyingPricePerLiter"
                   component = {
                     ReactstrapInput
                   }
                   /> <
-                  ErrorMessage name = "tapBuyingPricePerLiter" / >
+                  ErrorMessage name = "buyingPricePerLiter" / >
 
                     <
                     Field
                   id = "tapPriceBig"
                   type = "text"
                   label = "Prix de vente (50cl)"
-                  name = "tapPriceBig"
+                  name = "priceBig"
                   component = {
                     ReactstrapInput
                   }
                   /> <
-                  ErrorMessage name = "tapPriceBig" / >
+                  ErrorMessage name = "priceBig" / >
 
                     <
                     Field
                   id = "tapPriceSmall"
                   type = "text"
                   label = "Prix de vente (25cL)"
-                  name = "tapPriceSmall"
+                  name = "priceSmall"
                   component = {
                     ReactstrapInput
                   }
                   />
-                  <ErrorMessage name = "tapPriceSmall" / >
+                  <ErrorMessage name = "priceSmall" / >
 
-                  <BarsCheckboxes groupName="tapBarsId"/>
+                  <BarsCheckboxes groupName="barsId"/>
 
                    <button
                        type="button"

@@ -94,6 +94,52 @@ public class BeersService {
         return beerFieldsMapper.map(beersRepository.save(beerToUpdate), BeerDataForEditDto.class);
     }
 
+    public TapBeerDto updateTap(long beerId, TapBeerDto updatedTap) throws ResourceNotFoundException {
+        //Find referenced beer or else 404
+        Beer beer = beersRepository.loadById(beerId).orElseThrow(ResourceNotFoundException::new);
+        
+        TapBeer tapToUpdate = beersRepository.loadTapByIdWithServices(beerId)
+            .orElseGet(() -> new TapBeer(beer));
+        
+        beerFieldsMapper.map(updatedTap, tapToUpdate);
+        
+        return toTapBeerDto(Optional.of(beersRepository.save(tapToUpdate))).get();
+//        if (fieldNeedsCreation(beerToUpdate, updatedBeer, Beer::getTap, dtoTapFieldsGetters)) {
+//            beerToUpdate.setTap(new TapBeer(beerToUpdate));
+//            beersRepository.save(beerToUpdate.getTap());
+//        }
+        
+//        updateReferencedBars(updatedBeer, beerToUpdate,
+//                Beer::getTap, VeryDetailedBeerDto::getTapBarsIds, 
+//                (bar, tapBeer) -> bar.addTapBeer((TapBeer) tapBeer), (bar, tapBeer) -> bar.removeTapBeer((TapBeer) tapBeer));
+//        
+        
+//        //Remove un-associated bars
+//        Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
+//                .map(HasBar::getBarsIds)
+//                .orElse(Collections.emptySet())
+//            .stream()
+//            .filter(barId -> !barsIdsGetterFromDto.apply(updatedBeer).contains(barId))
+//            .map(barId -> barRepository.loadById(barId, true, true))
+//            .filter(Optional::isPresent)
+//            .map(Optional::get)
+//            .map(bar -> serviceRemover.apply(bar, servingMethodGetterFromEntity.apply(beerToUpdate)))
+//            .forEach(barRepository::save);
+//        
+//        //Add newly associated bars
+//        Optional.of(barsIdsGetterFromDto.apply(updatedBeer)).orElse(Collections.emptySet())
+//            .stream()
+//            .filter(barId -> !Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
+//                        .map(HasBar::getBarsIds)
+//                        .orElse(Collections.emptySet())
+//                    .contains(barId))
+//            .map(barId -> barRepository.loadById(barId, true, true))
+//            .filter(Optional::isPresent)
+//            .map(Optional::get)
+//            .map(bar -> serviceAdder.apply(bar, servingMethodGetterFromEntity.apply(beerToUpdate)))
+//            .forEach(barRepository::save);
+    }
+
     private void updateForeignRelations(BeerDataForEditDto updatedBeer, Beer beerToUpdate) {
         //Detach all foreign relations to prevent stale id
         beersRepository.detachForeignRelations(beerToUpdate,
