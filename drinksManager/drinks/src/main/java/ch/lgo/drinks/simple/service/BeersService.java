@@ -27,8 +27,10 @@ import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.TapBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
+import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.HasBar;
+import ch.lgo.drinks.simple.entity.HasBarsId;
 import ch.lgo.drinks.simple.entity.HasId;
 import ch.lgo.drinks.simple.entity.TapBeer;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
@@ -103,43 +105,39 @@ public class BeersService {
         
         beerFieldsMapper.map(updatedTap, tapToUpdate);
         
-        return toTapBeerDto(Optional.of(beersRepository.save(tapToUpdate))).get();
-//        if (fieldNeedsCreation(beerToUpdate, updatedBeer, Beer::getTap, dtoTapFieldsGetters)) {
-//            beerToUpdate.setTap(new TapBeer(beerToUpdate));
-//            beersRepository.save(beerToUpdate.getTap());
-//        }
+        updateReferencedBars(updatedTap, tapToUpdate,
+                (bar, tapBeer) -> bar.addTapBeer((TapBeer) tapBeer), (bar, tapBeer) -> bar.removeTapBeer((TapBeer) tapBeer));
         
-//        updateReferencedBars(updatedBeer, beerToUpdate,
-//                Beer::getTap, VeryDetailedBeerDto::getTapBarsIds, 
-//                (bar, tapBeer) -> bar.addTapBeer((TapBeer) tapBeer), (bar, tapBeer) -> bar.removeTapBeer((TapBeer) tapBeer));
-//        
-        
-//        //Remove un-associated bars
-//        Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
-//                .map(HasBar::getBarsIds)
-//                .orElse(Collections.emptySet())
-//            .stream()
-//            .filter(barId -> !barsIdsGetterFromDto.apply(updatedBeer).contains(barId))
-//            .map(barId -> barRepository.loadById(barId, true, true))
-//            .filter(Optional::isPresent)
-//            .map(Optional::get)
-//            .map(bar -> serviceRemover.apply(bar, servingMethodGetterFromEntity.apply(beerToUpdate)))
-//            .forEach(barRepository::save);
-//        
-//        //Add newly associated bars
-//        Optional.of(barsIdsGetterFromDto.apply(updatedBeer)).orElse(Collections.emptySet())
-//            .stream()
-//            .filter(barId -> !Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
-//                        .map(HasBar::getBarsIds)
-//                        .orElse(Collections.emptySet())
-//                    .contains(barId))
-//            .map(barId -> barRepository.loadById(barId, true, true))
-//            .filter(Optional::isPresent)
-//            .map(Optional::get)
-//            .map(bar -> serviceAdder.apply(bar, servingMethodGetterFromEntity.apply(beerToUpdate)))
-//            .forEach(barRepository::save);
+        return beerFieldsMapper.map(beersRepository.save(tapToUpdate), TapBeerDto.class);
     }
 
+    private void updateReferencedBars(HasBarsId updatedBeer, TapBeer tapToUpdate, 
+            BiFunction<Bar, HasBar<?>, Bar> serviceAdder, BiFunction<Bar, HasBar<?>, Bar> serviceRemover) {
+        
+        //Remove un-associated bars
+        tapToUpdate.getBarsIds()
+            .stream()
+            .filter(barId -> !updatedBeer.getBarsIds().contains(barId))
+            .map(barId -> barRepository.loadById(barId, true, true))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(bar -> serviceRemover.apply(bar, tapToUpdate))
+            .forEach(barRepository::save);
+        
+        //Add newly associated bars
+        Optional.of(updatedBeer.getBarsIds()).orElse(Collections.emptySet())
+            .stream()
+            .filter(barId -> !Optional.ofNullable(tapToUpdate)
+                        .map(HasBar::getBarsIds)
+                        .orElse(Collections.emptySet())
+                    .contains(barId))
+            .map(barId -> barRepository.loadById(barId, true, true))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(bar -> serviceAdder.apply(bar, tapToUpdate))
+            .forEach(barRepository::save);
+    }
+    
     private void updateForeignRelations(BeerDataForEditDto updatedBeer, Beer beerToUpdate) {
         //Detach all foreign relations to prevent stale id
         beersRepository.detachForeignRelations(beerToUpdate,
@@ -152,31 +150,6 @@ public class BeersService {
                     converter.getDtoForeignIdGetter().apply(updatedBeer)));
     }
     
-    private Set<Long> getUnAssociatedBars(BeerDataForEditDto updatedBeer, Beer beerToUpdate,
-            Function<Beer, HasBar<?>> servingMethodGetterFromEntity, Function<BeerDataForEditDto, Set<Long>> barsIdsGetterFromDto) {
-        return Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
-                .map(HasBar::getBarsIds)
-                .orElse(Collections.emptySet())
-            .stream()
-            .filter(barId -> !barsIdsGetterFromDto.apply(updatedBeer).contains(barId))
-            .collect(Collectors.toSet());
-    }
-    
-    private Set<Long> getNewlyAssociatedBars(BeerDataForEditDto updatedBeer, Beer beerToUpdate,
-            Function<Beer, HasBar<?>> servingMethodGetterFromEntity, Function<BeerDataForEditDto, Set<Long>> barsIdsGetterFromDto) {
-        return Optional.of(barsIdsGetterFromDto.apply(updatedBeer)).orElse(Collections.emptySet())
-                .stream()
-                .filter(barId -> !Optional.ofNullable(servingMethodGetterFromEntity.apply(beerToUpdate))
-                            .map(HasBar::getBarsIds)
-                            .orElse(Collections.emptySet())
-                        .contains(barId))
-                .collect(Collectors.toSet());
-    }
-    
-    private boolean fieldNeedsCreation(Beer beerToUpdate, BeerDataForEditDto updatedBeer, Function<Beer, ?> entityAttributeGetter, Set<Function<BeerDataForEditDto, ?>> dtoGetters) {
-        return entityAttributeGetter.apply(beerToUpdate) == null && dtoGetters.stream().anyMatch(function -> function.apply(updatedBeer) != null); 
-    }
-
     public Optional<BeersDTOList> loadBeersByStyleId(long styleId) {
         return findByEntityId(styleId, beerStyleRepository::loadById, beersRepository::findByStyle);
     }
@@ -213,8 +186,8 @@ public class BeersService {
         return toVeryDetailedDto(beersRepository.loadById(drinkId));
     }
     
-    public Optional<TapBeerDto> loadTapByIdForEdit(long drinkId) {
-        return toTapBeerDto(beersRepository.loadTapByIdWithServices(drinkId));
+    public TapBeerDto loadTapByIdForEdit(long drinkId) {
+        return beerFieldsMapper.map(beersRepository.loadTapByIdWithServices(drinkId).orElseGet(() -> new TapBeer()), TapBeerDto.class);
     }
 
     public void delete(long beerId) throws ResourceNotFoundException {
@@ -265,13 +238,6 @@ public class BeersService {
         return beer.map(beerToMap -> beerFieldsMapper.map(beerToMap, BeerDataForEditDto.class));
     }
     
-    private Optional<TapBeerDto> toTapBeerDto(Optional<TapBeer> beer) {
-        Optional<TapBeerDto> dto = beer.map(beerToMap -> beerFieldsMapper.map(beerToMap, TapBeerDto.class));
-        if (dto.map(dto1 -> dto1.getBarsId() == null).orElse(false))
-            dto.get().setBarsId(Collections.emptySet());
-        return dto;
-    }
-
     private <E extends DescriptiveLabel> List<DescriptiveLabelDto> toSortedLabelList(Collection<E> labels) {
         return labels.stream()
             .sorted(DescriptiveLabel.byName)

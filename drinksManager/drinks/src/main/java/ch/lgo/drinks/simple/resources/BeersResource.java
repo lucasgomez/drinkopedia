@@ -44,9 +44,8 @@ public class BeersResource {
     
     @GetMapping("/{beer_id}/tap")
     public ResponseEntity<?> getTapBeer(@PathVariable("beer_id") long beerId) {
-        return beersService.loadTapByIdForEdit(beerId)
-                .map(beer -> ResponseEntity.ok().body(beer))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok()
+                .body(beersService.loadTapByIdForEdit(beerId));
     }
     
     @PostMapping

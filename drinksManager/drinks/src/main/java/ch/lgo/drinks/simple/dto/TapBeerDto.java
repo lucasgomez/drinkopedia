@@ -2,7 +2,9 @@ package ch.lgo.drinks.simple.dto;
 
 import java.util.Set;
 
-public class TapBeerDto {
+import ch.lgo.drinks.simple.entity.HasBarsId;
+
+public class TapBeerDto implements HasBarsId {
 
     private Long beerId;
 
@@ -13,7 +15,7 @@ public class TapBeerDto {
     private String assortment;
     private String availability;
     
-    private Set<Long> barsId;
+    private Set<Long> barsIds;
 
     public Long getBeerId() {
         return beerId;
@@ -57,11 +59,11 @@ public class TapBeerDto {
         this.availability = availability;
     }
 
-    public Set<Long> getBarsId() {
-        return barsId;
+    public Set<Long> getBarsIds() {
+        return barsIds;
     }
-    public void setBarsId(Set<Long> barsId) {
-        this.barsId = barsId;
+    public void setBarsIds(Set<Long> barsId) {
+        this.barsIds = barsId;
     }
     
     

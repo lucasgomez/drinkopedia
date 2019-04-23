@@ -90,7 +90,6 @@ class EditBeer extends Component {
   }
 
     handleTapSubmit(values, {setSubmitting}) {
-      debugger;
       let updatedTap = Object.assign(this.state.tap, values);
       let postTapUrl = `${API_ROOT}/private/beers/` + updatedTap.beerId + '/tap';
 
@@ -229,7 +228,7 @@ class EditBeer extends Component {
             buyingPricePerLiter: this.state.tap.buyingPricePerLiter,
             priceBig: this.state.tap.priceBig,
             priceSmall: this.state.tap.priceSmall,
-            barsId: this.state.tap.barsId,
+            barsIds: this.state.tap.barsIds,
            }}
            onSubmit={this.handleTapSubmit}
 
@@ -271,7 +270,7 @@ class EditBeer extends Component {
                   />
                   <ErrorMessage name = "priceSmall" / >
 
-                  <BarsCheckboxes groupName="barsId"/>
+                  <BarsCheckboxes groupName="barsIds"/>
 
                    <button
                        type="button"

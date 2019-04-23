@@ -5,6 +5,7 @@ import static java.util.Comparator.comparing;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -133,6 +134,9 @@ public class TapBeer implements HasId, HasBar<TapBeer> {
     
     @Transient
     public Set<Long> getBarsIds() {
-        return bars.stream().map(Bar::getId).collect(Collectors.toSet());
+        return bars.stream()
+                    .filter(Objects::nonNull)
+                    .map(Bar::getId)
+                    .collect(Collectors.toSet());
     }
 }

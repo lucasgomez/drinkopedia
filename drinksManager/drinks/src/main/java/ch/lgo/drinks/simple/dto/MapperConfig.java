@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.StrengthEnum;
+import ch.lgo.drinks.simple.entity.TapBeer;
 
 @Configuration
 public class MapperConfig {
@@ -28,7 +29,9 @@ public class MapperConfig {
         
         modelMapper.createTypeMap(Beer.class, BeerDataForEditDto.class);
         
-//        modelMapper.createTypeMap(TapBeer.class, TapBeerDto.class)
+        modelMapper.createTypeMap(TapBeerDto.class, TapBeer.class)
+            .addMappings(mapper -> mapper.skip(TapBeer::setBars));
+            
 //            .addMappings(mapper -> mapper.when(ctx -> 
 //                                            Optional.ofNullable(((TapBeer) ctx.getSource()).getBars())
 //                                                .map(Set::isEmpty)
