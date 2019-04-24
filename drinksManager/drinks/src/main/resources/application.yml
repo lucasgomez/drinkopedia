@@ -1,9 +1,6 @@
 # Server settings (ServerProperties)
 server:
-  port: 8081
   sessionTimeout: 30
-  servlet:
-    contextPath: /drinkopedia
 
   # Tomcat specifics
   tomcat:
