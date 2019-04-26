@@ -40,6 +40,13 @@ spring:
       username: postgres
       password: postgres
   security:
-    user:
-      name: belzeboss
-      password: 666
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: 0oai2q6bcdAj38A4m356
+            client-secret: x3lHKdrdoBk856BodSn-m3nipySUMgVo-O45bWgS
+            scope: openid, email, profile
+        provider:
+          okta:
+            issuer-uri: https://dev-824683.okta.com/oauth2/default

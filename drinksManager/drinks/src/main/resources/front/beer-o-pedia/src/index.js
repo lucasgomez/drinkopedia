@@ -3,8 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+import unregisterServiceWorker from './registerServiceWorker';
+// import * as serviceWorker from './serviceWorker';
 import 'font-awesome/css/font-awesome.min.css';
 
 ReactDOM.render(<App />, document.getElementById('root'));
-registerServiceWorker();
+unregisterServiceWorker();
+// serviceWorker.unregister();

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 class Menu extends Component {
   render() {
     return (
-      <div class="container">
+      <div className="container">
 				<ButtonGroup>
 					<Button>
             <Link to={'/list/'}>
