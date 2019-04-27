@@ -36,15 +36,13 @@ class BeersList extends Component {
   }
 
   fetchData = async (listName, listId) => {
-    this.setState({
-      isLoading: true
-    });
+    this.setState({isLoading: true});
 
-    let listUrl = `${API_ROOT}/public/beers/`;
+    let listUrl = '/public/beers/';
     if (listName && listId)
       listUrl += listName + '/' + listId;
 
-    fetch(listUrl)
+    fetch(listUrl, {credentials: 'include'})
       .then(response => response.json())
       .then(list =>
         this.setState({

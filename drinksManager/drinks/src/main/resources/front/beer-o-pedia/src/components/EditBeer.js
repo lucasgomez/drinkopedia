@@ -41,15 +41,17 @@ class EditBeer extends Component {
       isLoadingBottle: true,
     });
 
-    let beerUrl = `${API_ROOT}/private/beers/` + beerId;
+    let beerUrl = '/private/beers/' + beerId;
     let tapBeerUrl = beerUrl + '/tap';
     let bottleBeerUrl = beerUrl + '/bottle';
 
     var self = this;
 
     //Fetch "basic" beer data
-    axios.get(beerUrl)
-     .then(function (response) {
+    axios.get(
+      beerUrl,
+      { withCredentials: true })
+    .then(function (response) {
        self.setState({
          beer: response.data,
          isLoadingBeer: false
@@ -60,7 +62,9 @@ class EditBeer extends Component {
     });
 
     //Fetch "tap" data
-    axios.get(tapBeerUrl)
+    axios.get(
+      tapBeerUrl,
+      { withCredentials: true })
     .then(function (response) {
       self.setState({
         tap: response.data,
@@ -72,7 +76,9 @@ class EditBeer extends Component {
     });
 
     //Fetch "bottle" data
-    axios.get(bottleBeerUrl)
+    axios.get(
+      bottleBeerUrl,
+      { withCredentials: true })
     .then(function (response) {
       self.setState({
         bottle: response.data,
@@ -88,11 +94,14 @@ class EditBeer extends Component {
 //TODO 3x duplicated submit function
   handleSubmit(values, {setSubmitting}) {
     let updatedBeer = Object.assign(this.state.beer, values);
-    let postBeerUrl = `${API_ROOT}/private/beers/` + updatedBeer.id;
+    let postBeerUrl = '/private/beers/' + updatedBeer.id;
 
     var self = this;
-    axios.put(postBeerUrl, updatedBeer)
-     .then(function (response){
+    axios.put(
+      postBeerUrl,
+      updatedBeer,
+      { withCredentials: true }
+    ).then(function (response){
        setSubmitting(false);
        self.setState({
          fireRedirect: true
@@ -108,11 +117,14 @@ class EditBeer extends Component {
 
   handleTapSubmit(values, {setSubmitting}) {
     let updatedTap = Object.assign(this.state.tap, values);
-    let postTapUrl = `${API_ROOT}/private/beers/` + this.state.beer.id + '/tap';
+    let postTapUrl = '/private/beers/' + this.state.beer.id + '/tap';
 
     var self = this;
-    axios.put(postTapUrl, updatedTap)
-     .then(function (response){
+    axios.put(
+      postTapUrl,
+      updatedTap,
+      { withCredentials: true })
+    .then(function (response){
        setSubmitting(false);
        self.setState({
          fireRedirect: true
@@ -131,8 +143,11 @@ class EditBeer extends Component {
     let postBottleUrl = `${API_ROOT}/private/beers/` + this.state.beer.id + '/bottle';
 
     var self = this;
-    axios.put(postBottleUrl, updatedBottle)
-     .then(function (response){
+    axios.put(
+      postBottleUrl,
+      updatedBottle,
+      { withCredentials: true })
+    .then(function (response){
        setSubmitting(false);
        self.setState({
          fireRedirect: true
