@@ -110,7 +110,8 @@ public class ImportDataService {
 
 		//Read content of file and filters out non existing beers
 		WorkbookPart workbook = openSpreadsheetFile(pathAndFilename);
-		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(1, 10, 14))
+		//0: externalId, 8: volume, 12: price
+		List<List<String>> content = readContent2(workbook.getWorksheet(0), Arrays.asList(0, 8, 12))
 				.stream()
 				.filter(record -> beersByExternalId.get(record.get(0)) != null) //Keep for known beers only
 				.collect(Collectors.toList());

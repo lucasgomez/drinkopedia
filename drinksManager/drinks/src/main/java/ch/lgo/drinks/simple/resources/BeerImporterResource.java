@@ -72,7 +72,7 @@ public class BeerImporterResource {
     @GetMapping("/importer/importbeers/")
     public Response importBeers() throws Docx4JException, Xlsx4jException {
         Set<Beer> importedBeerStyles = importDataService.importBeers(IMPORT_FOLDER+"extractedBeers.xlsx", 0, 0, 1);
-        return Response.ok().build();
+        return null;
     }
     
     /**
