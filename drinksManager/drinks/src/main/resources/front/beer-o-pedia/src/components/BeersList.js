@@ -5,8 +5,8 @@ import {
   OverlayTrigger
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { API_ROOT } from '../data/apiConfig';
-
+import Popup from 'reactjs-popup'
+import Emoji from './Emoji';
 
 class BeersList extends Component {
 
@@ -17,7 +17,9 @@ class BeersList extends Component {
       items: [],
       title: "",
       description: "",
-      isLoading: false
+      isLoading: false,
+      isDisplayingBar: false,
+      isAuthenticated: this.props.isAuthenticated
     };
   }
 
@@ -49,6 +51,7 @@ class BeersList extends Component {
           items: list.beers,
           title: list.name,
           description: list.description,
+          isDisplayingBar: this.props.listName && this.props.listId && this.props.listName === 'bars',
           isLoading: false
         })
       );
@@ -59,7 +62,8 @@ class BeersList extends Component {
       items,
       title,
       description,
-      isLoading
+      isLoading,
+      isAuthenticated
     } = this.state;
 
     if (isLoading) {
@@ -111,8 +115,10 @@ class BeersList extends Component {
                     {this.formatPricesList(item)}
                   </td><td>
                     {this.formatIsActive(item)}
+                  </td><td>
+                    {this.displayTapActivity(item)}
                   </td>
-
+                  {this.displayPriceCaclulation(item, isAuthenticated)}
               </tr>
             )}
           </tbody>
@@ -120,6 +126,31 @@ class BeersList extends Component {
       </div>
     );
 
+  }
+
+  displayPriceCaclulation(beer, isAuthenticated) {
+    if (!isAuthenticated)
+      return null;
+    else
+      return (<td>Woohoo</td>);
+  }
+
+  displayTapActivity(beer) {
+    if (!beer.tapPriceSmall && !beer.tapPriceBig)
+      return <Emoji symbol="🚫" label="Pas de service pression"/>;
+
+    const button = beer.tapAvailability
+      ? <Emoji symbol="✅" label="Désactiver le service pression"/>
+      : <Emoji symbol="❌" label="Activer le service pression"/>;
+    return (
+      <Popup
+        trigger={<button className="button"> {button} </button>}
+        modal
+        closeOnDocumentClick
+      >
+        <span> Disable? </span>
+      </Popup>
+    );
   }
 
   formatIsActive(beer) {
@@ -147,7 +178,7 @@ class BeersList extends Component {
       pricesList.push(Number(beer.bottleSellingPrice).toFixed(2) + ".-");
       detailsList.push(beer.bottleVolumeInCl + "cl " + Number(beer.bottleSellingPrice).toFixed(2) + ".-");
     }
-    if (beer.tapPriceSmall) {
+    if (beer.tapPriceSmall && beer.tapPriceBig) {
       let priceSmall = Number(beer.tapPriceSmall).toFixed(2);
       let priceBig = Number(beer.tapPriceBig).toFixed(2);
       pricesList.push(priceSmall + ".-");

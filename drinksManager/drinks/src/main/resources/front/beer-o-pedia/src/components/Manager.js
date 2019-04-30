@@ -67,14 +67,10 @@ class Manager extends Component {
 	render() {
     const message = this.state.user ?
           <h2>Welcome, {this.state.user.name}!</h2> :
-          <p>Please log in to manage your JUG Tour.</p>;
+          <p>Welcome, guest. Please remind me this message should disappear</p>;
 
     const button = this.state.isAuthenticated ?
-      <div>
-        <Button color="link"><Link to="/groups">Manage JUG Tour</Link></Button>
-        <br/>
-        <Button color="link" onClick={this.logout}>Logout</Button>
-      </div> :
+      <Button color="link" onClick={this.logout}>Logout</Button> :
       <Button color="primary" onClick={this.login}>Login</Button>;
 
 		return (
@@ -101,35 +97,46 @@ class Manager extends Component {
         </Container>
 
         <Switch>
-          <Route path="/list/:listName/:listId" component={ListRoute}/>
-          <Route path="/list" component={ListRoute}/>
-          <Route path="/beerid/:beerId" component={BeerRoute}/>
-          <Route path="/edit/beer/:beerId" component={EditBeerRoute}/>
-          <Route component={Welcome}/>
+          <Route
+            path="/list/:listName/:listId"
+            render={(props) =>
+              <BeersList
+                listId={props.match.params.listId}
+                listName={props.match.params.listName}
+                isAuthenticated={this.state.isAuthenticated}
+              />}
+          />
+          <Route
+            path="/list"
+            render={(props) =>
+              <BeersList
+                listId={props.match.params.listId}
+                listName={props.match.params.listName}
+                isAuthenticated={this.state.isAuthenticated}
+                />}
+            />
+          <Route
+            path="/beerid/:beerId"
+            render={(props) =>
+              <BeerId
+                beerId={props.match.params.beerId}
+                isAuthenticated={this.state.isAuthenticated}
+                />}
+            />
+          <Route
+            path="/edit/beer/:beerId"
+            render={(props) =>
+              <EditBeer beerId={props.match.params.beerId}
+                isAuthenticated={this.state.isAuthenticated}
+                />}
+            />
+          <Route
+            component={Welcome}
+            />
         </Switch>
       </Container>
     );
 	}
 }
-
-const ListRoute = ({ match }) => (
-  <div>
-    <BeersList
-      listId={match.params.listId}
-      listName={match.params.listName}/>
-  </div>
-);
-
-const BeerRoute = ({ match }) => (
-  <div>
-    <BeerId beerId={match.params.beerId}/>
-  </div>
-);
-
-const EditBeerRoute = ({ match }) => (
-  <div>
-    <EditBeer beerId={match.params.beerId}/>
-  </div>
-);
 
 export default withCookies(Manager);

@@ -16,7 +16,8 @@ class BeerId extends Component {
 
     this.state = {
       beer: null,
-      isLoading: false
+      isLoading: false,
+      isAuthenticated: this.props.isAuthenticated,
     };
   }
 
@@ -72,7 +73,10 @@ class BeerId extends Component {
             </Col>
 
             <Col xs={6} md={6}>
-              <Link className="float-right"  to={'/edit/beer/'+beer.id}>✏</Link>
+              {this.props.isAuthenticated
+                ? <Link className="float-right"  to={'/edit/beer/'+beer.id}>✏</Link>
+                : <div/>
+              }
             </Col>
           </Row>
 

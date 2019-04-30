@@ -238,7 +238,6 @@ class EditBeer extends Component {
                     name="abv"
                     component={ReactstrapInput}
                     />
-                  <ErrorMessage name="abv" />
                   <br/>
 
                   <SelectList label="Couleur" name="colorId" listName="colors"/>
@@ -386,7 +385,7 @@ class EditBeer extends Component {
                      className="outline"
                      onClick={handleReset}
                      disabled={!dirty || isSubmitting}>
-                     ✖ Annuler
+                     <Emoji symbol="✖" label="Annuler"/> Annuler
                    </button>
                  <button
                    type="submit"
@@ -414,6 +413,7 @@ const beerValidator = yup.object().shape({
     .max(255, "Description trop longue"),
   abv: yup
     .number()
+    .nullable()
     .min(0)
     .max(100)
 });
