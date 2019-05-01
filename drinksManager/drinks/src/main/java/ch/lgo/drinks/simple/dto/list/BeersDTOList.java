@@ -3,18 +3,16 @@ package ch.lgo.drinks.simple.dto.list;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.lgo.drinks.simple.dto.BeerDTO;
-
-public class BeersDTOList {
+public class BeersDTOList<D> {
     
-    private List<BeerDTO> beers;
+    private List<D> beers;
     private String name;
     private String description;
     
-    public List<BeerDTO> getBeers() {
+    public List<D> getBeers() {
         return beers;
     }
-    public void setBeers(List<BeerDTO> beers) {
+    public void setBeers(List<D> beers) {
         this.beers = beers;
     }
 

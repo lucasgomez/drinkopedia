@@ -1,5 +1,8 @@
 package ch.lgo.drinks.simple.resources;
 
+import java.util.Optional;
+import java.util.function.Function;
+
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -19,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.BeerDataForEditDto;
+import ch.lgo.drinks.simple.dto.BeerWithPricesDto;
 import ch.lgo.drinks.simple.dto.BottleBeerDto;
 import ch.lgo.drinks.simple.dto.TapBeerDto;
+import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BeersService;
@@ -102,5 +107,41 @@ public class BeersResource {
     public ResponseEntity<?> deleteBeer(@PathParam("beer_id") long beerId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+    
+    @GetMapping("/bars/{bar_id}")
+    public ResponseEntity<?> loadBeersByBar(@PathVariable("bar_id") long barId) {
+        return loadBeersByEntity(barId, beersService::loadBeersWithPricesByBarId);
+    }
+    
+    @GetMapping("/colors/{beer_color_id}")
+    public ResponseEntity<?> loadBeersByColor(@PathVariable("beer_color_id") long beerColorId) {
+        return loadBeersByEntity(beerColorId, beersService::loadBeersWithPricesByColorId);
+    }
+    
+    @GetMapping("/styles/{beer_style_id}")
+    public ResponseEntity<?> loadBeersByStyle(@PathVariable("beer_style_id") long beerStyleId) {
+        return loadBeersByEntity(beerStyleId, beersService::loadBeersWithPricesByStyleId);
+    }
+    
+    @GetMapping("/producers/{beer_producer_id}")
+    public ResponseEntity<?> loadBeersByProducer(@PathVariable("beer_producer_id") long beerProducerId)  {
+        return loadBeersByEntity(beerProducerId, beersService::loadBeersWithPricesByProducereId);
+    }
+    
+    @GetMapping("/origins/{beer_origin_id}")
+    public ResponseEntity<?> loadBeersByOrigin(@PathVariable("beer_origin_id") long beerOriginId) {
+        return loadBeersByEntity(beerOriginId, beersService::loadBeersWithPricesByOriginId);
+    }
+
+    @GetMapping("/search/{beer_name}")
+    public BeersDTOList<BeerDTO> findBeersByName(@PathVariable("beer_name") String beerName) {
+        return beersService.findByName(beerName);
+    }
+    
+    private ResponseEntity<?> loadBeersByEntity(long entityId, Function<Long, Optional<BeersDTOList<BeerWithPricesDto>>> listLoader) {
+        return listLoader.apply(entityId)
+                .map(list -> ResponseEntity.ok().body(list))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

@@ -23,6 +23,7 @@ import ch.lgo.drinks.simple.dao.PlaceRepository;
 import ch.lgo.drinks.simple.dao.ProducerRepository;
 import ch.lgo.drinks.simple.dto.BeerDTO;
 import ch.lgo.drinks.simple.dto.BeerDataForEditDto;
+import ch.lgo.drinks.simple.dto.BeerWithPricesDto;
 import ch.lgo.drinks.simple.dto.BottleBeerDto;
 import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
@@ -171,28 +172,48 @@ public class BeersService {
                     converter.getDtoForeignIdGetter().apply(updatedBeer)));
     }
     
-    public Optional<BeersDTOList> loadBeersByStyleId(long styleId) {
+    public Optional<BeersDTOList<BeerDTO>> loadBeersByStyleId(long styleId) {
         return findByEntityId(styleId, beerStyleRepository::loadById, beersRepository::findByStyle);
     }
 
-    public Optional<BeersDTOList> loadBeersByColorId(long colorId) {
+    public Optional<BeersDTOList<BeerDTO>> loadBeersByColorId(long colorId) {
         return findByEntityId(colorId, colorService::loadById, beersRepository::findByColor);
     }
 
-    public Optional<BeersDTOList> loadBeersByProducereId(long producerId) {
+    public Optional<BeersDTOList<BeerDTO>> loadBeersByProducereId(long producerId) {
         return findByEntityId(producerId, producerRepository::loadById, beersRepository::findByProducer);
     }
 
-    public Optional<BeersDTOList> loadBeersByOriginId(long originId) {
+    public Optional<BeersDTOList<BeerDTO>> loadBeersByOriginId(long originId) {
         return findByEntityId(originId, placeRepository::loadById, beersRepository::findByOrigin);
     }
     
-    public Optional<BeersDTOList> loadBeersByBarId(long barId) {
+    public Optional<BeersDTOList<BeerDTO>> loadBeersByBarId(long barId) {
         return findByEntityId(barId, barRepository::loadById, barRepository::findBeersByBar);
     }
+    
+    public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByStyleId(long styleId) {
+        return findByEntityIdWithPrices(styleId, beerStyleRepository::loadById, beersRepository::findByStyle);
+    }
+    
+    public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByColorId(long colorId) {
+        return findByEntityIdWithPrices(colorId, colorService::loadById, beersRepository::findByColor);
+    }
+    
+    public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByProducereId(long producerId) {
+        return findByEntityIdWithPrices(producerId, producerRepository::loadById, beersRepository::findByProducer);
+    }
+    
+    public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByOriginId(long originId) {
+        return findByEntityIdWithPrices(originId, placeRepository::loadById, beersRepository::findByOrigin);
+    }
+    
+    public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByBarId(long barId) {
+        return findByEntityIdWithPrices(barId, barRepository::loadById, barRepository::findBeersByBar);
+    }
 
-    public BeersDTOList getAll() {
-        return convertToBeersListDTO(beersRepository.findAll());
+    public BeersDTOList<BeerDTO> getAll() {
+        return convertToBeersListDTO(beersRepository.findAll(), null, this::convertToDto);
     }
 
 	public List<Beer> getAllWithService() {
@@ -223,8 +244,8 @@ public class BeersService {
         }
     }
 
-    public BeersDTOList findByName(String beerName) {
-        return convertToBeersListDTO(beersRepository.findByName(beerName));
+    public BeersDTOList<BeerDTO> findByName(String beerName) {
+        return convertToBeersListDTO(beersRepository.findByName(beerName), null, this::convertToDto);
     }
 
     public List<DescriptiveLabelDto> findColorsList() {
@@ -247,12 +268,17 @@ public class BeersService {
         return toSortedLabelList(barRepository.findAllHavingService());
     }
     
-    private Optional<BeersDTOList> findByEntityId(long entityId, Function<Long, Optional<? extends DescriptiveLabel>> entityLoader, Function<Long, List<Beer>> beersLoader) {
-        Optional<? extends DescriptiveLabel> entityLabel = entityLoader.apply(entityId);
-        if (entityLabel.isPresent())
-            return Optional.of(convertToBeersListDTO(beersLoader.apply(entityId), entityLabel.get()));
-        else
-            return Optional.empty();
+    private Optional<BeersDTOList<BeerDTO>> findByEntityId(long entityId, Function<Long, Optional<? extends DescriptiveLabel>> labelEntityLoader, Function<Long, List<Beer>> beersLoader) {
+        return findByEntityId(entityId, labelEntityLoader, beersLoader, this::convertToDto);
+    }
+    
+    private Optional<BeersDTOList<BeerWithPricesDto>> findByEntityIdWithPrices(long entityId, Function<Long, Optional<? extends DescriptiveLabel>> labelEntityLoader, Function<Long, List<Beer>> beersLoader) {
+        return findByEntityId(entityId, labelEntityLoader, beersLoader, this::convertToDtoWithPrices);
+    }
+    
+    private <D> Optional<BeersDTOList<D>> findByEntityId(long entityId, Function<Long, Optional<? extends DescriptiveLabel>> labelEntityLoader, Function<Long, List<Beer>> beersLoader, Function<Beer, D> convertToDto) {
+        return labelEntityLoader.apply(entityId)
+                .map(label -> convertToBeersListDTO(beersLoader.apply(entityId), label, convertToDto));
     }
     
     private Optional<DetailedBeerDto> toDetailedDto(Optional<Beer> beer) {
@@ -269,14 +295,10 @@ public class BeersService {
             .map(label -> beerFieldsMapper.map(label, DescriptiveLabelDto.class))
             .collect(Collectors.toList());
     }
-
-    private BeersDTOList convertToBeersListDTO(Collection<Beer> beers) {
-        return convertToBeersListDTO(beers, null);
-    }
     
-    private BeersDTOList convertToBeersListDTO(Collection<Beer> beers, DescriptiveLabel listDescription) {
-        BeersDTOList beersDTOList = new BeersDTOList();
-        List<BeerDTO> beersList = beers.stream().map(beer -> convertToDto(beer))
+    private <D> BeersDTOList<D> convertToBeersListDTO(Collection<Beer> beers, DescriptiveLabel listDescription, Function<Beer, D> dtoConverter) {
+        BeersDTOList<D> beersDTOList = new BeersDTOList<>();
+        List<D> beersList = beers.stream().map(dtoConverter::apply)
                 .collect(Collectors.toList());
         beersDTOList.setBeers(beersList);
         if (listDescription != null) {
@@ -287,8 +309,11 @@ public class BeersService {
     }
 
     private BeerDTO convertToDto(Beer beer) {
-        BeerDTO beerDTO = beerFieldsMapper.map(beer, BeerDTO.class);
-        return beerDTO;
+        return beerFieldsMapper.map(beer, BeerDTO.class);
+    }
+    
+    private BeerWithPricesDto convertToDtoWithPrices(Beer beer) {
+        return beerFieldsMapper.map(beer, BeerWithPricesDto.class);
     }
     
     private static class ForeignRelationConverter {
