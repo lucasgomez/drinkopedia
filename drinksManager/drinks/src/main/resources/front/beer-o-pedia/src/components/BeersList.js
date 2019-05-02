@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Table,
-  Tooltip,
-  OverlayTrigger
-} from 'react-bootstrap';
+import { Table, Tooltip, Button, OverlayTrigger } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Popup from 'reactjs-popup'
 import Emoji from './Emoji';
@@ -12,15 +8,21 @@ class BeersList extends Component {
 
   constructor(props: any) {
     super(props);
-
     this.state = {
       items: [],
       title: "",
       description: "",
       isLoading: false,
-      isDisplayingBar: false,
-      isAuthenticated: this.props.isAuthenticated
+      isDisplayingAdditionalStuff: false,
     };
+
+    this.toggleIsDisplayingAdditionalStuff = this.toggleIsDisplayingAdditionalStuff.bind(this);
+  }
+
+  toggleIsDisplayingAdditionalStuff() {
+    this.setState(state => ({
+      isDisplayingAdditionalStuff: !state.isDisplayingAdditionalStuff
+    }));
   }
 
   componentDidMount() {
@@ -40,7 +42,8 @@ class BeersList extends Component {
   fetchData = async (listName, listId) => {
     this.setState({isLoading: true});
 
-    let listUrl = '/public/beers/';
+    let listUrl = this.props.isAuthenticated ? '/public' : '/private';
+    listUrl += '/beers/';
     if (listName && listId)
       listUrl += listName + '/' + listId;
 
@@ -63,9 +66,8 @@ class BeersList extends Component {
       title,
       description,
       isLoading,
-      isAuthenticated
+      isDisplayingAdditionalStuff,
     } = this.state;
-
     if (isLoading) {
       return <p > Loading... < /p>;
     }
@@ -74,8 +76,25 @@ class BeersList extends Component {
       <div class="container">
         <h2>{title}</h2>
         <p>{description}</p>
+        {this.props.isAuthenticated &&
+          <Button className="float-right" onClick={this.toggleIsDisplayingAdditionalStuff}>
+            {this.state.isDisplayingAdditionalStuff
+              ? <Emoji symbol="➖" label="Masquer colonnes supplementaires"/>
+              : <Emoji symbol="➕" label="Afficher colonnes supplementaires"/>
+            }
+          </Button>
+        }
+
         <Table striped hover>
           <thead>
+            {this.state.isDisplayingAdditionalStuff ?
+                <tr>
+                  <th colspan="6"/>
+                  <th/>
+                  <th colspan="3">25 cl</th>
+                  <th colspan="3">50 cl</th>
+                </tr> : <div/>
+            }
             <tr>
               <th>Bière</th>
               <th>Brasserie</th>
@@ -83,7 +102,14 @@ class BeersList extends Component {
               <th>Alc. (%)</th>
               <th>Type</th>
               <th>Couleur</th>
-              <th>Prix (25/50 cl)</th>
+              {!this.state.isDisplayingAdditionalStuff && <th>Prix (25/50 cl)</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Prix achat (L)</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Prix min</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Prix vente</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Prix alc. / cL</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Prix min</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Prix vente</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Prix alc. par cL</th>}
             </tr>
           </thead>
           <tbody>
@@ -118,7 +144,16 @@ class BeersList extends Component {
                   </td><td>
                     {this.displayTapActivity(item)}
                   </td>
-                  {this.displayPriceCaclulation(item, isAuthenticated)}
+
+                  {this.state.isDisplayingAdditionalStuff && <td>{item.tapBuyingPricePerLiter}</td>}
+
+                  {this.state.isDisplayingAdditionalStuff && <td>{item.tapBuyingPricePerLiter*0.25*3}</td>}
+                  {this.state.isDisplayingAdditionalStuff && <td>{item.tapPriceSmall}</td>}
+                  {this.state.isDisplayingAdditionalStuff && <td>{(item.tapPriceSmall*100) / (25*item.abv)}</td>}
+
+                  {this.state.isDisplayingAdditionalStuff && <td>{item.tapBuyingPricePerLiter*0.5*3}</td>}
+                  {this.state.isDisplayingAdditionalStuff && <td>{item.tapPriceBig}</td>}
+                  {this.state.isDisplayingAdditionalStuff && <td>{(item.tapPriceBig*100) / (50*item.abv)}</td>}
               </tr>
             )}
           </tbody>
@@ -126,13 +161,6 @@ class BeersList extends Component {
       </div>
     );
 
-  }
-
-  displayPriceCaclulation(beer, isAuthenticated) {
-    if (!isAuthenticated)
-      return null;
-    else
-      return (<td>Woohoo</td>);
   }
 
   displayTapActivity(beer) {
