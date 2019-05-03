@@ -74,7 +74,7 @@ class BeerId extends Component {
 
             <Col xs={6} md={6}>
               {this.props.isAuthenticated
-                ? <Link className="float-right"  to={'/edit/beer/'+beer.id}>✏</Link>
+                ? <Link className="float-right" to={'/edit/beer/'+beer.id}>✏</Link>
                 : <div/>
               }
             </Col>
