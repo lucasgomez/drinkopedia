@@ -87,14 +87,6 @@ class BeersList extends Component {
 
         <Table striped hover>
           <thead>
-            {this.state.isDisplayingAdditionalStuff &&
-                <tr>
-                  <th colspan="6"/>
-                  <th/>
-                  <th colspan="3">Pression 25 cl</th>
-                  <th colspan="4">Pression 50 cl</th>
-                </tr>
-            }
             <tr>
               <th>Bière</th>
               <th>Brasserie</th>
@@ -106,22 +98,9 @@ class BeersList extends Component {
 
               {this.state.isDisplayingAdditionalStuff && <th>Prix achat (L)</th>}
 
-              {this.state.isDisplayingAdditionalStuff && <th>Prix min</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix vente</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix alc. / cL</th>}
-
-              {this.state.isDisplayingAdditionalStuff && <th>Prix min</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix vente</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix alc. par cL</th>}
-
-              {this.state.isDisplayingAdditionalStuff && <th>Prix min</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix vente</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix alc. par cL</th>}
-
-              {this.state.isDisplayingAdditionalStuff && <th>Prix achat</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Volume (cL)</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix vente</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Prix alc. par cL</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Pression 25 cl</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Pression 50 cl</th>}
+              {this.state.isDisplayingAdditionalStuff && <th>Bouteille</th>}
             </tr>
           </thead>
           <tbody>
@@ -154,14 +133,9 @@ class BeersList extends Component {
                   {!this.state.isDisplayingAdditionalStuff && <td>{this.formatPricesList(item)}</td>}
 
                   {this.state.isDisplayingAdditionalStuff && <td>{this.formatPrice(item.tapBuyingPricePerLiter)}</td>}
-
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.displayTapMinPrice(item.tapBuyingPricePerLiter, 25)}</td>}
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatPrice(item.tapPriceSmall)}</td>}
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.displayTapAlcoolPrice(item.tapPriceSmall, 25, item.abv)}</td>}
-
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.displayTapMinPrice(item.tapBuyingPricePerLiter, 50)}</td>}
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatPrice(item.tapPriceBig)}</td>}
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.displayTapAlcoolPrice(item.tapPriceBig, 50, item.abv)}</td>}
+                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 25, item.tapPriceSmall, item.abv)}</td>}
+                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 50, item.tapPriceSmall, item.abv)}</td>}
+                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatBottlePriceCalculation(item.bottleBuyingPrice, item.bottleVolumeInCl, item.bottleSellingPrice, item.abv)}</td>}
               </tr>
             )}
           </tbody>
@@ -177,14 +151,33 @@ class BeersList extends Component {
         return price.toFixed(2) + ".-";
   }
 
-  displayTapMinPrice(buyingPrice, volumeInCl) {
-    if (!buyingPrice)
-      return null;
-    else
-      return this.formatPrice(buyingPrice*volumeInCl*3/100);
+  formatBottlePriceCalculation(buyingPrice, volumeInCl, sellingPrice, abv) {
+    return (
+      <td>
+        Achat : {this.formatPrice(buyingPrice)} {volumeInCl && '('+volumeInCl+' cL)'} (Min vente : {this.displayBottleMinPrice(buyingPrice)})<br/>
+        Vente : {this.formatPrice(sellingPrice)} (prix 1cl alc. : {this.displayAlcoolPrice(sellingPrice, volumeInCl, abv)})
+      </td>
+    );
   }
 
-  displayTapAlcoolPrice(sellingPrice, volumeInCl, abv) {
+  formatTapPriceCalculation(buyingPrice, volumeInCl, sellingPrice, abv) {
+    return (
+      <td>
+        Achat : {this.formatPrice(buyingPrice*volumeInCl/100)} (Min vente : {this.displayTapMinPrice(buyingPrice, volumeInCl)})<br/>
+        Vente : {this.formatPrice(sellingPrice)} (prix 1cl alc. : {this.displayAlcoolPrice(sellingPrice, volumeInCl, abv)})
+      </td>
+    );
+  }
+
+  displayTapMinPrice(buyingPrice, volumeInCl) {
+    return this.formatPrice(buyingPrice*volumeInCl*3/100);
+  }
+
+  displayBottleMinPrice(buyingPrice) {
+    return this.formatPrice(buyingPrice*2.3);
+  }
+
+  displayAlcoolPrice(sellingPrice, volumeInCl, abv) {
     if (!sellingPrice || !volumeInCl || !abv)
       return null;
     else

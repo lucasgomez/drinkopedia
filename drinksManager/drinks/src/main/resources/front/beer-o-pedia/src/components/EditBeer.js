@@ -140,7 +140,7 @@ class EditBeer extends Component {
 
   handleBottleSubmit(values, {setSubmitting}) {
     let updatedBottle = Object.assign(this.state.bottle, values);
-    let postBottleUrl = `${API_ROOT}/private/beers/` + this.state.beer.id + '/bottle';
+    let postBottleUrl = `/private/beers/` + this.state.beer.id + '/bottle';
 
     var self = this;
     axios.put(
