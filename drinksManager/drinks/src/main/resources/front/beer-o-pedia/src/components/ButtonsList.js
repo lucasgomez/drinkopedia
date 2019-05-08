@@ -17,7 +17,6 @@ class ButtonsList extends Component {
     this.setState({
       isLoading: true
     });
-    // let baseUrl = `${API_ROOT}/public/lists/` + this.props.listName;
     let baseUrl = '/public/lists/' + this.props.listName;
 
     fetch(baseUrl)
@@ -51,7 +50,7 @@ class ButtonsList extends Component {
     return (
       <DropdownButton title={title} id={'buttonsList-'+title}>
         {items.map((item: any) =>
-          <Dropdown.Item>
+          <Dropdown.Item key={'dropdown-'+title+'-item'+item.id}>
             <Link to={'/list/'+listName+'/'+item.id}>
               <span>{item.name}</span>
             </Link>
