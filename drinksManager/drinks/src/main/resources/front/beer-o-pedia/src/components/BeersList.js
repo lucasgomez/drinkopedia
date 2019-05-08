@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Table, Tooltip, Button, OverlayTrigger } from 'react-bootstrap';
+import { Table, Tooltip, Button, OverlayTrigger, DropdownButton, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Popup from 'reactjs-popup'
 import Emoji from './Emoji';
+import axios from 'axios';
 
 class BeersList extends Component {
 
@@ -17,12 +18,34 @@ class BeersList extends Component {
     };
 
     this.toggleIsDisplayingAdditionalStuff = this.toggleIsDisplayingAdditionalStuff.bind(this);
+    this.setAvailability = this.setAvailability.bind(this);
   }
 
   toggleIsDisplayingAdditionalStuff() {
     this.setState(state => ({
       isDisplayingAdditionalStuff: !state.isDisplayingAdditionalStuff
     }));
+  }
+
+  setAvailability(beerId, status) {
+
+    let postBottleAvailabilityUrl = `/private/beers/` + beerId + '/tap/availability';
+
+    var self = this;
+    axios.put(
+      postBottleAvailabilityUrl,
+      status,
+      { withCredentials: true,
+        headers: {"Content-Type": "text/plain"}})
+    .then(function (response){
+       self.setState({
+         fireRedirect: true
+       });
+     }).catch(function (error) {
+       console.log(error);
+       alert("Ebriété assumée, erreur assurée bis");
+     }
+    );
   }
 
   componentDidMount() {
@@ -42,7 +65,7 @@ class BeersList extends Component {
   fetchData = async (listName, listId) => {
     this.setState({isLoading: true});
 
-    let listUrl = this.props.isAuthenticated ? '/public' : '/private';
+    let listUrl = this.props.isAuthenticated ? '/private' : '/public';
     listUrl += '/beers/';
     if (listName && listId)
       listUrl += listName + '/' + listId;
@@ -66,14 +89,13 @@ class BeersList extends Component {
       title,
       description,
       isLoading,
-      isDisplayingAdditionalStuff,
     } = this.state;
     if (isLoading) {
       return <p > Loading... < /p>;
     }
     //TODO Better tooltip formating with bar names or multiline prices + tooltip for bars
     return (
-      <div class="container">
+      <div className="container">
         <h2>{title}</h2>
         <p>{description}</p>
         {this.props.isAuthenticated &&
@@ -106,36 +128,53 @@ class BeersList extends Component {
           <tbody>
             {items.map((item: any) =>
               <tr>
+                <td>
+                  <Link to={'/beerid/'+item.id}>
+                    {item.name}
+                  </Link>
+                </td><td>
+                  <Link to={'/list/producers/'+item.producerId}>
+                    {item.producerName}
+                  </Link>
+                </td><td>
+                  <Link to={'/list/origins/'+item.producerOriginId}>
+                    {item.producerOriginShortName}
+                  </Link>
+                </td><td>
+                  {item.abv}
+                </td><td>
+                  <Link to={'/list/styles/'+item.styleId}>
+                    {item.styleName}
+                  </Link>
+                </td><td>
+                  <Link to={'/list/colors/'+item.colorId}>
+                    {item.colorName}
+                  </Link>
+                </td>
+
+                {!this.state.isDisplayingAdditionalStuff && <td>{this.formatPricesList(item)}</td>}
+
+                {this.state.isDisplayingAdditionalStuff && <td>{this.formatPrice(item.tapBuyingPricePerLiter)}</td>}
+                {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 25, item.tapPriceSmall, item.abv)}</td>}
+                {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 50, item.tapPriceSmall, item.abv)}</td>}
+                {this.state.isDisplayingAdditionalStuff && <td>{this.formatBottlePriceCalculation(item.bottleBuyingPrice, item.bottleVolumeInCl, item.bottleSellingPrice, item.abv)}</td>}
+
+                {this.props.isAuthenticated &&
                   <td>
-                    <Link to={'/beerid/'+item.id}>
-                      {item.name}
-                    </Link>
-                  </td><td>
-                    <Link to={'/list/producers/'+item.producerId}>
-                      {item.producerName}
-                    </Link>
-                  </td><td>
-                    <Link to={'/list/origins/'+item.producerOriginId}>
-                      {item.producerOriginShortName}
-                    </Link>
-                  </td><td>
-                    {item.abv}
-                  </td><td>
-                    <Link to={'/list/styles/'+item.styleId}>
-                      {item.styleName}
-                    </Link>
-                  </td><td>
-                    <Link to={'/list/colors/'+item.colorId}>
-                      {item.colorName}
-                    </Link>
+                    <DropdownButton title={"+"} id={'actionButtonsList-'+item.id}>
+                      <Dropdown.Item key={'actionButtonsList-'+item.id+'-available'}>
+                        <Button onClick={() => this.setAvailability(item.id, "AVAILABLE")}>
+                          Disponible
+                        </Button>
+                      </Dropdown.Item>
+                      <Dropdown.Item key={'actionButtonsList-'+item.id+'-outofstock'}>
+                        <Button onClick={() => this.setAvailability(item.id, "OUT_OF_STOCK")}>
+                          Epuisée
+                        </Button>
+                      </Dropdown.Item>
+                    </DropdownButton>
                   </td>
-
-                  {!this.state.isDisplayingAdditionalStuff && <td>{this.formatPricesList(item)}</td>}
-
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatPrice(item.tapBuyingPricePerLiter)}</td>}
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 25, item.tapPriceSmall, item.abv)}</td>}
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 50, item.tapPriceSmall, item.abv)}</td>}
-                  {this.state.isDisplayingAdditionalStuff && <td>{this.formatBottlePriceCalculation(item.bottleBuyingPrice, item.bottleVolumeInCl, item.bottleSellingPrice, item.abv)}</td>}
+                }
               </tr>
             )}
           </tbody>

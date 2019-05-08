@@ -1,5 +1,6 @@
 package ch.lgo.drinks.simple.service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.TapBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
+import ch.lgo.drinks.simple.entity.Availability;
 import ch.lgo.drinks.simple.entity.Bar;
 import ch.lgo.drinks.simple.entity.Beer;
 import ch.lgo.drinks.simple.entity.BottledBeer;
@@ -228,6 +230,14 @@ public class BeersService {
         return toVeryDetailedDto(beersRepository.loadById(drinkId));
     }
     
+    public Optional<TapBeerDto> loadTapByBeerId(long drinkId) {
+        return beersRepository.loadTapByIdWithServices(drinkId).map(tap -> beerFieldsMapper.map(tap, TapBeerDto.class));
+    }
+    
+    public Optional<BottleBeerDto> loadBottleByBeerId(long drinkId) {
+        return beersRepository.loadBottleByIdWithServices(drinkId).map(bottle -> beerFieldsMapper.map(bottle, BottleBeerDto.class));
+    }
+    
     public TapBeerDto loadTapByIdForEdit(long drinkId) {
         return beerFieldsMapper.map(beersRepository.loadTapByIdWithServices(drinkId).orElseGet(() -> new TapBeer()), TapBeerDto.class);
     }
@@ -341,5 +351,26 @@ public class BeersService {
             this.entityForeignEntitySetter = entityForeignEntitySetter;
         }
         
+    }
+
+    public TapBeerDto updateTapAvailability(Long id, Availability beerAvailability) throws ResourceNotFoundException {
+        TapBeer tap = beersRepository.loadTapByIdWithServices(id).orElseThrow(ResourceNotFoundException::new);
+        
+        if (tap.getAvailability() != beerAvailability) {
+            tap.setAvailability(beerAvailability);
+            tap.setAvailabilityDate(LocalDateTime.now());
+            return beerFieldsMapper.map(beersRepository.save(tap), TapBeerDto.class);
+        }
+        return beerFieldsMapper.map(tap, TapBeerDto.class);
+    }
+    
+    public BottleBeerDto updateBottleAvailability(Long id, Availability beerAvailability) throws ResourceNotFoundException {
+        BottledBeer bottle = beersRepository.loadBottleByIdWithServices(id).orElseThrow(ResourceNotFoundException::new);
+        
+        if (bottle.getAvailability() != beerAvailability) {
+            bottle.setAvailability(beerAvailability);
+            return beerFieldsMapper.map(beersRepository.save(bottle), BottleBeerDto.class);
+        }
+        return beerFieldsMapper.map(bottle, BottleBeerDto.class);
     }
 }

@@ -26,6 +26,7 @@ import ch.lgo.drinks.simple.dto.BeerWithPricesDto;
 import ch.lgo.drinks.simple.dto.BottleBeerDto;
 import ch.lgo.drinks.simple.dto.TapBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
+import ch.lgo.drinks.simple.entity.Availability;
 import ch.lgo.drinks.simple.exceptions.BadCreationRequestException;
 import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BeersService;
@@ -137,6 +138,29 @@ public class BeersResource {
     @GetMapping("/search/{beer_name}")
     public BeersDTOList<BeerDTO> findBeersByName(@PathVariable("beer_name") String beerName) {
         return beersService.findByName(beerName);
+    }
+
+    @PutMapping("{beer_id}/bottle/availability")
+    private ResponseEntity<?> setBottleAvailability(@PathVariable("beer_id") long beerId, @RequestBody Availability availability) {
+        try {
+            return ResponseEntity
+                    .ok()
+                    .body(beersService.updateBottleAvailability(beerId, availability));
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    @PutMapping("{beer_id}/tap/availability")
+    public ResponseEntity<?> setTapAvailability(@PathVariable("beer_id") long beerId, @RequestBody String availability) {
+        try {
+            Availability availabilityValue = Availability.valueOf(availability);
+            return ResponseEntity
+                    .ok()
+                    .body(beersService.updateTapAvailability(beerId, availabilityValue));
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     
     private ResponseEntity<?> loadBeersByEntity(long entityId, Function<Long, Optional<BeersDTOList<BeerWithPricesDto>>> listLoader) {
