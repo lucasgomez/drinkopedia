@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as yup from 'yup';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
-import { ReactstrapInput } from "reactstrap-formik";
+import { ReactstrapInput, ReactstrapSelect } from "reactstrap-formik";
 import SelectList from './edit/SelectList';
 import StrengthInput from './edit/StrengthInput';
 import { API_ROOT } from '../data/apiConfig';
@@ -279,13 +279,25 @@ class EditBeer extends Component {
             buyingPricePerLiter: this.state.tap.buyingPricePerLiter,
             priceBig: this.state.tap.priceBig,
             priceSmall: this.state.tap.priceSmall,
+            availability: this.state.tap.availability,
             barsIds: this.state.tap.barsIds,
            }}
            onSubmit={this.handleTapSubmit}
 
            render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
 
-                 <Form>
+                <Form>
+                  <Field
+                    label="Disponibilité"
+                    name="availability"
+                    component={ReactstrapSelect}
+                    inputprops={{
+                      name: "availability",
+                      id: "availability",
+                      options: ['NOT_YET_AVAILABLE', 'AVAILABLE', 'NEARLY_OUT_OF_STOCK', 'OUT_OF_STOCK'],
+                      defaultOption: "NOT_YET_AVAILABLE"
+                    }}
+                  />
                   < Field
                   id = "tapBuyingPricePerLiter"
                   type = "text"
@@ -344,6 +356,7 @@ class EditBeer extends Component {
              buyingPrice: this.state.bottle.buyingPrice,
              sellingPrice: this.state.bottle.sellingPrice,
              volumeInCl: this.state.bottle.volumeInCl,
+             availability: this.state.bottle.availability,
              barsIds: this.state.bottle.barsIds,
            }}
            onSubmit={this.handleBottleSubmit}
@@ -351,6 +364,18 @@ class EditBeer extends Component {
            render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
 
               <Form>
+                <Field
+                  label="Disponibilité"
+                  name="availability"
+                  component={ReactstrapSelect}
+                  inputprops={{
+                    name: "availability",
+                    id: "availability",
+                    options: ['NOT_YET_AVAILABLE', 'AVAILABLE', 'NEARLY_OUT_OF_STOCK', 'OUT_OF_STOCK'],
+                    defaultOption: "NOT_YET_AVAILABLE"
+                  }}
+                />
+
                 <Field
                 id="bottleBuyingPrice"
                 type="text"
