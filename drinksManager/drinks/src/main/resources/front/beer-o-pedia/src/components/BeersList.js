@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Table, Tooltip, Button, OverlayTrigger, DropdownButton, Dropdown } from 'react-bootstrap';
+import { Table, Tooltip, Button, OverlayTrigger,
+  DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Popup from 'reactjs-popup'
 import Emoji from './Emoji';
@@ -27,9 +28,13 @@ class BeersList extends Component {
     }));
   }
 
-  setAvailability(beerId, status) {
+  submitAvailability(beer, oldStatus, newStatus, service) {
+    if (window.confirm('Etes-vous sur de vouloir changer le status de "'+beer.name+'" de "'+oldStatus+'" à "'+newStatus+'"?'))
+      this.setAvailability(beer.id, newStatus, service);
+  }
 
-    let postBottleAvailabilityUrl = `/private/beers/` + beerId + '/tap/availability';
+  setAvailability(beerId, status, service) {
+    let postBottleAvailabilityUrl = `/private/beers/` + beerId + '/'+service+'/availability';
 
     var self = this;
     axios.put(
@@ -38,9 +43,7 @@ class BeersList extends Component {
       { withCredentials: true,
         headers: {"Content-Type": "text/plain"}})
     .then(function (response){
-       self.setState({
-         fireRedirect: true
-       });
+       self.fetchData(self.props.listName, self.props.listId);
      }).catch(function (error) {
        console.log(error);
        alert("Ebriété assumée, erreur assurée bis");
@@ -123,6 +126,8 @@ class BeersList extends Component {
               {this.state.isDisplayingAdditionalStuff && <th>Pression 25 cl</th>}
               {this.state.isDisplayingAdditionalStuff && <th>Pression 50 cl</th>}
               {this.state.isDisplayingAdditionalStuff && <th>Bouteille</th>}
+
+              {this.props.isAuthenticated && <th>GodMode</th>}
             </tr>
           </thead>
           <tbody>
@@ -161,18 +166,7 @@ class BeersList extends Component {
 
                 {this.props.isAuthenticated &&
                   <td>
-                    <DropdownButton title={"+"} id={'actionButtonsList-'+item.id}>
-                      <Dropdown.Item key={'actionButtonsList-'+item.id+'-available'}>
-                        <Button onClick={() => this.setAvailability(item.id, "AVAILABLE")}>
-                          Disponible
-                        </Button>
-                      </Dropdown.Item>
-                      <Dropdown.Item key={'actionButtonsList-'+item.id+'-outofstock'}>
-                        <Button onClick={() => this.setAvailability(item.id, "OUT_OF_STOCK")}>
-                          Epuisée
-                        </Button>
-                      </Dropdown.Item>
-                    </DropdownButton>
+                    {this.displayActionButtons(item)}
                   </td>
                 }
               </tr>
@@ -183,6 +177,54 @@ class BeersList extends Component {
     );
 
   }
+
+  displayActionButtons(beer) {
+    var availabilities = [];
+    availabilities.push({status : 'NOT_YET_AVAILABLE', label: 'Pas encore en service'});
+    availabilities.push({status : 'AVAILABLE', label: 'En service'});
+    availabilities.push({status : 'NEARLY_OUT_OF_STOCK', label: 'Bientôt épuisé'});
+    availabilities.push({status : 'OUT_OF_STOCK', label: 'Epuisé'});
+
+    let tapAvailability = beer.tapPriceSmall && (
+      <Dropdown.Item key={'actionButtonsList-'+beer.id+'-tap-statuses'}>
+        <Dropdown.Header>Pression</Dropdown.Header>
+        {availabilities.map((availability: any) =>
+          beer.tapAvailability != availability.status &&
+            <Dropdown.Item
+              onClick={() => this.submitAvailability(beer, beer.tapAvailability, availability.status, 'tap')}
+              key={'actionButtonsList-'+beer.id+'-tap-statuses-'+availability.status}>
+                {availability.label}
+            </Dropdown.Item>
+        )}
+      </Dropdown.Item>
+    );
+    let bottleAvailability = beer.bottleSellingPrice && (
+      <Dropdown.Item key={'actionButtonsList-'+beer.id+'-bottle-statuses'}>
+        <Dropdown.Header>Bouteille</Dropdown.Header>
+        {availabilities.map((availability: any) =>
+          beer.bottleAvailability != availability.status &&
+            <Dropdown.Item
+              onClick={() => this.submitAvailability(beer, beer.bottleAvailability, availability.status, 'bottle')}
+              key={'actionButtonsList-'+beer.id+'-tap-statuses-'+availability.status}>
+                {availability.label}
+            </Dropdown.Item>
+        )}
+      </Dropdown.Item>
+    );
+
+    return (
+      <Dropdown as={ButtonGroup}>
+        <Button><Link to={'/edit/beer/'+beer.id}>✏</Link></Button>
+        <Dropdown.Toggle split id="dropdown-split-basic" />
+        <Dropdown.Menu>
+          {tapAvailability}
+          {tapAvailability && bottleAvailability && <Dropdown.Divider/>}
+          {bottleAvailability}
+        </Dropdown.Menu>
+      </Dropdown>
+    );
+  }
+
   formatPrice(price) {
       if (!price)
         return null;

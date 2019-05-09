@@ -141,25 +141,28 @@ public class BeersResource {
     }
 
     @PutMapping("{beer_id}/bottle/availability")
-    private ResponseEntity<?> setBottleAvailability(@PathVariable("beer_id") long beerId, @RequestBody Availability availability) {
+    private ResponseEntity<?> setBottleAvailability(@PathVariable("beer_id") long beerId, @RequestBody String availability) {
         try {
             return ResponseEntity
                     .ok()
-                    .body(beersService.updateBottleAvailability(beerId, availability));
+                    .body(beersService.updateBottleAvailability(beerId, Availability.valueOf(availability)));
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
     }
     
     @PutMapping("{beer_id}/tap/availability")
     public ResponseEntity<?> setTapAvailability(@PathVariable("beer_id") long beerId, @RequestBody String availability) {
         try {
-            Availability availabilityValue = Availability.valueOf(availability);
             return ResponseEntity
                     .ok()
-                    .body(beersService.updateTapAvailability(beerId, availabilityValue));
+                    .body(beersService.updateTapAvailability(beerId, Availability.valueOf(availability)));
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
     }
     
