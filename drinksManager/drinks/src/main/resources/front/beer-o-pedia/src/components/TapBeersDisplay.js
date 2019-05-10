@@ -21,6 +21,16 @@ class TapBeersDisplay extends Component {
 
   componentDidMount() {
     this.fetchData(this.props.listName, this.props.listId);
+
+    this.interval = setInterval(this.tick, 1000*60*2);
+  }
+
+  componentWillUnmount() {
+     clearInterval(this.interval);
+  }
+
+  tick = () => {
+    this.fetchData(this.state.listName, this.state.listId);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -48,6 +58,8 @@ class TapBeersDisplay extends Component {
         this.setState({
           items: list.beers,
           title: list.name,
+          listName: listName,
+          listId: listId,
           isLoading: false
         })
       );
