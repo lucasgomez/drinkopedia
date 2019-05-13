@@ -135,11 +135,6 @@ public class BeersResource {
         return loadBeersByEntity(beerOriginId, beersService::loadBeersWithPricesByOriginId);
     }
 
-    @GetMapping("/search/{beer_name}")
-    public BeersDTOList<BeerDTO> findBeersByName(@PathVariable("beer_name") String beerName) {
-        return beersService.findByName(beerName);
-    }
-
     @PutMapping("{beer_id}/bottle/availability")
     private ResponseEntity<?> setBottleAvailability(@PathVariable("beer_id") long beerId, @RequestBody String availability) {
         try {

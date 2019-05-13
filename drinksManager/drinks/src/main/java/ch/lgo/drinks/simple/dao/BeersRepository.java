@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 
@@ -105,13 +106,27 @@ public class BeersRepository {
         		.fetch();
 	}
 	
-    public List<Beer> findByName(String beerName) {
+    public List<Beer> findByName(String searchedString) {
         //TODO Something like the google search of NJ instead of exact match ignore case
         JPAQuery<Beer> query = new JPAQuery<>(em);
+        QBeerStyle style = QBeerStyle.beerStyle;
+        QBeerColor color = QBeerColor.beerColor;
+        QProducer producer = QProducer.producer;
+        QPlace place = QPlace.place;
         QBeer qBeer = QBeer.beer;
         return query
         		.from(qBeer)
-        		.where(qBeer.name.likeIgnoreCase("%"+beerName+"%"))
+        		.leftJoin(qBeer.color, color)
+        		.leftJoin(qBeer.style, style)
+        		.leftJoin(qBeer.producer, producer)
+        		.leftJoin(producer.origin, place)
+        		.where(
+        		        qBeer.name.likeIgnoreCase("%"+searchedString+"%")
+        		        .or(color.name.likeIgnoreCase("%"+searchedString+"%"))
+        		        .or(style.name.likeIgnoreCase("%"+searchedString+"%"))
+        		        .or(producer.name.likeIgnoreCase("%"+searchedString+"%"))
+        		        .or(place.name.likeIgnoreCase("%"+searchedString+"%"))
+        		        )
         		.fetch();
     }
     
@@ -185,52 +200,122 @@ public class BeersRepository {
 		return em.merge(bottle);
 	}
 
-    public List<Beer> findByStyle(long styleId) {
+	public List<Beer> findByStyle(long styleId) {
+	    return findByStyle(styleId, true);
+	}
+	
+    public List<Beer> findByStyle(long styleId, boolean havingService) {
         JPAQuery<Beer> query = new JPAQuery<>(em);
         QBeerStyle qBeerStyle = QBeerStyle.beerStyle;
+        QTapBeer tap = QTapBeer.tapBeer;
+        QBottledBeer bottle = QBottledBeer.bottledBeer;
         QBeer qBeer = QBeer.beer;
-        return query
+        
+        query = query
                 .from(qBeer)
-                .innerJoin(qBeer.style, qBeerStyle).fetchJoin()
-                .where(qBeerStyle.id.eq(styleId))
+                .innerJoin(qBeer.style, qBeerStyle).fetchJoin();
+        
+        if (havingService)
+            query = query
+                .leftJoin(qBeer.tap, tap)
+                .leftJoin(qBeer.bottle, bottle);
+        
+        BooleanExpression condition = qBeerStyle.id.eq(styleId);
+        if (havingService)
+            condition = condition
+                .and(tap.isNotNull().or(bottle.isNotNull()));
+        
+        return query.where(condition)
                 .orderBy(qBeer.name.asc())
                 .fetch();
     }
 
     public List<Beer> findByColor(long colorId) {
+        return findByColor(colorId, true);
+    }
+    
+    public List<Beer> findByColor(long colorId, boolean havingService) {
         JPAQuery<Beer> query = new JPAQuery<>(em);
         QBeerColor qBeerColor = QBeerColor.beerColor;
+        QTapBeer tap = QTapBeer.tapBeer;
+        QBottledBeer bottle = QBottledBeer.bottledBeer;
         QBeer qBeer = QBeer.beer;
-        return query
+        
+        query = query
                 .from(qBeer)
-                .innerJoin(qBeer.color, qBeerColor).fetchJoin()
-                .where(qBeerColor.id.eq(colorId))
+                .innerJoin(qBeer.color, qBeerColor).fetchJoin();
+        
+        if (havingService)
+            query = query
+                .leftJoin(qBeer.tap, tap)
+                .leftJoin(qBeer.bottle, bottle);
+
+        BooleanExpression condition = qBeerColor.id.eq(colorId);
+        if (havingService)
+            condition = condition
+                .and(tap.isNotNull().or(bottle.isNotNull()));
+        
+        return query.where(condition)
                 .orderBy(qBeer.name.asc())
                 .fetch();
     }
 
     public List<Beer> findByProducer(long producerId) {
+        return findByProducer(producerId, true);
+    }
+    
+    public List<Beer> findByProducer(long producerId, boolean havingService) {
         JPAQuery<Beer> query = new JPAQuery<>(em);
         QProducer qProducer = QProducer.producer;
+        QTapBeer tap = QTapBeer.tapBeer;
+        QBottledBeer bottle = QBottledBeer.bottledBeer;
         QBeer qBeer = QBeer.beer;
-        return query
+        query = query
                 .from(qBeer)
-                .innerJoin(qBeer.producer, qProducer).fetchJoin()
-                .where(qProducer.id.eq(producerId))
+                .innerJoin(qBeer.producer, qProducer).fetchJoin();
+        
+        if (havingService)
+            query = query
+                .leftJoin(qBeer.tap, tap)
+                .leftJoin(qBeer.bottle, bottle);
+        
+        BooleanExpression condition = qProducer.id.eq(producerId);
+        if (havingService)
+            condition = condition
+                .and(tap.isNotNull().or(bottle.isNotNull()));
+        
+        return query.where(condition)
                 .orderBy(qBeer.name.asc())
                 .fetch();
     }
 
     public List<Beer> findByOrigin(long originId) {
+        return findByOrigin(originId, true);
+    }
+    
+    public List<Beer> findByOrigin(long originId, boolean havingService) {
         JPAQuery<Beer> query = new JPAQuery<>(em);
         QProducer qProducer = QProducer.producer;
         QPlace qPlace = QPlace.place;
+        QTapBeer tap = QTapBeer.tapBeer;
+        QBottledBeer bottle = QBottledBeer.bottledBeer;
         QBeer qBeer = QBeer.beer;
-        return query
+        query = query
                 .from(qBeer)
                 .innerJoin(qBeer.producer, qProducer).fetchJoin()
-                .innerJoin(qProducer.origin, qPlace).fetchJoin()
-                .where(qPlace.id.eq(originId))
+                .innerJoin(qProducer.origin, qPlace).fetchJoin();
+        
+        if (havingService)
+            query = query
+                .leftJoin(qBeer.tap, tap)
+                .leftJoin(qBeer.bottle, bottle);
+        
+        BooleanExpression condition = qPlace.id.eq(originId);
+        if (havingService)
+            condition = condition
+                .and(tap.isNotNull().or(bottle.isNotNull()));
+        
+        return query.where(condition)
                 .orderBy(qBeer.name.asc())
                 .fetch();
     }

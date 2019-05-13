@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -61,9 +62,9 @@ public class PublicBeersResource {
         return loadBeersByEntity(beerOriginId, beersService::loadBeersByOriginId);
     }
 
-    @GetMapping("/search/{beer_name}")
-    public BeersDTOList<BeerDTO> findBeersByName(@PathVariable("beer_name") String beerName) {
-        return beersService.findByName(beerName);
+    @GetMapping("/search")
+    public BeersDTOList<BeerDTO> findBeersByName(@RequestBody String searchedText) {
+        return beersService.findByName(searchedText);
     }
     
     private ResponseEntity<?> loadBeersByEntity(long entityId, Function<Long, Optional<BeersDTOList<BeerDTO>>> listLoader) {

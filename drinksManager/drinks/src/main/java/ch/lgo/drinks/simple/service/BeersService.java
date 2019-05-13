@@ -195,19 +195,19 @@ public class BeersService {
     }
     
     public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByStyleId(long styleId) {
-        return findByEntityIdWithPrices(styleId, beerStyleRepository::loadById, beersRepository::findByStyle);
+        return findByEntityIdWithPrices(styleId, beerStyleRepository::loadById, id -> beersRepository.findByStyle(id, false));
     }
     
     public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByColorId(long colorId) {
-        return findByEntityIdWithPrices(colorId, colorService::loadById, beersRepository::findByColor);
+        return findByEntityIdWithPrices(colorId, colorService::loadById, id -> beersRepository.findByColor(id, false));
     }
     
     public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByProducereId(long producerId) {
-        return findByEntityIdWithPrices(producerId, producerRepository::loadById, beersRepository::findByProducer);
+        return findByEntityIdWithPrices(producerId, producerRepository::loadById, id -> beersRepository.findByProducer(id, false));
     }
     
     public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByOriginId(long originId) {
-        return findByEntityIdWithPrices(originId, placeRepository::loadById, beersRepository::findByOrigin);
+        return findByEntityIdWithPrices(originId, placeRepository::loadById, id -> beersRepository.findByOrigin(id, false));
     }
     
     public Optional<BeersDTOList<BeerWithPricesDto>> loadBeersWithPricesByBarId(long barId) {
