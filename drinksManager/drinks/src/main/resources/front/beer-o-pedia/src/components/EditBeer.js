@@ -187,6 +187,8 @@ class EditBeer extends Component {
           <Redirect to={redirectUrl}/>
         )}
 
+        <p><Emoji symbol="🔎" label="Chercher"/> Chercher sur <a href={'https://www.ratebeer.com/search?q='+encodeURIComponent(beer.name)} target="_blank">Rate Beer</a></p>
+
         <Formik
           initialValues={{
             name: this.state.beer.name,
