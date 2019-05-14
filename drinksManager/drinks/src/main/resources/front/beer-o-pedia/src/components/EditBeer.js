@@ -255,8 +255,8 @@ class EditBeer extends Component {
                     name="name"
                     placeholder="Nom de la Bière"
                     component={ReactstrapInput}
-                    />
-                    <ErrorMessage name="name" />
+                  />
+                  <ErrorMessage name="name" />
                   <br/>
 
                   <SelectList label="Producteur" name="producerId" listName="producers"/>
@@ -270,7 +270,7 @@ class EditBeer extends Component {
                     rows="4"
                     name="comment"
                     placeholder="Texte de description de la Bière"
-                    />
+                  />
                   <ErrorMessage name="comment" />
 
                   <Field
@@ -279,7 +279,7 @@ class EditBeer extends Component {
                     label="Alcool (%)"
                     name="abv"
                     component={ReactstrapInput}
-                    />
+                  />
                   <br/>
 
                   <SelectList label="Couleur" name="colorId" listName="colors"/>
@@ -301,16 +301,16 @@ class EditBeer extends Component {
                   <br/>
 
                   <button
-                      type="button"
-                      className="outline"
-                      onClick={handleReset}
-                      disabled={!dirty || isSubmitting}>
-                      ✖ Annuler
-                    </button>
+                    type="button"
+                    className="outline"
+                    onClick={handleReset}
+                    disabled={!dirty || isSubmitting}>
+                    ✖ Annuler
+                  </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}>
-                       <Emoji symbol="💾" label="Sauver"/> Sauver
+                    <Emoji symbol="💾" label="Sauver"/> Sauver
                   </button>
                 </Form>
          )}
@@ -340,62 +340,52 @@ class EditBeer extends Component {
                       defaultOption: "NOT_YET_AVAILABLE"
                     }}
                   />
-                  < Field
-                  id = "tapBuyingPricePerLiter"
-                  type = "text"
-                  label = "Prix d'achat (CHF/L)"
-                  name = "buyingPricePerLiter"
-                  component = {
-                    ReactstrapInput
-                  }
-                  /> <
-                  ErrorMessage name = "buyingPricePerLiter" / >
+                  <Field
+                    id = "tapBuyingPricePerLiter"
+                    type = "text"
+                    label = "Prix d'achat (CHF/L)"
+                    name = "buyingPricePerLiter"
+                    component = {ReactstrapInput}
+                  />
+                  <ErrorMessage name = "buyingPricePerLiter"/>
 
-                  <
-                  Field
-                  id = "tapPriceSmall"
-                  type = "text"
-                  label = "Prix de vente (25cL)"
-                  name = "priceSmall"
-                  component = {
-                    ReactstrapInput
-                  }
+                  <Field
+                    id = "tapPriceSmall"
+                    type = "text"
+                    label = "Prix de vente (25cL)"
+                    name = "priceSmall"
+                    component = {ReactstrapInput}
                   />
                   {values.buyingPricePerLiter && <p>Prix min. suggéré : {this.displayTapMinPrice(values.buyingPricePerLiter, 25)}</p>}
                   {values.priceSmall && beer.abv && <p>Prix alcool pur (CHF/cL): {this.displayAlcoolPrice(values.priceSmall, 25, beer.abv)}</p>}
-                  <ErrorMessage name = "priceSmall" / >
+                  <ErrorMessage name = "priceSmall"/>
 
-                  <
-                  Field
-                  id = "tapPriceBig"
-                  type = "text"
-                  label = "Prix de vente (50cl)"
-                  name = "priceBig"
-                  component = {
-                    ReactstrapInput
-                  }
+                  <Field
+                    id = "tapPriceBig"
+                    type = "text"
+                    label = "Prix de vente (50cl)"
+                    name = "priceBig"
+                    component = {ReactstrapInput}
                   />
                   {values.buyingPricePerLiter && <p>Prix min. suggéré : {this.displayTapMinPrice(values.buyingPricePerLiter, 50)}</p>}
                   {values.priceBig && beer.abv && <p>Prix alcool pur (CHF/cL): {this.displayAlcoolPrice(values.priceBig, 50, beer.abv)}</p>}
-
-                  <ErrorMessage name = "priceBig" / >
-
+                  <ErrorMessage name = "priceBig"/>
 
                   <BarsCheckboxes groupName="barsIds"/>
 
-                   <button
-                       type="button"
-                       className="outline"
-                       onClick={handleReset}
-                       disabled={!dirty || isSubmitting}>
-                       ✖ Annuler
-                     </button>
-                   <button
-                     type="submit"
-                     disabled={isSubmitting}>
-                        <Emoji symbol="💾" label="Sauver"/> Sauver
-                   </button>
-                 </Form>
+                  <button
+                    type="button"
+                    className="outline"
+                    onClick={handleReset}
+                    disabled={!dirty || isSubmitting}>
+                    <Emoji symbol="✖" label="Annuler"/> Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}>
+                    <Emoji symbol="💾" label="Sauver"/> Sauver
+                  </button>
+                </Form>
           )}
         />
 
@@ -425,47 +415,47 @@ class EditBeer extends Component {
                 />
 
                 <Field
-                id="bottleBuyingPrice"
-                type="text"
-                label="Prix d'achat bouteille"
-                name="buyingPrice"
-                component={ReactstrapInput}
+                  id="bottleBuyingPrice"
+                  type="text"
+                  label="Prix d'achat bouteille"
+                  name="buyingPrice"
+                  component={ReactstrapInput}
                 />
                 <ErrorMessage name="buyingPrice" />
 
                 <Field
-                id="bottleSellingPrice"
-                type="text"
-                label="Prix de vente bouteille"
-                name="sellingPrice"
-                component={ReactstrapInput}
+                  id="bottleSellingPrice"
+                  type="text"
+                  label="Prix de vente bouteille"
+                  name="sellingPrice"
+                  component={ReactstrapInput}
                 />
                 {values.buyingPrice && <p>Prix min. suggéré : {this.displayBottleMinPrice(values.buyingPrice)}</p>}
                 {values.sellingPrice && values.volumeInCl && beer.abv && <p>Prix alcool pur (CHF/cL): {this.displayAlcoolPrice(values.sellingPrice, values.volumeInCl, beer.abv)}</p>}
                 <ErrorMessage name="sellingPrice" />
 
                 <Field
-                id="bottleVolumeInCl"
-                type="text"
-                label="Volume bouteille (cL)"
-                name="volumeInCl"
-                component={ReactstrapInput}
+                  id="bottleVolumeInCl"
+                  type="text"
+                  label="Volume bouteille (cL)"
+                  name="volumeInCl"
+                  component={ReactstrapInput}
                 />
                 <ErrorMessage name="volumeInCl" />
 
                 <BarsCheckboxes groupName="barsIds"/>
 
                  <button
-                     type="button"
-                     className="outline"
-                     onClick={handleReset}
-                     disabled={!dirty || isSubmitting}>
-                     <Emoji symbol="✖" label="Annuler"/> Annuler
-                   </button>
+                   type="button"
+                   className="outline"
+                   onClick={handleReset}
+                   disabled={!dirty || isSubmitting}>
+                   <Emoji symbol="✖" label="Annuler"/> Annuler
+                 </button>
                  <button
                    type="submit"
                    disabled={isSubmitting}>
-                      <Emoji symbol="💾" label="Sauver"/> Sauver
+                   <Emoji symbol="💾" label="Sauver"/> Sauver
                  </button>
                </Form>
           )}
