@@ -161,6 +161,46 @@ class EditBeer extends Component {
 
   }
 
+  formatPrice(price) {
+      if (!price)
+        return null;
+      else
+        return price.toFixed(2) + ".-";
+  }
+
+  formatBottlePriceCalculation(buyingPrice, volumeInCl, sellingPrice, abv) {
+    return (
+      <td>
+        Achat : {this.formatPrice(buyingPrice)} {volumeInCl && '('+volumeInCl+' cL)'} (Min vente : {this.displayBottleMinPrice(buyingPrice)})<br/>
+        Vente : {this.formatPrice(sellingPrice)} (prix 1cl alc. : {this.displayAlcoolPrice(sellingPrice, volumeInCl, abv)})
+      </td>
+    );
+  }
+
+  formatTapPriceCalculation(buyingPrice, volumeInCl, sellingPrice, abv) {
+    return (
+      <td>
+        Achat : {this.formatPrice(buyingPrice*volumeInCl/100)} (Min vente : {this.displayTapMinPrice(buyingPrice, volumeInCl)})<br/>
+        Vente : {this.formatPrice(sellingPrice)} (prix 1cl alc. : {this.displayAlcoolPrice(sellingPrice, volumeInCl, abv)})
+      </td>
+    );
+  }
+
+  displayTapMinPrice(buyingPrice, volumeInCl) {
+    return this.formatPrice(buyingPrice*volumeInCl*3/100);
+  }
+
+  displayBottleMinPrice(buyingPrice) {
+    return this.formatPrice(buyingPrice*2.3);
+  }
+
+  displayAlcoolPrice(sellingPrice, volumeInCl, abv) {
+    if (!sellingPrice || !volumeInCl || !abv)
+      return null;
+    else
+      return this.formatPrice((sellingPrice*100) / (volumeInCl*abv));
+  }
+
   render() {
 
     const {
@@ -321,6 +361,8 @@ class EditBeer extends Component {
                     ReactstrapInput
                   }
                   />
+                  {values.buyingPricePerLiter && <p>Prix min. suggéré : {this.displayTapMinPrice(values.buyingPricePerLiter, 25)}</p>}
+                  {values.priceSmall && beer.abv && <p>Prix alcool pur (CHF/cL): {this.displayAlcoolPrice(values.priceSmall, 25, beer.abv)}</p>}
                   <ErrorMessage name = "priceSmall" / >
 
                   <
@@ -332,8 +374,11 @@ class EditBeer extends Component {
                   component = {
                     ReactstrapInput
                   }
-                  /> <
-                  ErrorMessage name = "priceBig" / >
+                  />
+                  {values.buyingPricePerLiter && <p>Prix min. suggéré : {this.displayTapMinPrice(values.buyingPricePerLiter, 50)}</p>}
+                  {values.priceBig && beer.abv && <p>Prix alcool pur (CHF/cL): {this.displayAlcoolPrice(values.priceBig, 50, beer.abv)}</p>}
+
+                  <ErrorMessage name = "priceBig" / >
 
 
                   <BarsCheckboxes groupName="barsIds"/>
@@ -395,6 +440,8 @@ class EditBeer extends Component {
                 name="sellingPrice"
                 component={ReactstrapInput}
                 />
+                {values.buyingPrice && <p>Prix min. suggéré : {this.displayBottleMinPrice(values.buyingPrice)}</p>}
+                {values.sellingPrice && values.volumeInCl && beer.abv && <p>Prix alcool pur (CHF/cL): {this.displayAlcoolPrice(values.sellingPrice, values.volumeInCl, beer.abv)}</p>}
                 <ErrorMessage name="sellingPrice" />
 
                 <Field
