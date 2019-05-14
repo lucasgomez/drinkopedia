@@ -15,6 +15,7 @@ class TapBeersDisplay extends Component {
       items: [],
       title: "",
       description: "",
+      updateTime: null,
       isLoading: false
     };
   }
@@ -56,10 +57,11 @@ class TapBeersDisplay extends Component {
       .then(response => response.json())
       .then(list =>
         this.setState({
-          items: list.beers,
+          items: list.beers.filter(beer => beer.tapAvailability && !['NOT_YET_AVAILABLE', 'OUT_OF_STOCK'].includes(beer.tapAvailability)),
           title: list.name,
           listName: listName,
           listId: listId,
+          updateTime: new Date,
           isLoading: false
         })
       );
@@ -74,19 +76,14 @@ class TapBeersDisplay extends Component {
   }
 
   renderAvailibity = (beer) => {
+    if (beer.tapAssortment=="FIXED")
+      return null;
+
     switch (beer.tapAvailability) {
-      case "NOT_YET_AVAILABLE":
-        return <Emoji symbol="🕘" label="Pas encore disponible"/>;
       case "AVAILABLE":
-        return beer.tapAssortment=="FIXED"?
-          <Emoji symbol="🌟" label="Assortiment fixe"/>:
-          <Emoji symbol="⏱" label="Assortiment temporaire"/>;
+        return <Emoji symbol="⌛" label="Assortiment fixe"/>;
       case "NEARLY_OUT_OF_STOCK":
-        return beer.tapAssortment=="FIXED"?
-          <Emoji symbol="🌟" label="Bientôt épuisée"/>:
-          <Emoji symbol="⏳" label="Bientôt épuisée"/>;
-      case "OUT_OF_STOCK":
-        return <Emoji symbol="💀" label="Epuisée"/>;
+        return <Emoji symbol="⏳" label="Bientôt épuisée"/>;
       default:
         return null;
     }
@@ -132,7 +129,8 @@ class TapBeersDisplay extends Component {
   render() {
     const {
       items,
-      isLoading
+      isLoading,
+      updateTime
     } = this.state;
 
     if (isLoading) {
@@ -146,7 +144,7 @@ class TapBeersDisplay extends Component {
 
         {this.createTable(items, 4)}
 
-        <div>.</div>
+        <p>{updateTime && 'MàJ : '+('0'+updateTime.getHours()).slice(-2)+":"+('0'+updateTime.getMinutes()).slice(-2)}</p>
     		<Row className="text-center">
     			<h5 class="col"><Emoji symbol="🌟" label="Assortiment fixe"/> - Assortiment fixe</h5>
     			<h5 class="col"><Emoji symbol="🚨" label="Nouvellement ajoutée"/> - Nouvellement ajoutée</h5>

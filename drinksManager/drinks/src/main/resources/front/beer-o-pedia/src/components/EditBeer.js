@@ -309,8 +309,20 @@ class EditBeer extends Component {
                   /> <
                   ErrorMessage name = "buyingPricePerLiter" / >
 
-                    <
-                    Field
+                  <
+                  Field
+                  id = "tapPriceSmall"
+                  type = "text"
+                  label = "Prix de vente (25cL)"
+                  name = "priceSmall"
+                  component = {
+                    ReactstrapInput
+                  }
+                  />
+                  <ErrorMessage name = "priceSmall" / >
+
+                  <
+                  Field
                   id = "tapPriceBig"
                   type = "text"
                   label = "Prix de vente (50cl)"
@@ -321,17 +333,6 @@ class EditBeer extends Component {
                   /> <
                   ErrorMessage name = "priceBig" / >
 
-                    <
-                    Field
-                  id = "tapPriceSmall"
-                  type = "text"
-                  label = "Prix de vente (25cL)"
-                  name = "priceSmall"
-                  component = {
-                    ReactstrapInput
-                  }
-                  />
-                  <ErrorMessage name = "priceSmall" / >
 
                   <BarsCheckboxes groupName="barsIds"/>
 
