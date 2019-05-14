@@ -180,7 +180,7 @@ class EditBeer extends Component {
     return (
       <div>
         <Link to={redirectUrl}>
-          <h2>{'🔙'}</h2>
+          <h2><Emoji symbol="🔙" label="Retour"/></h2>
         </Link>
 
         {fireRedirect && (
