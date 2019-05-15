@@ -107,6 +107,14 @@ class Manager extends Component {
               />}
           />
           <Route
+            path="/search/:searchString"
+            render={(props) =>
+              <BeersList
+                searchString={props.match.params.searchString}
+                isAuthenticated={false}
+              />}
+          />
+          <Route
             path="/list"
             render={(props) =>
               <BeersList

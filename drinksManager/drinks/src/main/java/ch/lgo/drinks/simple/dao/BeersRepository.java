@@ -1,8 +1,10 @@
 package ch.lgo.drinks.simple.dao;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -114,19 +116,28 @@ public class BeersRepository {
         QProducer producer = QProducer.producer;
         QPlace place = QPlace.place;
         QBeer qBeer = QBeer.beer;
+        
+        
+        Set<BooleanExpression> subConditions = Arrays.stream(searchedString.split(" "))
+                .map(subString -> 
+                    qBeer.name.likeIgnoreCase("%"+subString+"%")
+                    .or(color.name.likeIgnoreCase("%"+subString+"%"))
+                    .or(style.name.likeIgnoreCase("%"+subString+"%"))
+                    .or(producer.name.likeIgnoreCase("%"+subString+"%"))
+                    .or(place.name.likeIgnoreCase("%"+subString+"%")))
+                .collect(Collectors.toSet());
+            
+        BooleanExpression condition = null;
+        for (BooleanExpression subCondition : subConditions)
+            condition = condition != null ? condition.and(subCondition) : subCondition;
+                
         return query
         		.from(qBeer)
         		.leftJoin(qBeer.color, color)
         		.leftJoin(qBeer.style, style)
         		.leftJoin(qBeer.producer, producer)
         		.leftJoin(producer.origin, place)
-        		.where(
-        		        qBeer.name.likeIgnoreCase("%"+searchedString+"%")
-        		        .or(color.name.likeIgnoreCase("%"+searchedString+"%"))
-        		        .or(style.name.likeIgnoreCase("%"+searchedString+"%"))
-        		        .or(producer.name.likeIgnoreCase("%"+searchedString+"%"))
-        		        .or(place.name.likeIgnoreCase("%"+searchedString+"%"))
-        		        )
+        		.where(condition)
         		.fetch();
     }
     

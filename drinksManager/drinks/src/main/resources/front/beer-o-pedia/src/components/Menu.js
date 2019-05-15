@@ -15,7 +15,6 @@ class Menu extends Component {
   }
 
   redirectToSearch = (value) => {
-    debugger;
     this.setState({
       fireRedirect: true,
       redirectUrl: '/search/'+encodeURIComponent(value)
@@ -50,6 +49,7 @@ class Menu extends Component {
         <SearchField
           placeholder="Rechercher..."
           onSearchClick={this.redirectToSearch}
+          onEnter={this.redirectToSearch}
         />
       </div>
     );

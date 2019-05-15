@@ -14,6 +14,7 @@ class BeersList extends Component {
       items: [],
       title: "",
       description: "",
+      searchString: null,
       isLoading: false,
       isDisplayingAdditionalStuff: false,
     };
@@ -52,7 +53,10 @@ class BeersList extends Component {
   }
 
   componentDidMount() {
-    this.fetchData(this.props.listName, this.props.listId);
+    if (this.props.searchString)
+      this.search(this.props.searchString);
+    else
+      this.fetchData(this.props.listName, this.props.listId);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -60,7 +64,14 @@ class BeersList extends Component {
     let newListId = nextProps.listId;
     let oldListName = this.props.listName;
     let newListName = nextProps.listName;
-    if (oldListId !== newListId || oldListName !== newListName) {
+    let oldSearchString = this.props.searchString;
+    let newSearchString = nextProps.searchString;
+
+    if (newSearchString) {
+      if (oldSearchString !== newSearchString) {
+        this.search(newSearchString);
+      }
+    } else if (oldListId !== newListId || oldListName !== newListName) {
          this.fetchData(newListName, newListId);
     }
   }
@@ -80,10 +91,32 @@ class BeersList extends Component {
           items: list.beers,
           title: list.name,
           description: list.description,
-          isDisplayingBar: this.props.listName && this.props.listId && this.props.listName === 'bars',
           isLoading: false
         })
       );
+  }
+
+  search = async (searchString) => {
+    debugger;
+    this.setState({isLoading: true});
+
+    axios.get(
+      '/public/beers/search', {
+        params: {
+          searchedText: searchString
+        },
+        withCredentials: true,
+        headers: {"Content-Type": "text/plain"}
+      })
+    .then(response => response.data)
+    .then(list =>
+      this.setState({
+        items: list.beers,
+        title: 'Résultat de la recherche',
+        description: 'Boissons contenant quelque part "'+searchString+'"',
+        isLoading: false
+      })
+    );
   }
 
   render() {
