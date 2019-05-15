@@ -35,10 +35,8 @@ class Menu extends Component {
         )}
 
 				<ButtonGroup>
-					<Button>
-            <Link to={'/list/'}>
+          <Button href='/list/'>
               {'Toutes les Bières'}
-            </Link>
           </Button>
 					<ButtonsList listName="bars" title="Par bar"/>
 					<ButtonsList listName="colors" title="Par couleur"/>
