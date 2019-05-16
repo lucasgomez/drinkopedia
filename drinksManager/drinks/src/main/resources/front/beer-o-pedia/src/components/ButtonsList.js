@@ -50,10 +50,8 @@ class ButtonsList extends Component {
     return (
       <DropdownButton title={title} id={'buttonsList-'+title}>
         {items.map((item: any) =>
-          <Dropdown.Item key={'dropdown-'+title+'-item'+item.id}>
-            <Link to={'/list/'+listName+'/'+item.id}>
-              <span>{item.name}</span>
-            </Link>
+          <Dropdown.Item key={'dropdown-'+title+'-item'+item.id} tag="a" href={'/list/'+listName+'/'+item.id}>
+            {item.name}
           </Dropdown.Item>
         )}
       </DropdownButton>
