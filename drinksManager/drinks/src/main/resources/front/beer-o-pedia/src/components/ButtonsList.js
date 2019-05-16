@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { DropdownButton, Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { API_ROOT } from '../data/apiConfig';
 
 class ButtonsList extends Component {

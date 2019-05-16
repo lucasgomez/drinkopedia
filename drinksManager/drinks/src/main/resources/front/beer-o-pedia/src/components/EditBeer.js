@@ -246,7 +246,7 @@ class EditBeer extends Component {
           render={({ submitForm, isSubmitting, values, handleReset, dirty }) => (
 
                 <Form>
-                  <p><Emoji symbol="🔎" label="Chercher"/> Chercher sur <a href={'https://www.ratebeer.com/search?q='+encodeURIComponent(values.name)} target="_blank">Rate Beer</a></p>
+                  <p><Emoji symbol="🔎" label="Chercher"/> Chercher sur <a href={'https://www.ratebeer.com/search?q='+encodeURIComponent(values.name)} target="_blank" rel="noopener noreferrer">Rate Beer</a></p>
                   <Field
                     id="name"
                     type="text"

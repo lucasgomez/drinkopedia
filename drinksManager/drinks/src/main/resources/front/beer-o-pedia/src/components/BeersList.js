@@ -82,7 +82,6 @@ class BeersList extends Component {
   fetchData = async (listName, listId) => {
     this.setState({isLoading: true});
 
-    debugger;
     let listUrl = `${API_ROOT}` + (this.props.isAuthenticated ? '/private' : '/public');
     listUrl += '/beers/';
     if (listName && listId)
@@ -170,7 +169,7 @@ class BeersList extends Component {
           </thead>
           <tbody>
             {items.map((item: any) =>
-              <tr>
+              <tr key={'beer-row-'+item.id}>
                 <td>
                   <Link to={'/beerid/'+item.id}>
                     {item.name}
@@ -358,7 +357,7 @@ class BeersList extends Component {
     const popover = (
       <Tooltip id={"tooltip-"+beer.id+"-price"}>
         <ul>
-          {detailsList.map((price: any) => <li>{price}</li>)}
+          {detailsList.map((price: any) => <li key={"tooltip-"+beer.id+"-price-"+price.substring(0,2)}>{price}</li>)}
         </ul>
       </Tooltip>
     );
