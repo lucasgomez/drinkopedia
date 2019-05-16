@@ -12,7 +12,7 @@ import ch.lgo.drinks.simple.dto.DescriptiveLabelDto;
 import ch.lgo.drinks.simple.service.BeersService;
 
 @RestController
-@CrossOrigin(origins={"*"})
+@CrossOrigin(origins={"*"}, allowCredentials="true")
 @RequestMapping("/public/lists")
 public class ListsResource {
 

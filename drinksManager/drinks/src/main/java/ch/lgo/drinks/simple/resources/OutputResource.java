@@ -7,6 +7,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import ch.lgo.drinks.simple.service.XlsxOutputService;
 
 @RestController
 @RequestMapping
+@CrossOrigin(origins={"*"}, allowCredentials="true")
 public class OutputResource {
 	//TODO Correct service VS dao usage
 	private static final String OUTPUT_FOLDER = "src/main/resources/output/";

@@ -18,7 +18,7 @@ import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.service.BeersService;
 
 @RestController
-@CrossOrigin(origins={"*"})
+@CrossOrigin(origins={"*"}, allowCredentials="true")
 @RequestMapping("/public/beers")
 public class PublicBeersResource {
 

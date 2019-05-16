@@ -32,7 +32,7 @@ import ch.lgo.drinks.simple.exceptions.ResourceNotFoundException;
 import ch.lgo.drinks.simple.service.BeersService;
 
 @RestController
-@CrossOrigin(origins={"http://localhost:3000"})
+@CrossOrigin(origins={"*"}, allowCredentials="true")
 @RequestMapping("/private/beers")
 public class BeersResource {
 

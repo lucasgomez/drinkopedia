@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins={"http://localhost:3000"})
+@CrossOrigin(origins={"*"}, allowCredentials="true")
 public class UserController {
     private ClientRegistration registration;
 
