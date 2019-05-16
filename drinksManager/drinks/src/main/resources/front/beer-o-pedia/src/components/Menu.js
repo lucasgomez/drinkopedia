@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import {ButtonGroup, Button} from 'react-bootstrap';
+import { ButtonGroup, Button } from 'react-bootstrap';
 import ButtonsList from './ButtonsList';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import SearchField from "react-search-field";
 
 class Menu extends Component {

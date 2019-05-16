@@ -110,7 +110,7 @@ class StrengthRadar extends Component {
       summit = this.calculateCoordinates(baseAngle * i, stepRadius * values[i].value, center);
 
       if (isArea) {
-        i == 0 ?
+        i === 0 ?
           ctx.moveTo(summit.x, summit.y) :
           ctx.lineTo(summit.x, summit.y);
       } else {

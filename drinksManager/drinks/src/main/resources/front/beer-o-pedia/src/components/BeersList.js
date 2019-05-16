@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Table, Tooltip, Button, OverlayTrigger,
-  DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
+import {
+  Table, Tooltip, Button, OverlayTrigger,
+  Dropdown, ButtonGroup
+} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Popup from 'reactjs-popup'
 import Emoji from './Emoji';
@@ -36,7 +38,7 @@ class BeersList extends Component {
   }
 
   setAvailability(beerId, status, service) {
-    let postBottleAvailabilityUrl = `${API_ROOT}` + `/private/beers/` + beerId + '/'+service+'/availability';
+    let postBottleAvailabilityUrl = `${API_ROOT}/private/beers/` + beerId + '/' +service + '/availability';
 
     var self = this;
     axios.put(
@@ -103,7 +105,8 @@ class BeersList extends Component {
     this.setState({isLoading: true});
 
     axios.get(
-      `${API_ROOT}` + '/public/beers/search', {
+      `${API_ROOT}/public/beers/search`,
+      {
         params: {
           searchedText: searchString
         },
@@ -224,7 +227,7 @@ class BeersList extends Component {
       <Dropdown.Item key={'actionButtonsList-'+beer.id+'-tap-statuses'}>
         <Dropdown.Header>Pression</Dropdown.Header>
         {availabilities.map((availability: any) =>
-          beer.tapAvailability != availability.status &&
+          beer.tapAvailability !== availability.status &&
             <Dropdown.Item
               onClick={() => this.submitAvailability(beer, beer.tapAvailability, availability.status, 'tap')}
               key={'actionButtonsList-'+beer.id+'-tap-statuses-'+availability.status}>
@@ -237,7 +240,7 @@ class BeersList extends Component {
       <Dropdown.Item key={'actionButtonsList-'+beer.id+'-bottle-statuses'}>
         <Dropdown.Header>Bouteille</Dropdown.Header>
         {availabilities.map((availability: any) =>
-          beer.bottleAvailability != availability.status &&
+          beer.bottleAvailability !== availability.status &&
             <Dropdown.Item
               onClick={() => this.submitAvailability(beer, beer.bottleAvailability, availability.status, 'bottle')}
               key={'actionButtonsList-'+beer.id+'-tap-statuses-'+availability.status}>

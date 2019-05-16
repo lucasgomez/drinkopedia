@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { API_ROOT } from '../../data/apiConfig';
-import { ReactstrapRadio } from "reactstrap-formik";
 import { Field } from 'formik';
 
 class BarsCheckboxes extends Component {
@@ -64,7 +63,7 @@ class BarsCheckboxes extends Component {
 
     const groupName = this.props.groupName;
 
-    if (isLoading || !items || items.length == 0) {
+    if (isLoading || !items || items.length === 0) {
       return (
         <div>Loading...</div>
       );

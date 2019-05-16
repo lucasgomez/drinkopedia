@@ -61,7 +61,7 @@ class TapBeersDisplay extends Component {
           title: list.name,
           listName: listName,
           listId: listId,
-          updateTime: new Date,
+          updateTime: new Date(),
           isLoading: false
         })
       );
@@ -76,7 +76,7 @@ class TapBeersDisplay extends Component {
   }
 
   renderAvailibity = (beer) => {
-    if (beer.tapAssortment=="FIXED")
+    if (beer.tapAssortment === "FIXED")
       return null;
 
     switch (beer.tapAvailability) {
@@ -113,7 +113,7 @@ class TapBeersDisplay extends Component {
       let children = []
 
       for (let colId = 0; colId < rowLength; colId++) {
-        let isEven = (colId+rowId)%2==0
+        let isEven = (colId+rowId)%2 === 0
         let cellId = (rowId*rowLength)+colId
 
         if (cellId<items.length)

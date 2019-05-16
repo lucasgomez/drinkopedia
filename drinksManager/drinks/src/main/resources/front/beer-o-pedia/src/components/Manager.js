@@ -1,17 +1,9 @@
 import React, { Component } from 'react';
 import {
-  Jumbotron,
-  Container,
-  Row,
-  Col,
-  Button
+  Jumbotron, Container, Row,
+  Col, Button
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch
-} from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import BeersList from './BeersList';
 import BeerId from './BeerId';
 import EditBeer from './EditBeer';
