@@ -41,7 +41,7 @@ class EditBeer extends Component {
       isLoadingBottle: true,
     });
 
-    let beerUrl = '/private/beers/' + beerId;
+    let beerUrl = `${API_ROOT}` + '/private/beers/' + beerId;
     let tapBeerUrl = beerUrl + '/tap';
     let bottleBeerUrl = beerUrl + '/bottle';
 
@@ -94,7 +94,7 @@ class EditBeer extends Component {
 //TODO 3x duplicated submit function
   handleSubmit(values, {setSubmitting}) {
     let updatedBeer = Object.assign(this.state.beer, values);
-    let postBeerUrl = '/private/beers/' + updatedBeer.id;
+    let postBeerUrl = `${API_ROOT}` + '/private/beers/' + updatedBeer.id;
 
     var self = this;
     axios.put(
@@ -117,7 +117,7 @@ class EditBeer extends Component {
 
   handleTapSubmit(values, {setSubmitting}) {
     let updatedTap = Object.assign(this.state.tap, values);
-    let postTapUrl = '/private/beers/' + this.state.beer.id + '/tap';
+    let postTapUrl = `${API_ROOT}` + '/private/beers/' + this.state.beer.id + '/tap';
 
     var self = this;
     axios.put(
@@ -140,7 +140,7 @@ class EditBeer extends Component {
 
   handleBottleSubmit(values, {setSubmitting}) {
     let updatedBottle = Object.assign(this.state.bottle, values);
-    let postBottleUrl = `/private/beers/` + this.state.beer.id + '/bottle';
+    let postBottleUrl = `${API_ROOT}` + `/private/beers/` + this.state.beer.id + '/bottle';
 
     var self = this;
     axios.put(

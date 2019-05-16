@@ -37,7 +37,7 @@ class Manager extends Component {
   }
 
   async componentDidMount() {
-    const response = await fetch(`/api/user`, {credentials: 'include'});
+    const response = await fetch(`${API_ROOT}/api/user`, {credentials: 'include'});
     const body = await response.text();
     if (body === '') {
       this.setState(({isAuthenticated: false}))
@@ -56,7 +56,7 @@ class Manager extends Component {
   }
 
   logout() {
-    fetch('/api/logout', {method: 'POST', credentials: 'include',
+    fetch(`${API_ROOT}/api/logout`, {method: 'POST', credentials: 'include',
       headers: {'X-XSRF-TOKEN': this.state.csrfToken}}).then(res => res.json())
       .then(response => {
         window.location.href = response.logoutUrl + "?id_token_hint=" +

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Popup from 'reactjs-popup'
 import Emoji from './Emoji';
 import axios from 'axios';
+import { API_ROOT } from '../data/apiConfig';
 
 class BeersList extends Component {
 
@@ -35,7 +36,7 @@ class BeersList extends Component {
   }
 
   setAvailability(beerId, status, service) {
-    let postBottleAvailabilityUrl = `/private/beers/` + beerId + '/'+service+'/availability';
+    let postBottleAvailabilityUrl = `${API_ROOT}` + `/private/beers/` + beerId + '/'+service+'/availability';
 
     var self = this;
     axios.put(
@@ -79,7 +80,8 @@ class BeersList extends Component {
   fetchData = async (listName, listId) => {
     this.setState({isLoading: true});
 
-    let listUrl = this.props.isAuthenticated ? '/private' : '/public';
+    debugger;
+    let listUrl = `${API_ROOT}` + (this.props.isAuthenticated ? '/private' : '/public');
     listUrl += '/beers/';
     if (listName && listId)
       listUrl += listName + '/' + listId;
@@ -101,7 +103,7 @@ class BeersList extends Component {
     this.setState({isLoading: true});
 
     axios.get(
-      '/public/beers/search', {
+      `${API_ROOT}` + '/public/beers/search', {
         params: {
           searchedText: searchString
         },
