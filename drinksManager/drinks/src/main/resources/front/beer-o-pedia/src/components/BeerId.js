@@ -81,22 +81,11 @@ class BeerId extends Component {
           </Row>
 
           <Row>
-            <Col xs={12} md={4}>
-              <BeerDescription beer={beer}/>
-            </Col>
-            <Col xs={12} md={4}>
-              <BasicProperties beer={beer}/>
-            </Col>
-            <Col xs={12} md={4}>
-              <Card body>
-                <h4>Goûts</h4>
-                <StrengthRadar
-                  bitterness={beer.bitternessRank}
-                  hopping={beer.hoppingRank}
-                  sweetness={beer.sweetnessRank}
-                  sourness={beer.sournessRank}/>
-              </Card>
-            </Col>
+
+            <DescriptionCard beer={beer}/>
+            <DetailsCard beer={beer}/>
+            <RadarCard beer={beer}/>
+
           </Row>
 
           <Row>
@@ -108,6 +97,47 @@ class BeerId extends Component {
     );
 
   }
+}
+
+const DescriptionCard = (props) => {
+  debugger;
+  if (props.beer.comment)
+    return (
+      <Col xs={12} md={4}>
+        <BeerDescription beer={props.beer}/>
+      </Col>
+    );
+  else
+    return null;
+}
+
+const RadarCard = (props) => {
+  if (props.beer.bitternessRank || props.beer.hoppingRank || props.beer.sweetnessRank || props.beer.sournessRank)
+    return (
+      <Col xs={12} md={4}>
+        <Card body>
+          <h4>Goûts</h4>
+          <StrengthRadar
+            bitterness={props.beer.bitternessRank}
+            hopping={props.beer.hoppingRank}
+            sweetness={props.beer.sweetnessRank}
+            sourness={props.beer.sournessRank}/>
+        </Card>
+      </Col>
+    );
+  else
+    return null;
+}
+
+const DetailsCard = (props) => {
+  if (props.beer.abv || props.beer.colorId || props.beer.styleId || props.beer.fermenting)
+    return (
+      <Col xs={12} md={4}>
+        <BasicProperties beer={props.beer}/>
+      </Col>
+    );
+  else
+    return null;
 }
 
 const BarsService = (props) => {
