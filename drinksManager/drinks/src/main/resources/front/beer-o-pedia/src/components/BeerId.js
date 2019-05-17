@@ -56,7 +56,7 @@ class BeerId extends Component {
     } = this.state;
 
     if (isLoading || !beer) {
-      return <div class="container"><p> Loading... < /p></div>;
+      return <div className="container"><p> Loading... < /p></div>;
     }
 
     return (
@@ -100,7 +100,6 @@ class BeerId extends Component {
 }
 
 const DescriptionCard = (props) => {
-  debugger;
   if (props.beer.comment)
     return (
       <Col xs={12} md={4}>

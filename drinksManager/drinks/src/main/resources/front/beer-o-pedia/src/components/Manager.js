@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Jumbotron, Container, Row,
-  Col, Button
-} from 'react-bootstrap';
+import { Jumbotron, Container, Row, Col } from 'react-bootstrap';
 import { Route, Switch } from 'react-router-dom';
 import BeersList from './BeersList';
 import BeerId from './BeerId';
@@ -24,8 +21,6 @@ class Manager extends Component {
     super(props);
     const {cookies} = props;
     this.state.csrfToken = cookies.get('XSRF-TOKEN');
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
   }
 
   async componentDidMount() {
@@ -38,32 +33,7 @@ class Manager extends Component {
     }
   }
 
-  login() {
-    let port = window.location.port ? ':' + window.location.port : '';
-
-    if (port === ':3000') {
-      port = ':8080';
-    }
-    window.location.href = '//' + window.location.hostname + port + '/private';
-  }
-
-  logout() {
-    fetch(`${API_ROOT}/api/logout`, {method: 'POST', credentials: 'include',
-      headers: {'X-XSRF-TOKEN': this.state.csrfToken}}).then(res => res.json())
-      .then(response => {
-        window.location.href = response.logoutUrl + "?id_token_hint=" +
-          response.idToken + "&post_logout_redirect_uri=" + window.location.origin;
-      });
-  }
-
 	render() {
-    const message = this.state.user ?
-          <h2>Welcome, {this.state.user.name}!</h2> :
-          <p>Welcome, guest. Please remind me this message should disappear</p>;
-
-    const button = this.state.isAuthenticated ?
-      <Button color="link" onClick={this.logout}>Logout</Button> :
-      <Button color="primary" onClick={this.login}>Login</Button>;
 
 		return (
       <Container>
@@ -82,11 +52,7 @@ class Manager extends Component {
           </Container>
         </Jumbotron>
 
-        <Menu/>
-        <Container fluid>
-          {message}
-          {button}
-        </Container>
+        <Menu isAuthenticated={this.state.isAuthenticated} user={this.state.user} csrfToken={this.state.csrfToken}/>
 
         <Switch>
           <Route

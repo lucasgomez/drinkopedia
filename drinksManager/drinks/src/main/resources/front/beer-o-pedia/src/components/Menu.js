@@ -3,6 +3,7 @@ import { ButtonGroup, Button } from 'react-bootstrap';
 import ButtonsList from './ButtonsList';
 import { Redirect } from 'react-router-dom';
 import SearchField from "react-search-field";
+import LoginManager from './LoginManager';
 
 class Menu extends Component {
   constructor(props: any) {
@@ -49,6 +50,7 @@ class Menu extends Component {
           onSearchClick={this.redirectToSearch}
           onEnter={this.redirectToSearch}
         />
+        <LoginManager isAuthenticated={this.props.isAuthenticated} user={this.props.user} csrfToken={this.props.csrfToken}/>
       </div>
     );
   }
