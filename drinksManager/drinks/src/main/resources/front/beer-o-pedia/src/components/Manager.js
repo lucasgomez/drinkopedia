@@ -46,13 +46,13 @@ class Manager extends Component {
               </Col>
               <Col xs={12} md={4}/>
               <Col xs={12} md={4}>
-                <img alt='logo sumo fetedelabiere' src={ require('./images/sumo300.png')}/>
+                <img alt='logo fetedelabiere' src={ require('./images/elephant_vin.png')}/>
               </Col>
             </Row>
           </Container>
         </Jumbotron>
 
-        <Menu isAuthenticated={this.state.isAuthenticated} user={this.state.user} csrfToken={this.state.csrfToken}/>
+              <Menu isAuthenticated={this.state.isAuthenticated} user={this.state.user} csrfToken={this.state.csrfToken}/>
 
         <Switch>
           <Route

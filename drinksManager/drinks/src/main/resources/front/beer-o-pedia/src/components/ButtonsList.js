@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { DropdownButton, Dropdown } from 'react-bootstrap';
+import { NavDropdown } from 'react-bootstrap';
 import { API_ROOT } from '../data/apiConfig';
 
 class ButtonsList extends Component {
@@ -38,22 +38,22 @@ class ButtonsList extends Component {
 
     if (isLoading) {
       return (
-        <DropdownButton title={title} id={'buttonsList-'+title}>
-          <Dropdown.Item>
+        <NavDropdown title={title} id={'buttonsList-'+title}>
+          <NavDropdown.Item>
             Loading...
-          </Dropdown.Item>
-        </DropdownButton>
+          </NavDropdown.Item>
+        </NavDropdown>
       );
     }
 
     return (
-      <DropdownButton title={title} id={'buttonsList-'+title}>
+      <NavDropdown title={title} id={'nav-dropdown-'+title}>
         {items.map((item: any) =>
-          <Dropdown.Item key={'dropdown-'+title+'-item'+item.id} tag="a" href={'/list/'+listName+'/'+item.id}>
+          <NavDropdown.Item key={'dropdown-'+title+'-item'+item.id} tag="a" href={'/list/'+listName+'/'+item.id}>
             {item.name}
-          </Dropdown.Item>
+          </NavDropdown.Item>
         )}
-      </DropdownButton>
+      </NavDropdown>
     );
   }
 }

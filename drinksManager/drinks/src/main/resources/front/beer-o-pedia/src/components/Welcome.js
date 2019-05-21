@@ -13,10 +13,10 @@ class Welcome extends Component {
         pour choisier vos boissons à la <strong>Fête de la Bière.</strong></p>
 
         <p>Le menu ci-dessus vous aidera à trouver les bières :</p>
-        
+
         <ul>
           <li>
-            Par bar, par exemple le <Link to={'/list/bars/666'}>bar pressions</Link> ou les <Link to={'/list/bars/670'}>bouteilles des brasseries invitées</Link>
+            Par bar, par exemple le <Link to={'/list/bars/666'}>bar pressions</Link> ou le <Link to={'/list/bars/667'}>bar bouteille</Link>
           </li>
           <li>
             Par couleur, par exemple les <Link to={'/list/colors/32'}>bières brunes</Link> ou les <Link to={'/list/colors/1664'}>bières blanches</Link>
