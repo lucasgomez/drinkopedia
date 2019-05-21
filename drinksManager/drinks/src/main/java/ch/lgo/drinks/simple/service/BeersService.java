@@ -258,24 +258,24 @@ public class BeersService {
         return convertToBeersListDTO(beersRepository.findByName(beerName), null, this::convertToDto);
     }
 
-    public List<DescriptiveLabelDto> findColorsList() {
-        return toSortedLabelList(beerColorRepository.findAllHavingService());
+    public List<DescriptiveLabelDto> findColorsList(boolean havingServiceOnly) {
+        return toSortedLabelList(havingServiceOnly ? beerColorRepository.findAllHavingService() : beerColorRepository.findAll());
     }
     
-    public List<DescriptiveLabelDto> findStylesList() {
-        return toSortedLabelList(beerStyleRepository.findAllHavingService());
+    public List<DescriptiveLabelDto> findStylesList(boolean havingServiceOnly) {
+        return toSortedLabelList(havingServiceOnly ? beerStyleRepository.findAllHavingService() : beerStyleRepository.findAll());
     }
     
-    public List<DescriptiveLabelDto> findProducersList() {
-        return toSortedLabelList(producerRepository.findAllHavingService());
+    public List<DescriptiveLabelDto> findProducersList(boolean havingServiceOnly) {
+        return toSortedLabelList(havingServiceOnly ? producerRepository.findAllHavingService() : producerRepository.findAll());
     }
     
-    public List<DescriptiveLabelDto> findPlacesList() {
-        return toSortedLabelList(placeRepository.findAllHavingService());
+    public List<DescriptiveLabelDto> findPlacesList(boolean havingServiceOnly) {
+        return toSortedLabelList(havingServiceOnly ? placeRepository.findAllHavingService() : placeRepository.findAll());
     }
     
-    public List<DescriptiveLabelDto> findBarsList() {
-        return toSortedLabelList(barRepository.findAllHavingService());
+    public List<DescriptiveLabelDto> findBarsList(boolean havingServiceOnly) {
+        return toSortedLabelList(havingServiceOnly ? barRepository.findAllHavingService() : barRepository.findAll());
     }
     
     private Optional<BeersDTOList<BeerDTO>> findByEntityId(long entityId, Function<Long, Optional<? extends DescriptiveLabel>> labelEntityLoader, Function<Long, List<Beer>> beersLoader) {

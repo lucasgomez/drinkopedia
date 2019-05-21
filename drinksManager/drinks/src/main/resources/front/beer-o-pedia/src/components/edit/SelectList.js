@@ -17,7 +17,7 @@ class SelectList extends Component {
     this.setState({
       isLoading: true
     });
-    let baseUrl = `${API_ROOT}/public/lists/` + this.props.listName;
+    let baseUrl = `${API_ROOT}/public/lists/` + this.props.listName + '/all';
 
     fetch(baseUrl)
       .then(response => response.json())
