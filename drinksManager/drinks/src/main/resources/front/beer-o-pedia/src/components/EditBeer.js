@@ -95,7 +95,6 @@ class EditBeer extends Component {
   handleSubmit(values, {setSubmitting}) {
     let updatedBeer = Object.assign(this.state.beer, values);
     let postBeerUrl = `${API_ROOT}/private/beers/` + updatedBeer.id;
-
     var self = this;
     axios.put(
       postBeerUrl,
@@ -214,7 +213,7 @@ class EditBeer extends Component {
     const redirectUrl = '/beerid/'+this.props.beerId;
 
     if (isLoadingBeer || isLoadingTap || isLoadingBottle  || !beer) {
-      return <div class="container"><p> Loading... < /p></div>;
+      return <div className="container"><p> Loading... < /p></div>;
     }
 
     return (
@@ -287,16 +286,16 @@ class EditBeer extends Component {
                   <SelectList label="Style" name="styleId" listName="styles"/>
                   <br/>
 
-                  <StrengthInput name="bitternessRank" label="Amertume"/>
+                  <StrengthInput name="hoppingRank" label="Houblonnage"/>
                   <br/>
 
-                  <StrengthInput name="sournessRank" label="Acidité"/>
+                  <StrengthInput name="bitternessRank" label="Amertume"/>
                   <br/>
 
                   <StrengthInput name="sweetnessRank" label="Douceur"/>
                   <br/>
 
-                  <StrengthInput name="hoppingRank" label="Houblonnage"/>
+                  <StrengthInput name="sournessRank" label="Acidité"/>
                   <br/>
 
                   <button
