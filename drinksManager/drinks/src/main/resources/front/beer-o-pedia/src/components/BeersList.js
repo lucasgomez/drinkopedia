@@ -206,6 +206,12 @@ class BeersList extends Component {
                 Cell: row => this.formatPrice(row.value),
                 sortable: true,
                 show: hasBottle,
+              },{
+                Header: 'Dispo.',
+                accessor: 'bottleAvailability',
+                Cell: row => this.formatAvailability(row.value),
+                sortable: true,
+                show: hasBottle,
               }]
             },{
               Header: 'Pression',
@@ -220,6 +226,12 @@ class BeersList extends Component {
                 Header: '50cl',
                 accessor: 'tapPriceBig',
                 Cell: row => this.formatPrice(row.value),
+                sortable: true,
+                show: hasTap,
+              },{
+                Header: 'Dispo.',
+                accessor: 'tapAvailability',
+                Cell: row => this.formatAvailability(row.value),
                 sortable: true,
                 show: hasTap,
               }]
@@ -245,6 +257,20 @@ class BeersList extends Component {
         return null;
       else
         return price.toFixed(2) + ".-";
+  }
+
+  formatAvailability(availability) {
+    switch (availability) {
+      case "NOT_YET_AVAILABLE":
+        return <Emoji symbol="🕑" label="Pas encore disponnible"/>;
+      case "NEARLY_OUT_OF_STOCK":
+      case "AVAILABLE":
+        return <Emoji symbol="✅" label="Disponnible"/>;
+      case "OUT_OF_STOCK":
+        return <Emoji symbol="❌" label="Epuisée"/>;
+      default:
+        return null;
+    }
   }
 
   formatBottlePriceCalculation(buyingPrice, volumeInCl, sellingPrice, abv) {
