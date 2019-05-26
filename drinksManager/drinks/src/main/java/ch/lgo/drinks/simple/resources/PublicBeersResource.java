@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,17 @@ public class PublicBeersResource {
 
     @Autowired
     private BeersService beersService;
+    
+    @PutMapping("/test")
+    public ResponseEntity<?> testPost(@RequestBody String testString) {
+        System.out.println("Put passé");
+        return ResponseEntity.ok().body("Mu!");
+    }
+    
+    @GetMapping("/test")
+    public ResponseEntity<?> testPostByGet(@RequestParam String searchedText) {
+        return testPost(searchedText);
+    }
     
     @GetMapping("/")
     public BeersDTOList<BeerDTO> getBeers() {

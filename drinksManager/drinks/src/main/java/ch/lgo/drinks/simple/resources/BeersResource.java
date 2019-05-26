@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.lgo.drinks.simple.dto.BeerDTO;
@@ -133,8 +134,13 @@ public class BeersResource {
         return loadBeersByEntity(beerOriginId, beersService::loadBeersWithPricesByOriginId);
     }
 
-    @PutMapping("{beer_id}/bottle/availability")
-    private ResponseEntity<?> setBottleAvailability(@PathVariable("beer_id") long beerId, @RequestBody String availability) {
+    @GetMapping("/{beer_id}/bottle/availability")
+    public ResponseEntity<?> setBottleAvailabilityByGet(@PathVariable("beer_id") long beerId, @RequestParam String availability) {
+        return setBottleAvailability(beerId, availability);
+    }
+    
+    @PutMapping("/{beer_id}/bottle/availability")
+    public ResponseEntity<?> setBottleAvailability(@PathVariable("beer_id") long beerId, @RequestBody String availability) {
         try {
             return ResponseEntity
                     .ok()
@@ -145,8 +151,13 @@ public class BeersResource {
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
     }
+
+    @GetMapping("/{beer_id}/tap/availability")
+    public ResponseEntity<?> setTapAvailabilityByGet(@PathVariable("beer_id") long beerId, @RequestParam String availability) {
+        return setTapAvailability(beerId, availability);
+    }
     
-    @PutMapping("{beer_id}/tap/availability")
+    @PutMapping("/{beer_id}/tap/availability")
     public ResponseEntity<?> setTapAvailability(@PathVariable("beer_id") long beerId, @RequestBody String availability) {
         try {
             return ResponseEntity
