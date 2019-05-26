@@ -7,8 +7,6 @@ server:
     accessLogEnabled: true
     basedir:
     backgroundProcessorDelay: 30 # secs
-    
-#debug: true
 
 spring:
   profiles:
@@ -36,6 +34,8 @@ spring:
               create-target: create.sql
   datasource:
       initialization-mode: always
+      testOnBorrow: true
+      validationQuery: SELECT 1
       url: jdbc:postgresql://localhost:5432/drinkopedia
       username: postgres
       password: postgres
