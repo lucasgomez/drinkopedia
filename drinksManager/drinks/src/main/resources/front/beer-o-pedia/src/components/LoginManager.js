@@ -17,8 +17,6 @@ class LoginManager extends Component {
     if (port === ':3000') {
       port = ':8080';
     }
-    // window.location.href = '//' + window.location.hostname + port + '/private';
-    // alert('//' + window.location.hostname + port + '/private');
     window.location.href = `${API_ROOT}/private`;
   }
 

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Nav, Navbar } from 'react-bootstrap';
+import { Nav, Navbar, OverlayTrigger,Popover, Button } from 'react-bootstrap';
 import ButtonsList from './ButtonsList';
 import { Redirect } from 'react-router-dom';
-import SearchField from "react-search-field";
+import SearchField from 'react-search-field';
 import Emoji from './Emoji';
 import LoginManager from './LoginManager';
 
@@ -37,11 +37,28 @@ class Menu extends Component {
           <Redirect to={redirectUrl}/>
         )}
 
-        <Navbar.Brand href="/"><Emoji symbol="🍺" label="Home"/></Navbar.Brand>
+        <OverlayTrigger
+          trigger="click"
+          key="searchOverlay"
+          placement="bottom"
+          rootClose="true"
+          overlay={
+            <Popover id={`search-overlay-popover`}>
+              <SearchField
+                placeholder="Rechercher..."
+                onSearchClick={this.redirectToSearch}
+                onEnter={this.redirectToSearch}
+              />
+            </Popover>
+          }
+        >
+          <Button variant="secondary"><Emoji symbol="🔍" label="Rechercher"/></Button>
+        </OverlayTrigger>
+
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            <Nav.Link href='/list/'>Toutes les Bières</Nav.Link>
+            <Nav.Link href='/list/'>Toutes</Nav.Link>
 
   					<ButtonsList listName="bars" title="Par bar"/>
   					<ButtonsList listName="colors" title="Par couleur"/>
@@ -51,12 +68,6 @@ class Menu extends Component {
           </Nav>
 
           <LoginManager className="float-right" isAuthenticated={this.props.isAuthenticated} user={this.props.user} csrfToken={this.props.csrfToken}/>
-
-          <SearchField className="float-right"
-          placeholder="Rechercher..."
-          onSearchClick={this.redirectToSearch}
-          onEnter={this.redirectToSearch}
-          />
         </Navbar.Collapse>
       </Navbar>
     );

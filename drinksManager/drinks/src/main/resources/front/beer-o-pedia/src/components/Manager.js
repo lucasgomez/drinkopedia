@@ -39,12 +39,12 @@ class Manager extends Component {
       <Container>
 
         <Row>
-          <Col xs={12} md={4}>
+          <Col xs={6} md={4}>
             <h1>{ 'Zythopedia' }</h1>
             <p>{ 'Tu boiras moins bête' }</p>
           </Col>
-          <Col xs={12} md={4}/>
-          <Col xs={12} md={4}>
+          <Col xs={0} md={4}/>
+          <Col xs={6} md={4}>
             <img alt='logo fetedelabiere' src={ require('./images/elephant_vin.png')}/>
           </Col>
         </Row>

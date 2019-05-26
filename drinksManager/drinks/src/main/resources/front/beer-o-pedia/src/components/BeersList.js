@@ -18,10 +18,12 @@ class BeersList extends Component {
       description: "",
       searchString: null,
       isLoading: false,
+      expandedView: false,
       isDisplayingAdditionalStuff: false,
     };
 
     this.toggleIsDisplayingAdditionalStuff = this.toggleIsDisplayingAdditionalStuff.bind(this);
+    this.toggleExpandedView = this.toggleExpandedView.bind(this);
     this.showModal = this.showModal.bind(this);
     this.temp = this.temp.bind(this);
   }
@@ -29,6 +31,12 @@ class BeersList extends Component {
   toggleIsDisplayingAdditionalStuff() {
     this.setState(state => ({
       isDisplayingAdditionalStuff: !state.isDisplayingAdditionalStuff
+    }));
+  }
+
+  toggleExpandedView() {
+    this.setState(state => ({
+      expandedView: !state.expandedView
     }));
   }
 
@@ -127,6 +135,7 @@ class BeersList extends Component {
       title,
       description,
       isLoading,
+      expandedView,
     } = this.state;
 
     if (isLoading) {
@@ -152,6 +161,7 @@ class BeersList extends Component {
         }
 
         <ReactTable
+          className="-striped -highlight"
           data={items}
           columns={[
             {
@@ -161,20 +171,25 @@ class BeersList extends Component {
                 Header: 'Nom',
                 accessor: 'name',
                 Cell: row => <Link to={'/beerid/'+row.original.id}>{row.original.name}</Link>,
+                minWidth: 50,
                 sortable: true,
               },{
-                Header: 'Alc. (%)',
+                Header: 'Alc.',
                 accessor: 'abv',
+                Cell: row => this.formatAlc(row.value),
+                minWidth: 30,
                 sortable: true,
               },{
                 Header: 'Type',
                 accessor: 'styleName',
                 Cell: row => <Link to={'/list/styles/'+row.original.styleId}>{row.original.styleName}</Link>,
+                minWidth: 50,
                 sortable: true,
               },{
                 Header: 'Couleur',
                 accessor: 'colorName',
                 Cell: row => <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link>,
+                show: expandedView,
                 sortable: true,
               }]
             },{
@@ -184,11 +199,13 @@ class BeersList extends Component {
                 Header: 'Nom',
                 accessor: 'producerName',
                 Cell: row => <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link>,
+                show: expandedView,
                 sortable: true,
               },{
                 Header: 'Origine',
                 accessor: 'producerOriginShortName',
                 Cell: row => <Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginShortName}</Link>,
+                show: expandedView,
                 sortable: true,
               }]
             },{
@@ -199,19 +216,22 @@ class BeersList extends Component {
                 accessor: 'bottleVolumeInCl',
                 Cell: row => row.value ? row.value+' cl' : '',
                 sortable: true,
-                show: hasBottle,
+                minWidth: 40,
+                show: hasBottle && expandedView,
               },{
                 Header: 'Prix',
                 accessor: 'bottleSellingPrice',
                 Cell: row => this.formatPrice(row.value),
                 sortable: true,
+                minWidth: 30,
                 show: hasBottle,
               },{
                 Header: 'Dispo.',
                 accessor: 'bottleAvailability',
-                Cell: row => this.formatAvailability(row.value),
+                Cell: row => this.formatAvailability(row.value, false),
                 sortable: true,
-                show: hasBottle,
+                minWidth: 25,
+                show: hasBottle && expandedView,
               }]
             },{
               Header: 'Pression',
@@ -221,19 +241,29 @@ class BeersList extends Component {
                 accessor: 'tapPriceSmall',
                 Cell: row => this.formatPrice(row.value),
                 sortable: true,
-                show: hasTap,
+                minWidth: 25,
+                show: hasTap && expandedView,
               },{
                 Header: '50cl',
                 accessor: 'tapPriceBig',
                 Cell: row => this.formatPrice(row.value),
                 sortable: true,
-                show: hasTap,
+                minWidth: 25,
+                show: hasTap && expandedView,
               },{
                 Header: 'Dispo.',
                 accessor: 'tapAvailability',
-                Cell: row => this.formatAvailability(row.value),
+                Cell: row => this.formatAvailability(row.value, false),
                 sortable: true,
-                show: hasTap,
+                minWidth: 25,
+                show: hasTap && expandedView,
+              },{
+                Header: '25cl / 50cl',
+                accessor: 'tapPriceSmall',
+                Cell: row => this.formatTapPrices(row.original.tapPriceSmall, row.original.tapPriceBig),
+                sortable: true,
+                minWidth: 55,
+                show: hasTap && !expandedView,
               }]
             },{
               Header: 'GodMode',
@@ -241,7 +271,21 @@ class BeersList extends Component {
               show: isAuthenticated === true,
             }
           ]}
-          className="-striped -highlight"
+          SubComponent={row => {
+                    return (
+                      <div style={{ padding: "20px" }}>
+                          <p><Link to={'/beerid/'+row.original.id}><Emoji symbol="🔍" label="Détails"/> Voir les détails</Link></p>
+                          <p><b>Brasseur :</b> <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link> (<Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginName}</Link>)</p>
+                          <p><b>Couleur :</b> <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link></p>
+                          {row.original.bottleVolumeInCl &&
+                            (<p><b>Volume :</b> {row.original.bottleVolumeInCl+' cl'}</p>)}
+                          {row.original.tapAvailability &&
+                            (<p><b>Disponibilité pression :</b> {this.formatAvailability(row.original.tapAvailability, true)}</p>)}
+                          {row.original.bottleAvailability &&
+                            (<p><b>Disponibilité bouteille :</b> {this.formatAvailability(row.original.bottleAvailability, true)}</p>)}
+                      </div>
+                    );
+                  }}
         />
 
         <ModalAvailabilityEditor beerToUpdate={this.state.beerToUpdate}/>
@@ -259,15 +303,29 @@ class BeersList extends Component {
         return price.toFixed(2) + ".-";
   }
 
-  formatAvailability(availability) {
+  formatTapPrices(priceSmall, priceBig) {
+      if (!priceSmall && !priceBig)
+        return null;
+      else
+        return priceSmall.toFixed(2) + ".- / " +  priceBig.toFixed(2) + ".-";
+  }
+
+  formatAlc(abv) {
+      if (!abv)
+        return null;
+      else
+        return abv.toFixed(1) + "%";
+  }
+
+  formatAvailability(availability, withLabel) {
     switch (availability) {
       case "NOT_YET_AVAILABLE":
-        return <Emoji symbol="🕑" label="Pas encore disponnible"/>;
+        return <div>{withLabel && 'Pas encore disponible'} <Emoji symbol="🕑" label="Pas encore disponible"/></div>;
       case "NEARLY_OUT_OF_STOCK":
       case "AVAILABLE":
-        return <Emoji symbol="✅" label="Disponnible"/>;
+        return <div>{withLabel && 'Disponible'} <Emoji symbol="✅" label="Disponible"/></div>;
       case "OUT_OF_STOCK":
-        return <Emoji symbol="❌" label="Epuisée"/>;
+        return <div>{withLabel && 'Epuisée'} <Emoji symbol="❌" label="Epuisée"/></div>;
       default:
         return null;
     }

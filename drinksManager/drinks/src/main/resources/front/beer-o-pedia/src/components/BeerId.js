@@ -144,7 +144,7 @@ const BarsService = (props) => {
     return (
       <div>
         {props.bars.map((bar: any) =>
-          <Col xs={6} md={6}>
+          <Col xs={12} md={6}>
             <BarServiceDetails beer={props.beer} bar={bar} type={props.type}/>
           </Col>
         )}
