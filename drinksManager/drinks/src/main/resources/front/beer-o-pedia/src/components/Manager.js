@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Jumbotron, Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { Route, Switch } from 'react-router-dom';
 import BeersList from './BeersList';
 import BeerId from './BeerId';
@@ -37,22 +37,19 @@ class Manager extends Component {
 
 		return (
       <Container>
-        <Jumbotron>
-          <Container>
-            <Row>
-              <Col xs={12} md={4}>
-                <h1>{ 'Zythopedia' }</h1>
-                <p>{ 'Tu boiras moins bête' }</p>
-              </Col>
-              <Col xs={12} md={4}/>
-              <Col xs={12} md={4}>
-                <img alt='logo fetedelabiere' src={ require('./images/elephant_vin.png')}/>
-              </Col>
-            </Row>
-          </Container>
-        </Jumbotron>
 
-              <Menu isAuthenticated={this.state.isAuthenticated} user={this.state.user} csrfToken={this.state.csrfToken}/>
+        <Row>
+          <Col xs={12} md={4}>
+            <h1>{ 'Zythopedia' }</h1>
+            <p>{ 'Tu boiras moins bête' }</p>
+          </Col>
+          <Col xs={12} md={4}/>
+          <Col xs={12} md={4}>
+            <img alt='logo fetedelabiere' src={ require('./images/elephant_vin.png')}/>
+          </Col>
+        </Row>
+
+        <Menu isAuthenticated={this.state.isAuthenticated} user={this.state.user} csrfToken={this.state.csrfToken}/>
 
         <Switch>
           <Route

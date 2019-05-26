@@ -31,34 +31,34 @@ class Menu extends Component {
     } = this.state;
 
     return (
-        <Navbar bg="dark" variant="dark" sticky="top">
+      <Navbar bg="dark" variant="dark" sticky="top" expand='md'>
 
-          {fireRedirect && (
-            <Redirect to={redirectUrl}/>
-          )}
+        {fireRedirect && (
+          <Redirect to={redirectUrl}/>
+        )}
 
-          <Navbar.Brand href="/"><Emoji symbol="🍺" label="Home"/></Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link href='/list/'>Toutes les Bières</Nav.Link>
+        <Navbar.Brand href="/"><Emoji symbol="🍺" label="Home"/></Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            <Nav.Link href='/list/'>Toutes les Bières</Nav.Link>
 
-    					<ButtonsList listName="bars" title="Par bar"/>
-    					<ButtonsList listName="colors" title="Par couleur"/>
-    					<ButtonsList listName="styles" title="Par style"/>
-    					<ButtonsList listName="producers" title="Par producteur"/>
-    					<ButtonsList listName="origins" title="Par origine"/>
-            </Nav>
+  					<ButtonsList listName="bars" title="Par bar"/>
+  					<ButtonsList listName="colors" title="Par couleur"/>
+  					<ButtonsList listName="styles" title="Par style"/>
+  					<ButtonsList listName="producers" title="Par producteur"/>
+  					<ButtonsList listName="origins" title="Par origine"/>
+          </Nav>
 
-            <LoginManager className="float-right" isAuthenticated={this.props.isAuthenticated} user={this.props.user} csrfToken={this.props.csrfToken}/>
+          <LoginManager className="float-right" isAuthenticated={this.props.isAuthenticated} user={this.props.user} csrfToken={this.props.csrfToken}/>
 
-            <SearchField className="float-right"
-            placeholder="Rechercher..."
-            onSearchClick={this.redirectToSearch}
-            onEnter={this.redirectToSearch}
-            />
-          </Navbar.Collapse>
-        </Navbar>
+          <SearchField className="float-right"
+          placeholder="Rechercher..."
+          onSearchClick={this.redirectToSearch}
+          onEnter={this.redirectToSearch}
+          />
+        </Navbar.Collapse>
+      </Navbar>
     );
   }
 }

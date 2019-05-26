@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import {
-  Table, Tooltip, Button, OverlayTrigger,
-  Dropdown, ButtonGroup
-} from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import Popup from 'reactjs-popup'
 import Emoji from './Emoji';
+import ModalAvailabilityEditor from './edit/ModalAvailabilityEditor';
 import axios from 'axios';
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
 import { API_ROOT } from '../data/apiConfig';
 
 class BeersList extends Component {
@@ -23,7 +22,8 @@ class BeersList extends Component {
     };
 
     this.toggleIsDisplayingAdditionalStuff = this.toggleIsDisplayingAdditionalStuff.bind(this);
-    this.setAvailability = this.setAvailability.bind(this);
+    this.showModal = this.showModal.bind(this);
+    this.temp = this.temp.bind(this);
   }
 
   toggleIsDisplayingAdditionalStuff() {
@@ -32,18 +32,13 @@ class BeersList extends Component {
     }));
   }
 
-  submitAvailability(beer, oldStatus, newStatus, service) {
-    if (window.confirm('Etes-vous sur de vouloir changer le status de "'+beer.name+'" de "'+oldStatus+'" à "'+newStatus+'"?'))
-      this.setAvailability(beer.id, newStatus, service);
-  }
-
-  setAvailability(beerId, status, service) {
-    let postBottleAvailabilityUrl = `${API_ROOT}/private/beers/` + beerId + '/' +service + '/availability';
+  temp() {
+    let postBottleAvailabilityUrl = `${API_ROOT}/public/beers/test`;
 
     var self = this;
     axios.put(
       postBottleAvailabilityUrl,
-      status,
+      'Woot',
       { withCredentials: true,
         headers: {"Content-Type": "text/plain"}})
     .then(function (response){
@@ -79,6 +74,10 @@ class BeersList extends Component {
     }
   }
 
+  showModal() {
+    this.setState({showModal: true});
+  }
+
   fetchData = async (listName, listId) => {
     this.setState({isLoading: true});
 
@@ -100,7 +99,6 @@ class BeersList extends Component {
   }
 
   search = async (searchString) => {
-    debugger;
     this.setState({isLoading: true});
 
     axios.get(
@@ -130,9 +128,15 @@ class BeersList extends Component {
       description,
       isLoading,
     } = this.state;
+
     if (isLoading) {
       return <p > Loading... < /p>;
     }
+
+    const isAuthenticated = this.props.isAuthenticated;
+    const hasTap = items.some(beer => beer.tapPriceSmall && beer.tapPriceBig);
+    const hasBottle = items.some(beer => beer.bottleSellingPrice && beer.bottleVolumeInCl);
+
     //TODO Better tooltip formating with bar names or multiline prices + tooltip for bars
     return (
       <div className="container">
@@ -147,119 +151,93 @@ class BeersList extends Component {
           </Button>
         }
 
-        <Table striped hover>
-          <thead>
-            <tr>
-              <th>Bière</th>
-              <th>Brasserie</th>
-              <th>Origine</th>
-              <th>Alc. (%)</th>
-              <th>Type</th>
-              <th>Couleur</th>
-              {!this.state.isDisplayingAdditionalStuff && <th>Prix (25/50 cl)</th>}
+        <ReactTable
+          data={items}
+          columns={[
+            {
+              Header: 'Bière',
+              columns: [
+              {
+                Header: 'Nom',
+                accessor: 'name',
+                Cell: row => <Link to={'/beerid/'+row.original.id}>{row.original.name}</Link>,
+                sortable: true,
+              },{
+                Header: 'Alc. (%)',
+                accessor: 'abv',
+                sortable: true,
+              },{
+                Header: 'Type',
+                accessor: 'styleName',
+                Cell: row => <Link to={'/list/styles/'+row.original.styleId}>{row.original.styleName}</Link>,
+                sortable: true,
+              },{
+                Header: 'Couleur',
+                accessor: 'colorName',
+                Cell: row => <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link>,
+                sortable: true,
+              }]
+            },{
+              Header: 'Brasserie',
+              columns: [
+              {
+                Header: 'Nom',
+                accessor: 'producerName',
+                Cell: row => <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link>,
+                sortable: true,
+              },{
+                Header: 'Origine',
+                accessor: 'producerOriginShortName',
+                Cell: row => <Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginShortName}</Link>,
+                sortable: true,
+              }]
+            },{
+              Header: 'Bouteille',
+              columns: [
+              {
+                Header: 'Vol.',
+                accessor: 'bottleVolumeInCl',
+                Cell: row => row.value ? row.value+' cl' : '',
+                sortable: true,
+                show: hasBottle,
+              },{
+                Header: 'Prix',
+                accessor: 'bottleSellingPrice',
+                Cell: row => this.formatPrice(row.value),
+                sortable: true,
+                show: hasBottle,
+              }]
+            },{
+              Header: 'Pression',
+              columns: [
+              {
+                Header: '25cl',
+                accessor: 'tapPriceSmall',
+                Cell: row => this.formatPrice(row.value),
+                sortable: true,
+                show: hasTap,
+              },{
+                Header: '50cl',
+                accessor: 'tapPriceBig',
+                Cell: row => this.formatPrice(row.value),
+                sortable: true,
+                show: hasTap,
+              }]
+            },{
+              Header: 'GodMode',
+              Cell: row => <Button onClick={() => this.setState({beerToUpdate: row.original})}><Emoji symbol="✏" label="Edition"/></Button>,
+              show: isAuthenticated === true,
+            }
+          ]}
+          className="-striped -highlight"
+        />
 
-              {this.state.isDisplayingAdditionalStuff && <th>Prix achat (L)</th>}
+        <ModalAvailabilityEditor beerToUpdate={this.state.beerToUpdate}/>
+        <Button className="float-right" onClick={this.temp}>Mu</Button>
 
-              {this.state.isDisplayingAdditionalStuff && <th>Pression 25 cl</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Pression 50 cl</th>}
-              {this.state.isDisplayingAdditionalStuff && <th>Bouteille</th>}
-
-              {this.props.isAuthenticated && <th>GodMode</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item: any) =>
-              <tr key={'beer-row-'+item.id}>
-                <td>
-                  <Link to={'/beerid/'+item.id}>
-                    {item.name}
-                  </Link>
-                </td><td>
-                  <Link to={'/list/producers/'+item.producerId}>
-                    {item.producerName}
-                  </Link>
-                </td><td>
-                  <Link to={'/list/origins/'+item.producerOriginId}>
-                    {item.producerOriginShortName}
-                  </Link>
-                </td><td>
-                  {item.abv}
-                </td><td>
-                  <Link to={'/list/styles/'+item.styleId}>
-                    {item.styleName}
-                  </Link>
-                </td><td>
-                  <Link to={'/list/colors/'+item.colorId}>
-                    {item.colorName}
-                  </Link>
-                </td>
-
-                {!this.state.isDisplayingAdditionalStuff && <td>{this.formatPricesList(item)}</td>}
-
-                {this.state.isDisplayingAdditionalStuff && <td>{this.formatPrice(item.tapBuyingPricePerLiter)}</td>}
-                {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 25, item.tapPriceSmall, item.abv)}</td>}
-                {this.state.isDisplayingAdditionalStuff && <td>{this.formatTapPriceCalculation(item.tapBuyingPricePerLiter, 50, item.tapPriceSmall, item.abv)}</td>}
-                {this.state.isDisplayingAdditionalStuff && <td>{this.formatBottlePriceCalculation(item.bottleBuyingPrice, item.bottleVolumeInCl, item.bottleSellingPrice, item.abv)}</td>}
-
-                {this.props.isAuthenticated &&
-                  <td>
-                    {this.displayActionButtons(item)}
-                  </td>
-                }
-              </tr>
-            )}
-          </tbody>
-        </Table>
       </div>
     );
 
-  }
-
-  displayActionButtons(beer) {
-    var availabilities = [];
-    availabilities.push({status : 'NOT_YET_AVAILABLE', label: 'Pas encore en service'});
-    availabilities.push({status : 'AVAILABLE', label: 'En service'});
-    availabilities.push({status : 'NEARLY_OUT_OF_STOCK', label: 'Bientôt épuisé'});
-    availabilities.push({status : 'OUT_OF_STOCK', label: 'Epuisé'});
-
-    let tapAvailability = beer.tapPriceSmall && (
-      <Dropdown.Item key={'actionButtonsList-'+beer.id+'-tap-statuses'}>
-        <Dropdown.Header>Pression</Dropdown.Header>
-        {availabilities.map((availability: any) =>
-          beer.tapAvailability !== availability.status &&
-            <Dropdown.Item
-              onClick={() => this.submitAvailability(beer, beer.tapAvailability, availability.status, 'tap')}
-              key={'actionButtonsList-'+beer.id+'-tap-statuses-'+availability.status}>
-                {availability.label}
-            </Dropdown.Item>
-        )}
-      </Dropdown.Item>
-    );
-    let bottleAvailability = beer.bottleSellingPrice && (
-      <Dropdown.Item key={'actionButtonsList-'+beer.id+'-bottle-statuses'}>
-        <Dropdown.Header>Bouteille</Dropdown.Header>
-        {availabilities.map((availability: any) =>
-          beer.bottleAvailability !== availability.status &&
-            <Dropdown.Item
-              onClick={() => this.submitAvailability(beer, beer.bottleAvailability, availability.status, 'bottle')}
-              key={'actionButtonsList-'+beer.id+'-tap-statuses-'+availability.status}>
-                {availability.label}
-            </Dropdown.Item>
-        )}
-      </Dropdown.Item>
-    );
-
-    return (
-      <Dropdown as={ButtonGroup}>
-        <Button><Link to={'/edit/beer/'+beer.id}>✏</Link></Button>
-        <Dropdown.Toggle split id="dropdown-split-basic" />
-        <Dropdown.Menu>
-          {tapAvailability}
-          {tapAvailability && bottleAvailability && <Dropdown.Divider/>}
-          {bottleAvailability}
-        </Dropdown.Menu>
-      </Dropdown>
-    );
   }
 
   formatPrice(price) {
@@ -300,73 +278,6 @@ class BeersList extends Component {
       return null;
     else
       return this.formatPrice((sellingPrice*100) / (volumeInCl*abv));
-  }
-
-  displayTapActivity(beer) {
-    if (!beer.tapPriceSmall && !beer.tapPriceBig)
-      return <Emoji symbol="🚫" label="Pas de service pression"/>;
-
-    const button = beer.tapAvailability
-      ? <Emoji symbol="✅" label="Désactiver le service pression"/>
-      : <Emoji symbol="❌" label="Activer le service pression"/>;
-    return (
-      <Popup
-        trigger={<button className="button"> {button} </button>}
-        modal
-        closeOnDocumentClick
-      >
-        <span> Disable? </span>
-      </Popup>
-    );
-  }
-
-  formatIsActive(beer) {
-    if (beer.active)
-      return null;
-    else {
-      const popover = (
-        <Tooltip id={"tooltip-"+beer.id+"-inactive"}>
-          <div>{beer.activationDate ? "Epuisée" : "Pas encore servie"}</div>
-        </Tooltip>
-      );
-      return (
-        <OverlayTrigger placement="left" overlay={popover}>
-          <div>{beer.activationDate ? "❌" : "🕐" }</div>
-        </OverlayTrigger>
-      );
-    }
-  }
-
-  formatPricesList(beer) {
-    let pricesList = [];
-    let detailsList = [];
-
-    if (beer.bottleVolumeInCl) {
-      pricesList.push(Number(beer.bottleSellingPrice).toFixed(2) + ".-");
-      detailsList.push(beer.bottleVolumeInCl + "cl " + Number(beer.bottleSellingPrice).toFixed(2) + ".-");
-    }
-    if (beer.tapPriceSmall && beer.tapPriceBig) {
-      let priceSmall = Number(beer.tapPriceSmall).toFixed(2);
-      let priceBig = Number(beer.tapPriceBig).toFixed(2);
-      pricesList.push(priceSmall + ".-");
-      pricesList.push(priceBig + ".-");
-      detailsList.push("25 cl " + priceSmall + ".-");
-      detailsList.push("50 cl " + priceBig + ".-");
-    }
-
-    const popover = (
-      <Tooltip id={"tooltip-"+beer.id+"-price"}>
-        <ul>
-          {detailsList.map((price: any) => <li key={"tooltip-"+beer.id+"-price-"+price.substring(0,2)}>{price}</li>)}
-        </ul>
-      </Tooltip>
-    );
-
-    return (
-      <OverlayTrigger placement="left" overlay={popover}>
-        <div>{pricesList.join(" / ")}</div>
-      </OverlayTrigger>
-    );
   }
 }
 
