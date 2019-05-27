@@ -215,7 +215,7 @@ public class BeersService {
     }
 
     public BeersDTOList<BeerDTO> getAll() {
-        return convertToBeersListDTO(beersRepository.findAll(), null, this::convertToDto);
+        return convertToBeersListDTO(beersRepository.findAllWithServices(), null, this::convertToDto);
     }
 
 	public List<Beer> getAllWithService() {

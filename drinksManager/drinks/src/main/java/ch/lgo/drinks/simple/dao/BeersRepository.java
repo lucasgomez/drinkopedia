@@ -105,6 +105,7 @@ public class BeersRepository {
         		.from(qBeer)
         		.leftJoin(qBeer.tap, tapBeer)
         		.leftJoin(qBeer.bottle, bottledBeer)
+        		.where(tapBeer.isNotNull().or(bottledBeer.isNotNull()))
         		.fetch();
 	}
 	
