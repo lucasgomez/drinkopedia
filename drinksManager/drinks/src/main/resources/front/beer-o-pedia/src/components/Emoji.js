@@ -13,6 +13,7 @@ const Emoji = props => (
         onClick={props.onClick}
     >
         {props.symbol}
+        {props.text}
     </span>
 
 );
