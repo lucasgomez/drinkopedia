@@ -13,6 +13,7 @@ class ModalAvailabilityEditor extends Component {
     this.state = {
       beerToUpdate: this.props.beerToUpdate,
     };
+    this.handleCloseModal = this.handleCloseModal.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -45,7 +46,7 @@ class ModalAvailabilityEditor extends Component {
   setAvailabilityWithGet(beerId, status, service) {
     var self = this;
     axios.get(
-      `${API_ROOT}/private/beers/` + beerId + '/' +service + '/availability',
+      `${API_ROOT}/private/beers/` + beerId + '/' +service + '/availabilitybis',
       {
         params: {
           availability: status
@@ -54,6 +55,10 @@ class ModalAvailabilityEditor extends Component {
         headers: {"Content-Type": "text/plain"}
       })
     .then(response => self.setState({beerToUpdate: null}));
+  }
+
+  handleCloseModal() {
+    this.setState({beerToUpdate: null});
   }
 
   render() {
@@ -100,7 +105,7 @@ class ModalAvailabilityEditor extends Component {
           {beerToUpdate.tapPriceBig && tapAvailability}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => this.setState({beerToUpdate: null})}>
+          <Button variant="secondary" onClick={this.handleCloseModal}>
             Annuler
           </Button>
         </Modal.Footer>
