@@ -35,7 +35,8 @@ class ModalAvailabilityEditor extends Component {
       { withCredentials: true,
         headers: {"Content-Type": "text/plain"}})
     .then(function (response){
-       self.fetchData(self.props.listName, self.props.listId);
+      self.props.handleCloseModal();
+      self.props.onClose();
      }).catch(function (error) {
        console.log(error);
        alert("Ebriété assumée, erreur assurée bis");

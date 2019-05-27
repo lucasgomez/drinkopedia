@@ -41,7 +41,7 @@ class Menu extends Component {
           trigger="click"
           key="searchOverlay"
           placement="bottom"
-          rootClose="true"
+          rootClose={true}
           overlay={
             <Popover id={`search-overlay-popover`}>
               <SearchField

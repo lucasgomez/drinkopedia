@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, CardColumns, Card, Row } from 'react-bootstrap';
+import { Container, Button, Card, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Emoji from './Emoji';
 import ModalAvailabilityEditor from './edit/ModalAvailabilityEditor';
@@ -26,6 +26,7 @@ class BeersList extends Component {
     this.toggleIsDisplayingAdditionalStuff = this.toggleIsDisplayingAdditionalStuff.bind(this);
     this.toggleExpandedView = this.toggleExpandedView.bind(this);
     this.showModal = this.showModal.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
     this.temp = this.temp.bind(this);
   }
 
@@ -149,7 +150,7 @@ class BeersList extends Component {
 
     //TODO Better tooltip formating with bar names or multiline prices + tooltip for bars
     return (
-      <div className="container">
+      <Container style={{padding: 0 }}>
         <h2>{title}</h2>
         <p>{description}</p>
         {this.props.isAuthenticated && false &&
@@ -281,20 +282,32 @@ class BeersList extends Component {
           SubComponent={row => {
                     return (
                       <Row>
-                        <div className="col-sm-4 py-1">
+                        <div className="col-sm-6 py-1" style={{padding: 0 }}>
                           <Card className="h-100">
                             <Card.Body>
-                              <b>Brasseur :</b> <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link> (<Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginName}</Link>)<br/>
-                              <b>Couleur :</b> <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link><br/>
-                              <b>Volume :</b> {row.original.bottleVolumeInCl+' cl'}<br/>
-                              <b>Pression :</b> {this.formatAvailability(row.original.tapAvailability, true)}<br/>
-                              <b>Bouteille :</b> {this.formatAvailability(row.original.bottleAvailability, true)}<br/>
-                            </Card.Body>
-                          </Card>
-                        </div>
-                        <div className="col-sm-4 py-1">
-                          <Card className="h-100">
-                            <Card.Body>
+                              <Row>
+                                <Col xs={4}><b>Brasseur</b></Col>
+                                <Col><Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link> (<Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginName}</Link>)</Col>
+                              </Row><Row>
+                                <Col xs={4}><b>Couleur</b></Col>
+                                <Col><Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link></Col>
+                              </Row>
+                              {row.original.bottleVolumeInCl && (
+                                <Row>
+                                  <Col xs={4}><b>Volume</b></Col>
+                                  <Col>{row.original.bottleVolumeInCl+' cl'}</Col>
+                                </Row>)}
+                              {row.original.tapAvailability && (
+                                <Row>
+                                  <Col xs={4}><b>Pression</b></Col>
+                                  <Col>{this.formatAvailability(row.original.tapAvailability, true)}</Col>
+                                </Row>)}
+                              {row.original.bottleAvailability && (
+                                <Row>
+                                  <Col xs={4}><b>Bouteille</b></Col>
+                                  <Col>{this.formatAvailability(row.original.bottleAvailability, true)}</Col>
+                                </Row>)}
+                              <hr/>
                               <div align="center">
                                 <StrengthRadar
                                   bitterness={row.original.bitternessRank}
@@ -305,7 +318,7 @@ class BeersList extends Component {
                             </Card.Body>
                           </Card>
                         </div>
-                        <div className="col-sm-4 py-1">
+                        <div className="col-sm-6 py-1" style={{padding: 0 }}>
                           <Card className="h-100">
                             <Card.Body>
                               <p>{row.original.comment}</p>
@@ -317,10 +330,10 @@ class BeersList extends Component {
                   }}
         />
 
-        <ModalAvailabilityEditor beerToUpdate={this.state.beerToUpdate}/>
+        <ModalAvailabilityEditor beerToUpdate={this.state.beerToUpdate} onClose={this.componentDidMount}/>
         <Button className="float-right" onClick={this.temp}>Mu</Button>
 
-      </div>
+      </Container>
     );
 
   }
@@ -363,7 +376,7 @@ class BeersList extends Component {
   translateAvailability(availability, emoji) {
     switch (availability) {
       case "NOT_YET_AVAILABLE":
-        return emoji ? '🕑' : 'Prochainement disponible';
+        return emoji ? '🕑' : 'Prochainement';
       case "NEARLY_OUT_OF_STOCK":
       case "AVAILABLE":
         return emoji ? '✅' : 'Disponible';
