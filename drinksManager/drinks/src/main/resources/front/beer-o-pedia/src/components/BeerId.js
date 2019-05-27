@@ -8,6 +8,7 @@ import {
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import StrengthRadar from './StrengthRadar';
+import Emoji from './Emoji';
 import { API_ROOT } from '../data/apiConfig';
 
 class BeerId extends Component {
@@ -31,6 +32,31 @@ class BeerId extends Component {
     if(newBeerId !== oldBeerId) {
        this.fetchData(newBeerId);
     }
+  }
+
+
+  translateAvailability(availability, emoji) {
+    switch (availability) {
+      case "NOT_YET_AVAILABLE":
+        return emoji ? '🕑' : 'Prochainement disponible';
+      case "NEARLY_OUT_OF_STOCK":
+      case "AVAILABLE":
+        return emoji ? '✅' : 'Disponible';
+      case "OUT_OF_STOCK":
+        return emoji ? '❌' : 'Epuisée';
+      default:
+        return null;
+    }
+  }
+
+  formatAvailability(availability, withLabel) {
+    let label = this.translateAvailability(availability, false);
+    let logo = this.translateAvailability(availability, true);
+
+    if (withLabel)
+      return <Emoji symbol={logo} label={label} text={label}/>
+    else
+      return <Emoji symbol={logo} label={label}/>;
   }
 
   fetchData = (beerId) => {
@@ -59,6 +85,7 @@ class BeerId extends Component {
       return <div className="container"><p> Loading... < /p></div>;
     }
 
+    let className = "col-sm-6 col-md-6 col-lg-4 py-1";
     return (
       <div class="container">
         <Container>
@@ -81,17 +108,35 @@ class BeerId extends Component {
           </Row>
 
           <Row>
-
-            <DescriptionCard beer={beer}/>
-            <DetailsCard beer={beer}/>
-            <RadarCard beer={beer}/>
-
+            <div className={className}>
+              <Card className="h-100">
+                <Card.Body>
+                  <Card.Title>Description</Card.Title>
+                  <p>{beer.comment}</p>
+                </Card.Body>
+              </Card>
+            </div>
+            <div className={className}>
+              <Card className="h-100">
+                <Card.Body>
+                  <Card.Title>Détails</Card.Title>
+                  <NamedLabel name="Alcool" value={beer.abv+' %'}/>
+                  <NamedLabel name="Couleur" value={<Link to={'/list/colors/'+beer.colorId}>{beer.colorName}</Link>}/>
+                  <NamedLabel name="Style" value={<Link to={'/list/styles/'+beer.styleId}>{beer.styleName}</Link>}/>
+                  <NamedLabel name="Fermentation" value={beer.fermenting}/>
+                  <div align="center">
+                    <StrengthRadar
+                      bitterness={beer.bitternessRank}
+                      hopping={beer.hoppingRank}
+                      sweetness={beer.sweetnessRank}
+                      sourness={beer.sournessRank}/>
+                  </div>
+                </Card.Body>
+              </Card>
+            </div>
           </Row>
 
-          <Row>
-            <BarsService bars={beer.bottleBars} beer={beer} type="bottle"/>
-            <BarsService bars={beer.tapBars} beer={beer} type="tap"/>
-          </Row>
+          <BarsDisplay beer={beer}/>
         </Container>
       </div>
     );
@@ -99,67 +144,32 @@ class BeerId extends Component {
   }
 }
 
-const DescriptionCard = (props) => {
-  if (props.beer.comment)
-    return (
-      <Col xs={12} md={4}>
-        <BeerDescription beer={props.beer}/>
-      </Col>
-    );
-  else
-    return null;
+const BarsDisplay = (props) => {
+  return (
+    <Row>
+      {props.beer.bottleBars && props.beer.bottleBars.map((bar: any) =>
+        <BarDisplay bar={bar} beer={props.beer} type="bottle"/>
+      )}
+      {props.beer.tapBars && props.beer.tapBars.map((bar: any) =>
+        <BarDisplay bar={bar} beer={props.beer} type="tap"/>
+      )}
+    </Row>
+  );
 }
 
-const RadarCard = (props) => {
-  if (props.beer.bitternessRank || props.beer.hoppingRank || props.beer.sweetnessRank || props.beer.sournessRank)
-    return (
-      <Col xs={12} md={4}>
-        <Card body>
-          <h4>Goûts</h4>
-          <StrengthRadar
-            bitterness={props.beer.bitternessRank}
-            hopping={props.beer.hoppingRank}
-            sweetness={props.beer.sweetnessRank}
-            sourness={props.beer.sournessRank}/>
-        </Card>
-      </Col>
-    );
-  else
-    return null;
+const BarDisplay = (props) => {
+  return (
+    <div className="col-sm-4 py-1">
+      <Card className="h-100">
+        <Card.Body>
+          <Card.Title><Link to={'/list/bars/'+props.bar.id}>{props.bar.name}</Link></Card.Title>
+          <p>{props.bar.comment}</p>
+          <PriceDisplay beer={props.beer} type={props.type}/>
+        </Card.Body>
+      </Card>
+    </div>
+  );
 }
-
-const DetailsCard = (props) => {
-  if (props.beer.abv || props.beer.colorId || props.beer.styleId || props.beer.fermenting)
-    return (
-      <Col xs={12} md={4}>
-        <BasicProperties beer={props.beer}/>
-      </Col>
-    );
-  else
-    return null;
-}
-
-const BarsService = (props) => {
-  if (props.bars)
-    return (
-      <div>
-        {props.bars.map((bar: any) =>
-          <Col xs={12} md={6}>
-            <BarServiceDetails beer={props.beer} bar={bar} type={props.type}/>
-          </Col>
-        )}
-      </div>
-    );
-  return <div/>;
-}
-
-const BarServiceDetails = (props) => (
-  <Card body>
-    <h4>{<Link to={'/list/bars/'+props.bar.id}>{props.bar.name}</Link>}</h4>
-    <p>{props.bar.comment}</p>
-    <PriceDisplay beer={props.beer} type={props.type}/>
-  </Card>
-)
 
 const PriceDisplay = (props) => {
   if (props.type === "bottle")
@@ -185,18 +195,6 @@ const PriceDisplay = (props) => {
   return <div/>;
 }
 
-const BasicProperties = (props) => (
-  <Card body>
-    <h4>Détails</h4>
-    <Table>
-      <NamedLabel name="Alcool" value={props.beer.abv+' %'}/>
-      <NamedLabel name="Couleur" value={<Link to={'/list/colors/'+props.beer.colorId}>{props.beer.colorName}</Link>}/>
-      <NamedLabel name="Style" value={<Link to={'/list/styles/'+props.beer.styleId}>{props.beer.styleName}</Link>}/>
-      <NamedLabel name="Fermentation" value={props.beer.fermenting}/>
-    </Table>
-  </Card>
-)
-
 const NamedLabel = (props) => (
   <div>
     {
@@ -213,12 +211,5 @@ const NamedLabel = (props) => (
     }
   </div>
 );
-
-const BeerDescription = (props) => (
-  <Card body>
-    <h4>Description</h4>
-    <p>{props.beer.comment}</p>
-  </Card>
-)
 
 export default BeerId;
