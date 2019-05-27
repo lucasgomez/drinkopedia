@@ -9,6 +9,7 @@ public class BeerDTO {
     private Long producerId;
     private String producerName;
     private Long producerOriginId;
+    private String producerOriginName;
     private String producerOriginShortName;
     private Double abv;
     private Long colorId;
@@ -24,6 +25,7 @@ public class BeerDTO {
     private Double tapPriceBig;
     private String tapAssortment;
     private String tapAvailability;
+    private LocalDateTime tapAvailabilityDate;
     private Boolean active;
     private LocalDateTime activationDate;
     
@@ -60,6 +62,13 @@ public class BeerDTO {
     }
     public void setProducerId(Long producerId) {
         this.producerId = producerId;
+    }
+
+    public String getProducerOriginName() {
+        return producerOriginName;
+    }
+    public void setProducerOriginName(String producerOriginName) {
+        this.producerOriginName = producerOriginName;
     }
     
     public String getProducerOriginShortName() {
@@ -151,6 +160,13 @@ public class BeerDTO {
     }
     public void setTapAvailability(String tapAvailability) {
         this.tapAvailability = tapAvailability;
+    }
+    
+    public LocalDateTime getTapAvailabilityDate() {
+        return tapAvailabilityDate;
+    }
+    public void setTapAvailabilityDate(LocalDateTime tapAvailabilityDate) {
+        this.tapAvailabilityDate = tapAvailabilityDate;
     }
     
     public Boolean isActive() {
