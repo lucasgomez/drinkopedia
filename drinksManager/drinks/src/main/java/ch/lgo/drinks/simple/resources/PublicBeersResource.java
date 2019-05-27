@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.lgo.drinks.simple.dto.BeerDTO;
+import ch.lgo.drinks.simple.dto.DetailedBeerDto;
 import ch.lgo.drinks.simple.dto.list.BeersDTOList;
 import ch.lgo.drinks.simple.service.BeersService;
 
@@ -37,7 +37,7 @@ public class PublicBeersResource {
     }
     
     @GetMapping("/")
-    public BeersDTOList<BeerDTO> getBeers() {
+    public BeersDTOList<DetailedBeerDto> getBeers() {
         return beersService.getAll();
     }
 
@@ -78,7 +78,7 @@ public class PublicBeersResource {
         return ResponseEntity.ok().body(beersService.findByName(searchedText));
     }
     
-    private ResponseEntity<?> loadBeersByEntity(long entityId, Function<Long, Optional<BeersDTOList<BeerDTO>>> listLoader) {
+    private ResponseEntity<?> loadBeersByEntity(long entityId, Function<Long, Optional<BeersDTOList<DetailedBeerDto>>> listLoader) {
         return listLoader.apply(entityId)
                 .map(list -> ResponseEntity.ok().body(list))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));

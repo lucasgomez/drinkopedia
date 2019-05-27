@@ -174,23 +174,23 @@ public class BeersService {
                     converter.getDtoForeignIdGetter().apply(updatedBeer)));
     }
     
-    public Optional<BeersDTOList<BeerDTO>> loadBeersByStyleId(long styleId) {
+    public Optional<BeersDTOList<DetailedBeerDto>> loadBeersByStyleId(long styleId) {
         return findByEntityId(styleId, beerStyleRepository::loadById, beersRepository::findByStyle);
     }
 
-    public Optional<BeersDTOList<BeerDTO>> loadBeersByColorId(long colorId) {
+    public Optional<BeersDTOList<DetailedBeerDto>> loadBeersByColorId(long colorId) {
         return findByEntityId(colorId, colorService::loadById, beersRepository::findByColor);
     }
 
-    public Optional<BeersDTOList<BeerDTO>> loadBeersByProducereId(long producerId) {
+    public Optional<BeersDTOList<DetailedBeerDto>> loadBeersByProducereId(long producerId) {
         return findByEntityId(producerId, producerRepository::loadById, beersRepository::findByProducer);
     }
 
-    public Optional<BeersDTOList<BeerDTO>> loadBeersByOriginId(long originId) {
+    public Optional<BeersDTOList<DetailedBeerDto>> loadBeersByOriginId(long originId) {
         return findByEntityId(originId, placeRepository::loadById, beersRepository::findByOrigin);
     }
     
-    public Optional<BeersDTOList<BeerDTO>> loadBeersByBarId(long barId) {
+    public Optional<BeersDTOList<DetailedBeerDto>> loadBeersByBarId(long barId) {
         return findByEntityId(barId, barRepository::loadById, barRepository::findBeersByBar);
     }
     
@@ -214,7 +214,7 @@ public class BeersService {
         return findByEntityIdWithPrices(barId, barRepository::loadById, barRepository::findBeersByBar);
     }
 
-    public BeersDTOList<BeerDTO> getAll() {
+    public BeersDTOList<DetailedBeerDto> getAll() {
         return convertToBeersListDTO(beersRepository.findAllWithServices(), null, this::convertToDto);
     }
 
@@ -278,7 +278,7 @@ public class BeersService {
         return toSortedLabelList(havingServiceOnly ? barRepository.findAllHavingService() : barRepository.findAll());
     }
     
-    private Optional<BeersDTOList<BeerDTO>> findByEntityId(long entityId, Function<Long, Optional<? extends DescriptiveLabel>> labelEntityLoader, Function<Long, List<Beer>> beersLoader) {
+    private Optional<BeersDTOList<DetailedBeerDto>> findByEntityId(long entityId, Function<Long, Optional<? extends DescriptiveLabel>> labelEntityLoader, Function<Long, List<Beer>> beersLoader) {
         return findByEntityId(entityId, labelEntityLoader, beersLoader, this::convertToDto);
     }
     
@@ -318,8 +318,8 @@ public class BeersService {
         return beersDTOList;
     }
 
-    private BeerDTO convertToDto(Beer beer) {
-        return beerFieldsMapper.map(beer, BeerDTO.class);
+    private DetailedBeerDto convertToDto(Beer beer) {
+        return beerFieldsMapper.map(beer, DetailedBeerDto.class);
     }
     
     private BeerWithPricesDto convertToDtoWithPrices(Beer beer) {
