@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  Row, Col, Card, Container,
+  Row, Col, Card, Container, Badge
 } from 'react-bootstrap';
 import Emoji from './Emoji';
 import { API_ROOT } from '../data/apiConfig';
@@ -75,31 +75,34 @@ class TapBeersDisplay extends Component {
     return producerString
   }
 
-  renderAvailibity = (beer) => {
-    if (beer.tapAssortment === "FIXED")
-      return null;
+  getAvailibityColor = (beer) => {
+    let deltaInMinutes = null;
 
-    switch (beer.tapAvailability) {
-      case "AVAILABLE":
-        return <Emoji symbol="⌛" label="Assortiment fixe"/>;
-      case "NEARLY_OUT_OF_STOCK":
-        return <Emoji symbol="⏳" label="Bientôt épuisée"/>;
-      default:
-        return null;
-    }
+    if (beer.tapAvailabilityDate)
+      deltaInMinutes = (new Date() - new Date(beer.tapAvailabilityDate)) / (60*1000);
+
+    if (beer.tapAssortment === "FIXED")
+      return "dark"
+    else if (beer.tapAvailability === "NEARLY_OUT_OF_STOCK")
+      return "danger"
+    else if (deltaInMinutes && deltaInMinutes < 60)
+      return "warning"
+    else
+      return "success";
   }
 
   createBeerCard = (beer, isPair) => {
-    let bgColor=isPair?"":"dark"
-    let textColor=isPair?"":"light"
+
+    let bgColor = this.getAvailibityColor(beer);
+    let textColor="light";
+
     return (
       <Col>
-        <Card body bg={bgColor} text={textColor}>
+        <Card body bg={bgColor} text={textColor} border="light">
           <h4 class="card-title">{beer.name}<div class="float-right"><h5>{beer.tapPriceSmall}.- / {beer.tapPriceBig}.-</h5></div></h4>
-          <h7 class="card-subtitle mb-2 text-muted">{this.renderProducer(beer)}</h7>
+          <h7 class="card-subtitle mb-2" style={{color: '#b7c0c7'}}>{this.renderProducer(beer)}</h7>
           <div>
             {beer.abv}% <i>{beer.styleName}</i> ({beer.colorName})
-            <h4 class="float-sm-right">{this.renderAvailibity(beer)}</h4>
           </div>
         </Card>
       </Col>
@@ -146,10 +149,10 @@ class TapBeersDisplay extends Component {
 
         <p>{updateTime && 'MàJ : '+('0'+updateTime.getHours()).slice(-2)+":"+('0'+updateTime.getMinutes()).slice(-2)}</p>
     		<Row className="text-center">
-    			<h5 class="col"><Emoji symbol="🌟" label="Assortiment fixe"/> - Assortiment fixe</h5>
-    			<h5 class="col"><Emoji symbol="🚨" label="Nouvellement ajoutée"/> - Nouvellement ajoutée</h5>
-    			<h5 class="col"><Emoji symbol="⏱" label="Assortiment temporaire"/> - Assortiment temporaire</h5>
-    			<h5 class="col"><Emoji symbol="⏳" label="Bientôt épuisée"/> - Bientôt épuisée</h5>
+    			<h5 class="col"><Badge pill variant="dark">Fixe</Badge></h5>
+    			<h5 class="col"><Badge pill variant="warning">Nouvelle</Badge></h5>
+    			<h5 class="col"><Badge pill variant="success">Temporaire</Badge></h5>
+    			<h5 class="col"><Badge pill variant="danger">Bientôt épuisée</Badge></h5>
     		</Row>
       </Container>
     );
