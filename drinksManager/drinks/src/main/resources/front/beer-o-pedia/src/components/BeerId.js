@@ -85,81 +85,76 @@ class BeerId extends Component {
       return <div className="container"><p> Loading... < /p></div>;
     }
 
-    let className = "col-sm-6 col-md-6 col-lg-4 py-1";
+    let cardClassName = "col-sm-6 col-md-6 col-lg-4 py-1";
+    let barCardClassName = "col-sm-12 col-md-12 col-lg-4 py-1";
     return (
-      <div class="container">
-        <Container>
-          <Row>
-            <Col xs={6} md={6}>
-              <h2>{beer.name}</h2>
-              <h4>
-              <Link to={'/list/producers/'+beer.producerId}>{beer.producerName}</Link>
-              {' - '}
-              <Link to={'/list/origins/'+beer.producerOriginId}>{beer.producerOriginName}</Link>
-              </h4>
-            </Col>
+      <Container style={{padding: 0}}>
+        <Row>
+          <div className="col-sm-12">
+            <Card>
+              <Card.Body>
+                <h2>{beer.name}</h2>
+                <h4>
+                <Link to={'/list/producers/'+beer.producerId}>{beer.producerName}</Link>
+                {' - '}
+                <Link to={'/list/origins/'+beer.producerOriginId}>{beer.producerOriginName}</Link>
+                </h4>
+              </Card.Body>
+            </Card>
+          </div>
 
-            <Col xs={6} md={6}>
-              {this.props.isAuthenticated
-                ? <Link className="float-right" to={'/edit/beer/'+beer.id}>✏</Link>
-                : <div/>
-              }
-            </Col>
-          </Row>
+          <Col xs={6} md={6}>
+            {this.props.isAuthenticated
+              ? <Link className="float-right" to={'/edit/beer/'+beer.id}>✏</Link>
+              : <div/>
+            }
+          </Col>
+        </Row>
 
-          <Row>
-            <div className={className}>
-              <Card className="h-100">
-                <Card.Body>
-                  <Card.Title>Description</Card.Title>
-                  <p>{beer.comment}</p>
-                </Card.Body>
-              </Card>
-            </div>
-            <div className={className}>
-              <Card className="h-100">
-                <Card.Body>
-                  <Card.Title>Détails</Card.Title>
-                  <NamedLabel name="Alcool" value={beer.abv+' %'}/>
-                  <NamedLabel name="Couleur" value={<Link to={'/list/colors/'+beer.colorId}>{beer.colorName}</Link>}/>
-                  <NamedLabel name="Style" value={<Link to={'/list/styles/'+beer.styleId}>{beer.styleName}</Link>}/>
-                  <NamedLabel name="Fermentation" value={beer.fermenting}/>
-                  <div align="center">
-                    <StrengthRadar
-                      bitterness={beer.bitternessRank}
-                      hopping={beer.hoppingRank}
-                      sweetness={beer.sweetnessRank}
-                      sourness={beer.sournessRank}/>
-                  </div>
-                </Card.Body>
-              </Card>
-            </div>
-          </Row>
+        <Row>
+          <div className={cardClassName}>
+            <Card className="h-100">
+              <Card.Body>
+                <Card.Title>Description</Card.Title>
+                <p>{beer.comment}</p>
+              </Card.Body>
+            </Card>
+          </div>
+          <div className={cardClassName}>
+            <Card className="h-100">
+              <Card.Body>
+                <Card.Title>Détails</Card.Title>
+                <NamedLabel name="Alcool" value={beer.abv+' %'}/>
+                <NamedLabel name="Couleur" value={<Link to={'/list/colors/'+beer.colorId}>{beer.colorName}</Link>}/>
+                <NamedLabel name="Style" value={<Link to={'/list/styles/'+beer.styleId}>{beer.styleName}</Link>}/>
+                <NamedLabel name="Fermentation" value={beer.fermenting}/>
+                <div align="center">
+                  <StrengthRadar
+                    bitterness={beer.bitternessRank}
+                    hopping={beer.hoppingRank}
+                    sweetness={beer.sweetnessRank}
+                    sourness={beer.sournessRank}/>
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
 
-          <BarsDisplay beer={beer}/>
-        </Container>
-      </div>
+          {beer.bottleBars && beer.bottleBars.map((bar: any) =>
+            <BarDisplay bar={bar} beer={beer} type="bottle" cardClassName={barCardClassName}/>
+          )}
+          {beer.tapBars && beer.tapBars.map((bar: any) =>
+            <BarDisplay bar={bar} beer={beer} type="tap" cardClassName={barCardClassName}/>
+          )}
+        </Row>
+      </Container>
     );
 
   }
 }
 
-const BarsDisplay = (props) => {
-  return (
-    <Row>
-      {props.beer.bottleBars && props.beer.bottleBars.map((bar: any) =>
-        <BarDisplay bar={bar} beer={props.beer} type="bottle"/>
-      )}
-      {props.beer.tapBars && props.beer.tapBars.map((bar: any) =>
-        <BarDisplay bar={bar} beer={props.beer} type="tap"/>
-      )}
-    </Row>
-  );
-}
-
 const BarDisplay = (props) => {
   return (
-    <div className="col-sm-4 py-1">
+    <div className={props.cardClassName}>
       <Card className="h-100">
         <Card.Body>
           <Card.Title><Link to={'/list/bars/'+props.bar.id}>{props.bar.name}</Link></Card.Title>
