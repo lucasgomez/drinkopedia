@@ -134,7 +134,7 @@ public class BeersResource {
         return loadBeersByEntity(beerOriginId, beersService::loadBeersWithPricesByOriginId);
     }
 
-    @GetMapping("/{beer_id}/bottle/availability")
+    @GetMapping("/{beer_id}/bottle/availabilitybis")
     public ResponseEntity<?> setBottleAvailabilityByGet(@PathVariable("beer_id") long beerId, @RequestParam String availability) {
         return setBottleAvailability(beerId, availability);
     }
@@ -152,7 +152,7 @@ public class BeersResource {
         }
     }
 
-    @GetMapping("/{beer_id}/tap/availability")
+    @GetMapping("/{beer_id}/tap/availabilitybis")
     public ResponseEntity<?> setTapAvailabilityByGet(@PathVariable("beer_id") long beerId, @RequestParam String availability) {
         return setTapAvailability(beerId, availability);
     }
