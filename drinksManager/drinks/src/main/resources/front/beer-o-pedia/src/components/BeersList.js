@@ -151,7 +151,7 @@ class BeersList extends Component {
       <div className="container">
         <h2>{title}</h2>
         <p>{description}</p>
-        {this.props.isAuthenticated &&
+        {this.props.isAuthenticated && false &&
           <Button className="float-right" onClick={this.toggleIsDisplayingAdditionalStuff}>
             {this.state.isDisplayingAdditionalStuff
               ? <Emoji symbol="➖" label="Masquer colonnes supplementaires"/>
@@ -171,19 +171,19 @@ class BeersList extends Component {
                 Header: 'Nom',
                 accessor: 'name',
                 Cell: row => <Link to={'/beerid/'+row.original.id}>{row.original.name}</Link>,
-                minWidth: 50,
+                minWidth: 150,
                 sortable: true,
               },{
                 Header: 'Alc.',
                 accessor: 'abv',
-                Cell: row => this.formatAlc(row.value),
-                minWidth: 30,
+                Cell: row => <div align="right">{this.formatAlc(row.value)}</div>,
+                minWidth: 60,
                 sortable: true,
               },{
                 Header: 'Type',
                 accessor: 'styleName',
                 Cell: row => <Link to={'/list/styles/'+row.original.styleId}>{row.original.styleName}</Link>,
-                minWidth: 50,
+                minWidth: 80,
                 sortable: true,
               },{
                 Header: 'Couleur',
@@ -224,19 +224,26 @@ class BeersList extends Component {
                 Cell: row => this.formatPrice(row.value),
                 sortable: true,
                 minWidth: 30,
-                show: hasBottle,
+                show: hasBottle && expandedView,
               },{
                 Header: 'Dispo.',
                 accessor: 'bottleAvailability',
                 Cell: row => this.formatAvailability(row.value, false),
                 sortable: true,
-                minWidth: 25,
+                minWidth: 20,
                 show: hasBottle && expandedView,
               }]
             },{
               Header: 'Pression',
               columns: [
               {
+                Header: 'Dispo.',
+                accessor: 'tapAvailability',
+                Cell: row => this.formatAvailability(row.value, false),
+                sortable: true,
+                minWidth: 20,
+                show: hasTap && expandedView,
+              },{
                 Header: '25cl',
                 accessor: 'tapPriceSmall',
                 Cell: row => this.formatPrice(row.value),
@@ -250,24 +257,23 @@ class BeersList extends Component {
                 sortable: true,
                 minWidth: 25,
                 show: hasTap && expandedView,
-              },{
-                Header: 'Dispo.',
-                accessor: 'tapAvailability',
-                Cell: row => this.formatAvailability(row.value, false),
-                sortable: true,
-                minWidth: 25,
-                show: hasTap && expandedView,
-              },{
-                Header: '25cl / 50cl',
-                accessor: 'tapPriceSmall',
-                Cell: row => this.formatTapPrices(row.original.tapPriceSmall, row.original.tapPriceBig),
-                sortable: true,
-                minWidth: 55,
-                show: hasTap && !expandedView,
               }]
             },{
-              Header: 'GodMode',
-              Cell: row => <Button onClick={() => this.setState({beerToUpdate: row.original})}><Emoji symbol="✏" label="Edition"/></Button>,
+              Header: 'Prix',
+              accessor: 'tapAvailability',
+              Cell: row => this.formatBeerPrices(row.original),
+              sortable: true,
+              minWidth: 120,
+            },{
+              Header: 'Dispo',
+              accessor: 'tapAvailability',
+              Cell: row => this.formatBeerAvailability(row.original),
+              sortable: true,
+              minWidth: 45,
+            },{
+              Header: 'God',
+              Cell: row => <Emoji symbol="✏" label="Edition" onClick={() => this.setState({beerToUpdate: row.original})}/>,
+              minWidth: 44,
               show: isAuthenticated === true,
             }
           ]}
@@ -296,6 +302,20 @@ class BeersList extends Component {
 
   }
 
+  formatBeerPrices(beer) {
+    if (beer.tapAvailability)
+      return (<div align="right">{this.formatTapPrices(beer.tapPriceSmall, beer.tapPriceBig)}</div>)
+    else
+      return (<div align="right">{this.formatPrice(beer.bottleSellingPrice)}</div>);
+  }
+
+  formatBeerAvailability(beer) {
+    if (beer.tapAvailability)
+      return (<div align="center">{this.formatAvailability(beer.tapAvailability, false)}</div>)
+    else
+      return (<div align="center">{this.formatAvailability(beer.bottleAvailability, false)}</div>);
+  }
+
   formatPrice(price) {
       if (!price)
         return null;
@@ -317,18 +337,28 @@ class BeersList extends Component {
         return abv.toFixed(1) + "%";
   }
 
-  formatAvailability(availability, withLabel) {
+  translateAvailability(availability, emoji) {
     switch (availability) {
       case "NOT_YET_AVAILABLE":
-        return <div>{withLabel && 'Pas encore disponible'} <Emoji symbol="🕑" label="Pas encore disponible"/></div>;
+        return emoji ? '🕑' : 'Pas encore disponible';
       case "NEARLY_OUT_OF_STOCK":
       case "AVAILABLE":
-        return <div>{withLabel && 'Disponible'} <Emoji symbol="✅" label="Disponible"/></div>;
+        return emoji ? '✅' : 'Disponible';
       case "OUT_OF_STOCK":
-        return <div>{withLabel && 'Epuisée'} <Emoji symbol="❌" label="Epuisée"/></div>;
+        return emoji ? '❌' : 'Epuisée';
       default:
         return null;
     }
+  }
+
+  formatAvailability(availability, withLabel) {
+    let label = this.translateAvailability(availability, false);
+    let logo = this.translateAvailability(availability, true);
+
+    if (withLabel)
+      return <div><Emoji symbol={logo} label={label}/> {label}</div>
+    else
+      return <Emoji symbol={logo} label={label}/>;
   }
 
   formatBottlePriceCalculation(buyingPrice, volumeInCl, sellingPrice, abv) {
