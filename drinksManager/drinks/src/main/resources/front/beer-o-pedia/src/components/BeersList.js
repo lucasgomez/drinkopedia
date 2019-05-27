@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, CardColumns, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Emoji from './Emoji';
 import ModalAvailabilityEditor from './edit/ModalAvailabilityEditor';
 import axios from 'axios';
 import ReactTable from 'react-table';
+import StrengthRadar from './StrengthRadar';
 import 'react-table/react-table.css';
 import { API_ROOT } from '../data/apiConfig';
 
@@ -279,17 +280,29 @@ class BeersList extends Component {
           ]}
           SubComponent={row => {
                     return (
-                      <div style={{ padding: "20px" }}>
-                          <p><Link to={'/beerid/'+row.original.id}><Emoji symbol="🔍" label="Détails"/> Voir les détails</Link></p>
-                          <p><b>Brasseur :</b> <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link> (<Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginName}</Link>)</p>
-                          <p><b>Couleur :</b> <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link></p>
-                          {row.original.bottleVolumeInCl &&
-                            (<p><b>Volume :</b> {row.original.bottleVolumeInCl+' cl'}</p>)}
-                          {row.original.tapAvailability &&
-                            (<p><b>Disponibilité pression :</b> {this.formatAvailability(row.original.tapAvailability, true)}</p>)}
-                          {row.original.bottleAvailability &&
-                            (<p><b>Disponibilité bouteille :</b> {this.formatAvailability(row.original.bottleAvailability, true)}</p>)}
-                      </div>
+                      <CardColumns>
+                        <Card>
+                          <Link to={'/beerid/'+row.original.id}><Emoji symbol="🔍" label="Détails"/> Voir les détails</Link><br/>
+
+                          <b>Brasseur :</b> <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link> (<Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginName}</Link>)<br/>
+                          <b>Couleur :</b> <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link><br/>
+                          <b>Volume :</b> {row.original.bottleVolumeInCl+' cl'}<br/>
+                          <b>Pression :</b> {this.formatAvailability(row.original.tapAvailability, true)}<br/>
+                          <b>Bouteille :</b> {this.formatAvailability(row.original.bottleAvailability, true)}<br/>
+                        </Card>
+                        <Card body>
+                          <Card.Title>Goûts</Card.Title>
+                          <StrengthRadar
+                              bitterness={row.original.bitternessRank}
+                              hopping={row.original.hoppingRank}
+                              sweetness={row.original.sweetnessRank}
+                              sourness={row.original.sournessRank}/>
+                        </Card>
+                        <Card>
+                          <Card.Title>Description</Card.Title>
+                          <p>{row.original.comment}</p>
+                        </Card>
+                      </CardColumns>
                     );
                   }}
         />
@@ -340,7 +353,7 @@ class BeersList extends Component {
   translateAvailability(availability, emoji) {
     switch (availability) {
       case "NOT_YET_AVAILABLE":
-        return emoji ? '🕑' : 'Pas encore disponible';
+        return emoji ? '🕑' : 'Prochainement disponible';
       case "NEARLY_OUT_OF_STOCK":
       case "AVAILABLE":
         return emoji ? '✅' : 'Disponible';
@@ -356,7 +369,7 @@ class BeersList extends Component {
     let logo = this.translateAvailability(availability, true);
 
     if (withLabel)
-      return <div><Emoji symbol={logo} label={label}/> {label}</div>
+      return <Emoji symbol={logo} label={label} text={label}/>
     else
       return <Emoji symbol={logo} label={label}/>;
   }
