@@ -10,6 +10,7 @@ const Emoji = props => (
         aria-label={props.label ? props.label : ""}
         aria-hidden={props.label ? "false" : "true"}
         title={props.label ? props.label : ""}
+        onClick={props.onClick}
     >
         {props.symbol}
     </span>
