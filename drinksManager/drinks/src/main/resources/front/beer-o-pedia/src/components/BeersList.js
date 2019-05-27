@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, CardColumns, Card } from 'react-bootstrap';
+import { Button, CardColumns, Card, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Emoji from './Emoji';
 import ModalAvailabilityEditor from './edit/ModalAvailabilityEditor';
@@ -280,29 +280,39 @@ class BeersList extends Component {
           ]}
           SubComponent={row => {
                     return (
-                      <CardColumns>
-                        <Card>
-                          <Link to={'/beerid/'+row.original.id}><Emoji symbol="🔍" label="Détails"/> Voir les détails</Link><br/>
-
-                          <b>Brasseur :</b> <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link> (<Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginName}</Link>)<br/>
-                          <b>Couleur :</b> <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link><br/>
-                          <b>Volume :</b> {row.original.bottleVolumeInCl+' cl'}<br/>
-                          <b>Pression :</b> {this.formatAvailability(row.original.tapAvailability, true)}<br/>
-                          <b>Bouteille :</b> {this.formatAvailability(row.original.bottleAvailability, true)}<br/>
-                        </Card>
-                        <Card body>
-                          <Card.Title>Goûts</Card.Title>
-                          <StrengthRadar
-                              bitterness={row.original.bitternessRank}
-                              hopping={row.original.hoppingRank}
-                              sweetness={row.original.sweetnessRank}
-                              sourness={row.original.sournessRank}/>
-                        </Card>
-                        <Card>
-                          <Card.Title>Description</Card.Title>
-                          <p>{row.original.comment}</p>
-                        </Card>
-                      </CardColumns>
+                      <Row>
+                        <div className="col-sm-4 py-1">
+                          <Card className="h-100">
+                            <Card.Body>
+                              <b>Brasseur :</b> <Link to={'/list/producers/'+row.original.producerId}>{row.original.producerName}</Link> (<Link to={'/list/origins/'+row.original.producerOriginId}>{row.original.producerOriginName}</Link>)<br/>
+                              <b>Couleur :</b> <Link to={'/list/colors/'+row.original.colorId}>{row.original.colorName}</Link><br/>
+                              <b>Volume :</b> {row.original.bottleVolumeInCl+' cl'}<br/>
+                              <b>Pression :</b> {this.formatAvailability(row.original.tapAvailability, true)}<br/>
+                              <b>Bouteille :</b> {this.formatAvailability(row.original.bottleAvailability, true)}<br/>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                        <div className="col-sm-4 py-1">
+                          <Card className="h-100">
+                            <Card.Body>
+                              <div align="center">
+                                <StrengthRadar
+                                  bitterness={row.original.bitternessRank}
+                                  hopping={row.original.hoppingRank}
+                                  sweetness={row.original.sweetnessRank}
+                                  sourness={row.original.sournessRank}/>
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                        <div className="col-sm-4 py-1">
+                          <Card className="h-100">
+                            <Card.Body>
+                              <p>{row.original.comment}</p>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                      </Row>
                     );
                   }}
         />
