@@ -261,14 +261,15 @@ class BeersList extends Component {
                 show: hasTap && expandedView,
               }]
             },{
+              id: 'price',
               Header: 'Prix',
-              accessor: 'tapAvailability',
+              accessor: d => d.tapPriceSmall ? d.tapPriceSmall : d.bottleSellingPrice,
               Cell: row => this.formatBeerPrices(row.original),
-              sortable: true,
               minWidth: 120,
             },{
+              id: 'dispo',
               Header: 'Dispo',
-              accessor: 'tapAvailability',
+              accessor: d => d.tapAvailability ? d.tapAvailability : d.bottleAvailability,
               Cell: row => this.formatBeerAvailability(row.original),
               sortable: true,
               minWidth: 45,
@@ -307,14 +308,15 @@ class BeersList extends Component {
                                   <Col xs={4}><b>Bouteille</b></Col>
                                   <Col>{this.formatAvailability(row.original.bottleAvailability, true)}</Col>
                                 </Row>)}
-                              <hr/>
-                              <div align="center">
-                                <StrengthRadar
-                                  bitterness={row.original.bitternessRank}
-                                  hopping={row.original.hoppingRank}
-                                  sweetness={row.original.sweetnessRank}
-                                  sourness={row.original.sournessRank}/>
-                              </div>
+                              {(row.original.bitternessRank || row.original.hoppingRank || row.original.sweetnessRank || row.original.sournessRank) &&
+                                (<div align="center">
+                                  <hr/>
+                                  <StrengthRadar
+                                    bitterness={row.original.bitternessRank}
+                                    hopping={row.original.hoppingRank}
+                                    sweetness={row.original.sweetnessRank}
+                                    sourness={row.original.sournessRank}/>
+                                </div>)}
                             </Card.Body>
                           </Card>
                         </div>
