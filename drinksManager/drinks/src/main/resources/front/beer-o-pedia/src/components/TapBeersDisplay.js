@@ -91,16 +91,23 @@ class TapBeersDisplay extends Component {
       return "success";
   }
 
-  createBeerCard = (beer, isPair) => {
+  getTextColor = (bgColor) => {
+    let lightColors = ["warning", "success"];
+    return lightColors.includes(bgColor)
+      ? "dark"
+      : "light";
+  }
 
+  createBeerCard = (beer, isPair) => {
+    debugger;
     let bgColor = this.getAvailibityColor(beer);
-    let textColor="light";
+    let textColor= this.getTextColor(bgColor);
 
     return (
       <Col>
         <Card body bg={bgColor} text={textColor} border="light">
           <h4 class="card-title">{beer.name}<div class="float-right"><h5>{beer.tapPriceSmall}.- / {beer.tapPriceBig}.-</h5></div></h4>
-          <h7 class="card-subtitle mb-2" style={{color: '#b7c0c7'}}>{this.renderProducer(beer)}</h7>
+          <h7 class="card-subtitle mb-2">{this.renderProducer(beer)}</h7>
           <div>
             {beer.abv}% <i>{beer.styleName}</i> ({beer.colorName})
           </div>

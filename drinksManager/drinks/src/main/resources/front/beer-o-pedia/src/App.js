@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Manager from './components/Manager';
+import AllBeersId from './components/AllBeersId';
+import BottleBarDisplay from './components/BottleBarDisplay';
 import { CookiesProvider } from 'react-cookie';
 import {
   BrowserRouter as Router,
@@ -14,7 +16,15 @@ class App extends Component {
       <CookiesProvider>
   			<Router>
             <Switch>
-              <Route path="/beamer" component={BeamerRoute}/>
+              <Route
+                path="/beamer"
+                component={BeamerRoute}/>
+              <Route
+                path="/cards"
+                component={AllBeersId}/>
+              <Route
+                path="/bottletv"
+                component={BottleBarDisplay}/>
               <Manager/>
             </Switch>
   			</Router>

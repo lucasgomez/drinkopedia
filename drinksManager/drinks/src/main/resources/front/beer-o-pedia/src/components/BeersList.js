@@ -164,6 +164,8 @@ class BeersList extends Component {
 
         <ReactTable
           className="-striped -highlight"
+          defaultPageSize={25}
+          defaultSorteded={'name'}
           data={items}
           columns={[
             {
@@ -333,8 +335,6 @@ class BeersList extends Component {
         />
 
         <ModalAvailabilityEditor beerToUpdate={this.state.beerToUpdate} onClose={this.componentDidMount}/>
-        <Button className="float-right" onClick={this.temp}>Mu</Button>
-
       </Container>
     );
 
