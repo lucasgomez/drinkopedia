@@ -117,7 +117,8 @@ public class BeersRepository {
         QProducer producer = QProducer.producer;
         QPlace place = QPlace.place;
         QBeer qBeer = QBeer.beer;
-        
+        QTapBeer tap = QTapBeer.tapBeer;
+        QBottledBeer bottle = QBottledBeer.bottledBeer;
         
         Set<BooleanExpression> subConditions = Arrays.stream(searchedString.split(" "))
                 .map(subString -> 
@@ -138,7 +139,10 @@ public class BeersRepository {
         		.leftJoin(qBeer.style, style)
         		.leftJoin(qBeer.producer, producer)
         		.leftJoin(producer.origin, place)
-        		.where(condition)
+        		.leftJoin(qBeer.tap, tap)
+        		.leftJoin(qBeer.bottle, bottle)
+        		.where(condition
+        		        .andAnyOf(tap.isNotNull(), bottle.isNotNull()))
         		.fetch();
     }
     
