@@ -20,6 +20,9 @@ class App extends Component {
                 path="/beamer"
                 component={BeamerRoute}/>
               <Route
+                path="/beamerbottle"
+                component={BeamerBottleRoute}/>
+              <Route
                 path="/cards"
                 component={AllBeersId}/>
               <Route
@@ -37,6 +40,14 @@ const BeamerRoute = ({ match }) => (
   <div>
     <TapBeersDisplay
       listId={666}
+      listName={"bars"}/>
+  </div>
+);
+
+const BeamerBottleRoute = ({ match }) => (
+  <div>
+    <TapBeersDisplay
+      listId={667}
       listName={"bars"}/>
   </div>
 );

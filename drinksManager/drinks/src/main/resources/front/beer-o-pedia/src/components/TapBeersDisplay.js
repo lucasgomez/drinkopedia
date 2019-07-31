@@ -57,7 +57,13 @@ class TapBeersDisplay extends Component {
       .then(response => response.json())
       .then(list =>
         this.setState({
-          items: list.beers.filter(beer => beer.tapAvailability && !['NOT_YET_AVAILABLE', 'OUT_OF_STOCK'].includes(beer.tapAvailability)),
+          items: list.beers.filter(beer => this.isAvailable(beer))
+            .sort((a, b) => {
+              if (a.styleName === b.styleName){
+                return a.name < b.name ? -1 : 1;
+              }
+              return a.styleName < b.styleName ? -1 : 1;
+            }),
           title: list.name,
           listName: listName,
           listId: listId,
@@ -65,6 +71,13 @@ class TapBeersDisplay extends Component {
           isLoading: false
         })
       );
+  }
+
+  isAvailable(beer) {
+    if (beer.tapAvailability)
+      return !['NOT_YET_AVAILABLE', 'OUT_OF_STOCK'].includes(beer.tapAvailability)
+    else
+      return !['NOT_YET_AVAILABLE', 'OUT_OF_STOCK'].includes(beer.bottleAvailability);
   }
 
   renderProducer = (beer) => {
@@ -82,38 +95,72 @@ class TapBeersDisplay extends Component {
       deltaInMinutes = (new Date() - new Date(beer.tapAvailabilityDate)) / (60*1000);
 
     if (beer.tapAssortment === "FIXED")
-      return "dark"
+      return "light"
     else if (beer.tapAvailability === "NEARLY_OUT_OF_STOCK")
       return "danger"
     else if (deltaInMinutes && deltaInMinutes < 60)
-      return "warning"
+      return "success"
     else
-      return "success";
+      return "warning";
   }
 
   getTextColor = (bgColor) => {
-    let lightColors = ["warning", "success"];
+    let lightColors = ["warning", "danger", "light", "success"];
     return lightColors.includes(bgColor)
       ? "dark"
       : "light";
   }
 
   createBeerCard = (beer, isPair) => {
-    debugger;
-    let bgColor = this.getAvailibityColor(beer);
+    let bgColor = null;
+
+    if (beer.tapAvailability)
+      bgColor = this.getAvailibityColor(beer)
+    else
+      bgColor = isPair ? "dark" : "light";
+
     let textColor= this.getTextColor(bgColor);
 
     return (
       <Col>
-        <Card body bg={bgColor} text={textColor} border="light">
-          <h4 class="card-title">{beer.name}<div class="float-right"><h5>{beer.tapPriceSmall}.- / {beer.tapPriceBig}.-</h5></div></h4>
-          <h7 class="card-subtitle mb-2">{this.renderProducer(beer)}</h7>
-          <div>
-            {beer.abv}% <i>{beer.styleName}</i> ({beer.colorName})
-          </div>
+        <Card className="h-100" bg={bgColor} text={textColor} border="light" >
+            {beer.tapAvailability && (
+              <Card.Body style={{padding: '0.5rem'}}>
+                <h3 class="card-title"><b>{beer.name}</b><div class="float-right"><h4><b>{this.formatBeerPrices(beer)}</b></h4></div></h3>
+                <h7 class="card-subtitle mb-2">{this.renderProducer(beer)}</h7>
+                <div><b>{beer.abv}% {beer.bottleVolumeInCl} {beer.bottleVolumeInCl && "cl "}{beer.styleName} ({beer.colorName})</b></div>
+              </Card.Body>
+            )}
+            {beer.bottleAvailability && (
+              <Card.Body style={{padding: '0.5rem'}}>
+                <h1 class="card-title">{beer.name}<div class="float-right"><h2>{this.formatBeerPrices(beer)}</h2></div></h1>
+                <div><b>{beer.abv}% {beer.bottleVolumeInCl} {beer.bottleVolumeInCl && "cl "}{beer.styleName} ({beer.colorName})</b></div>
+              </Card.Body>
+            )}
         </Card>
       </Col>
     );
+  }
+
+  formatBeerPrices(beer) {
+    if (beer.tapAvailability)
+      return (<div align="right">{this.formatTapPrices(beer.tapPriceSmall, beer.tapPriceBig)}</div>)
+    else
+      return (<div align="right">{this.formatPrice(beer.bottleSellingPrice)}</div>);
+  }
+
+  formatPrice(price) {
+      if (!price)
+        return null;
+      else
+        return price.toFixed(2) + ".-";
+  }
+
+  formatTapPrices(priceSmall, priceBig) {
+      if (!priceSmall && !priceBig)
+        return null;
+      else
+        return priceSmall.toFixed(2) + ".- / " +  priceBig.toFixed(2) + ".-";
   }
 
   createTable = (items, rowLength) => {
@@ -146,21 +193,26 @@ class TapBeersDisplay extends Component {
     if (isLoading) {
       return <p > Loading... < /p>;
     }
+    let isTap = items.some(beer => beer.tapAvailability);
+    let numberOfColumns = isTap ? 3 : 4;
+    let title = isTap ? "Pressions - Liste de prix (25 / 50 cL)" : "Bouteilles";
+
     return (
       <Container fluid="true">
         <Row>
-          <h1 class="col text-center"><Emoji symbol="🍺" label="Choppe"/> Pressions - Liste de prix (25 / 50 cL) <Emoji symbol="🍻" label="Choppes faisant santé"/></h1>
+          <h1 class="col text-center"><Emoji symbol="🍺" label="Choppe"/> {title} <Emoji symbol="🍻" label="Choppes faisant santé"/></h1>
         </Row>
 
-        {this.createTable(items, 4)}
+        {this.createTable(items, numberOfColumns)}
 
         <p>{updateTime && 'MàJ : '+('0'+updateTime.getHours()).slice(-2)+":"+('0'+updateTime.getMinutes()).slice(-2)}</p>
-    		<Row className="text-center">
-    			<h5 class="col"><Badge pill variant="dark">Fixe</Badge></h5>
-    			<h5 class="col"><Badge pill variant="warning">Nouvelle</Badge></h5>
-    			<h5 class="col"><Badge pill variant="success">Temporaire</Badge></h5>
-    			<h5 class="col"><Badge pill variant="danger">Bientôt épuisée</Badge></h5>
-    		</Row>
+        {isTap &&
+      		(<Row className="text-center">
+      			<h5 class="col"><Badge pill variant="light">Fixe</Badge></h5>
+      			<h5 class="col"><Badge pill variant="success">Nouvelle</Badge></h5>
+      			<h5 class="col"><Badge pill variant="warning">Temporaire</Badge></h5>
+      			<h5 class="col"><Badge pill variant="danger">Bientôt épuisée</Badge></h5>
+      		</Row>)}
       </Container>
     );
   }
